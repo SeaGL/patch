@@ -1,0 +1,8 @@
+# Application
+/data
+
+# TypeScript
+/dist
+
+# Yarn
+/node_modules

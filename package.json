@@ -1,0 +1,27 @@
+{
+  "name": "patch",
+  "version": "0.0.0",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "16"
+  },
+  "dependencies": {
+    "bottleneck": "^2.19.5",
+    "luxon": "^2.0.2",
+    "matrix-bot-sdk": "^0.5.19",
+    "matrix-js-sdk": "^12.5.0",
+    "node-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.2",
+    "@types/luxon": "^2.0.3",
+    "@types/node": "^16.7.10",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/tsc",
+    "start": "node ./dist/main.js"
+  }
+}

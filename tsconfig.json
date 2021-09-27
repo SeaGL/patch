@@ -1,0 +1,11 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "noImplicitAny": false,
+    "outDir": "dist",
+  }
+}
