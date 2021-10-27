@@ -89,17 +89,17 @@ const config = {
       throw error;
     }
 
-    space = await limiter.schedule(() =>
-      client.createSpace({
-        avatarUrl: spaceSpec.avatar,
-        isPublic: true,
-        localpart: spaceSpec.localAlias,
-        name: spaceSpec.name,
-        topic: spaceSpec.topic,
-      })
-    );
-    joinedRoomIds.add(space.roomId);
-    createdSpace = true;
+//    space = await limiter.schedule(() =>
+//      client.createSpace({
+//        avatarUrl: spaceSpec.avatar,
+//        isPublic: true,
+//        localpart: spaceSpec.localAlias,
+//        name: spaceSpec.name,
+//        topic: spaceSpec.topic,
+//      })
+//    );
+//    joinedRoomIds.add(space.roomId);
+//    createdSpace = true;
     console.info("🏘️ Created space: %j", {
       roomId: space.roomId,
       spec: spaceSpec,
@@ -136,12 +136,12 @@ const config = {
         topic: "Conference Session · Code of Conduct: seagl.org/coc",
         welcome:
           "Squawk! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This room is dedicated to a single conference session. See {space} for a listing of all rooms.",
-        widget: {
-          avatar: config.avatars.videoStream,
-          name: "Video Stream",
-          stateKey: "patch",
-          url: "https://attend.seagl.org/widgets/video-stream.html",
-        },
+//        widget: {
+//          avatar: config.avatars.videoStream,
+//          name: "Video Stream",
+//          stateKey: "patch",
+//          url: "https://attend.seagl.org/widgets/video-stream.html",
+//        },
       };
     });
   };
@@ -156,12 +156,12 @@ const config = {
       topic: "General Discussion · Code of Conduct: seagl.org/coc",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for general discussion. See {space} for a listing of all rooms.",
-      widget: {
-        avatar: config.avatars.seagl,
-        name: "Welcome",
-        stateKey: "patch",
-        url: "https://attend.seagl.org/widgets/welcome.html",
-      },
+//      widget: {
+//        avatar: config.avatars.seagl,
+//        name: "Welcome",
+//        stateKey: "patch",
+//        url: "https://attend.seagl.org/widgets/welcome.html",
+//      },
     },
     ...(await getOsemRoomSpecs("seagl2020")),
   ];
@@ -187,39 +187,39 @@ const config = {
               content: { history_visibility: "world_readable" },
             },
             {
-              type: "org.seagl.patch",
+              type: "org.seagl.2021roomgenerator",
               state_key: "",
               content: { id: spec.id },
             },
-            ...(spec.widget
-              ? [
-                  {
-                    type: "im.vector.modular.widgets",
-                    state_key: spec.widget.stateKey,
-                    content: {
-                      type: "customwidget",
-                      creatorUserId: userId,
-                      name: spec.widget.name,
-                      avatar_url: spec.widget.avatar,
-                      url: spec.widget.url,
-                    },
-                  },
-                  {
-                    type: "io.element.widgets.layout",
-                    state_key: "",
-                    content: {
-                      widgets: {
-                        [spec.widget.stateKey]: {
-                          container: "top",
-                          height: 25,
-                          width: 100,
-                          index: 0,
-                        },
-                      },
-                    },
-                  },
-                ]
-              : []),
+//            ...(spec.widget
+//              ? [
+//                  {
+//                    type: "im.vector.modular.widgets",
+//                    state_key: spec.widget.stateKey,
+//                    content: {
+//                      type: "customwidget",
+//                      creatorUserId: userId,
+//                      name: spec.widget.name,
+//                      avatar_url: spec.widget.avatar,
+//                      url: spec.widget.url,
+//                    },
+//                  },
+//                  {
+//                    type: "io.element.widgets.layout",
+//                    state_key: "",
+//                    content: {
+//                      widgets: {
+//                        [spec.widget.stateKey]: {
+//                          container: "top",
+//                          height: 25,
+//                          width: 100,
+//                          index: 0,
+//                        },
+//                      },
+//                    },
+//                  },
+//                ]
+//              : []),
           ],
           name: spec.name,
           preset: "public_chat",
