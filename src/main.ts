@@ -163,7 +163,7 @@ const config = {
 //        url: "https://attend.seagl.org/widgets/welcome.html",
 //      },
     },
-    ...(await getOsemRoomSpecs("seagl2020")),
+    ...(await getOsemRoomSpecs("seagl2021")),
   ];
   for (const spec of roomsSpec) {
     let roomId = roomIdById.get(spec.id);
