@@ -45,7 +45,7 @@ const config = {
   const getCustomData = async (roomId) => {
     try {
       return await limiter.schedule(() =>
-        client.getRoomStateEvent(roomId, "org.seagl.patch", "")
+        client.getRoomStateEvent(roomId, "org.seagl.2021roomgenerator", "")
       );
     } catch (error: any) {
       if (error.body?.errcode !== "M_NOT_FOUND") {
@@ -139,7 +139,7 @@ const config = {
 //        widget: {
 //          avatar: config.avatars.videoStream,
 //          name: "Video Stream",
-//          stateKey: "patch",
+//          stateKey: "2021roomgenerator",
 //          url: "https://attend.seagl.org/widgets/video-stream.html",
 //        },
       };
@@ -159,7 +159,7 @@ const config = {
 //      widget: {
 //        avatar: config.avatars.seagl,
 //        name: "Welcome",
-//        stateKey: "patch",
+//        stateKey: "2021roomgenerator",
 //        url: "https://attend.seagl.org/widgets/welcome.html",
 //      },
     },
