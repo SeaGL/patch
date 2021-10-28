@@ -8,7 +8,7 @@ import {
 } from "matrix-bot-sdk";
 import { AutoDiscovery } from "matrix-js-sdk";
 import fetch from "node-fetch";
-import { env } from "./utilities";
+import { env } from "./utilities.js";
 
 Settings.defaultZone = "America/Los_Angeles";
 
@@ -16,12 +16,12 @@ const config = {
   homeserver: env("MATRIX_HOMESERVER"),
   accessToken: env("MATRIX_ACCESS_TOKEN"),
 
-  avatars: {
-    home: "mxc://kvalhe.im/cXGNnZfJTYtnTbGIUptUmCsm",
-    presentation: "mxc://kvalhe.im/JQhaLcmOzIYdRsQfWiqMCkFA",
-    seagl: "mxc://kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",
-    videoStream: "mxc://kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
-  },
+//  avatars: {
+//    home: "mxc://kvalhe.im/cXGNnZfJTYtnTbGIUptUmCsm",
+//    presentation: "mxc://kvalhe.im/JQhaLcmOzIYdRsQfWiqMCkFA",
+//    seagl: "mxc://kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",
+//    videoStream: "mxc://kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
+//  },
   staffRoom: "!pQraPupVjTcEUwBmSt:seattlematrix.org", // #SeaGL-test:seattlematrix.org
 };
 
@@ -72,7 +72,7 @@ const config = {
 
   // Find or create space
   const spaceSpec = {
-    avatar: config.avatars.seagl,
+//    avatar: config.avatars.seagl,
     localAlias: "SeaGL2021",
     name: "SeaGL 2021",
     topic: "Virtual Conference",
@@ -101,7 +101,7 @@ const config = {
 //    joinedRoomIds.add(space.roomId);
 //    createdSpace = true;
     console.info("🏘️ Created space: %j", {
-      roomId: space.roomId,
+//      roomId: space.roomId,
       spec: spaceSpec,
     });
   }
@@ -129,7 +129,7 @@ const config = {
       const beginning = DateTime.fromISO(record.attributes.beginning);
 
       return {
-        avatar: config.avatars.presentation,
+//        avatar: config.avatars.presentation,
         id: `seagl2021-osem-${type}-${id}`,
         name: `${beginning.toFormat("EEE HH:mm")} ${record.attributes.title}`,
         sortKey: "100",
@@ -147,7 +147,7 @@ const config = {
   };
   const roomsSpec = [
     {
-      avatar: config.avatars.home,
+//      avatar: config.avatars.home,
       id: "seagl2021-general",
       localAlias: "SeaGL2021-General",
       name: "General",
@@ -171,11 +171,11 @@ const config = {
       roomId = await limiter.schedule(() =>
         client.createRoom({
           initial_state: [
-            {
-              type: "m.room.avatar",
-              state_key: "",
-              content: { url: spec.avatar },
-            },
+//            {
+//              type: "m.room.avatar",
+//              state_key: "",
+//              content: { url: spec.avatar },
+//            },
             {
               type: "m.room.guest_access",
               state_key: "",
