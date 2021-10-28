@@ -22,7 +22,7 @@ const config = {
 //    seagl: "mxc://kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",
 //    videoStream: "mxc://kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
 //  },
-  staffRoom: "!pQraPupVjTcEUwBmSt:seattlematrix.org", // #SeaGL-test:seattlematrix.org
+//  staffRoom: "!pQraPupVjTcEUwBmSt:seattlematrix.org", // #SeaGL-test:seattlematrix.org
 };
 
 (async () => {
@@ -107,12 +107,12 @@ const config = {
   }
   variables.space = (await MentionPill.forRoom(space.roomId, client)).html;
 
-  // Add staff room to space
-  if (createdSpace && joinedRoomIds.has(config.staffRoom)) {
-    await limiter.schedule(() =>
-      space.addChildRoom(config.staffRoom, { order: "800" })
-    );
-  }
+//  // Add staff room to space
+//  if (createdSpace && joinedRoomIds.has(config.staffRoom)) {
+//    await limiter.schedule(() =>
+//      space.addChildRoom(config.staffRoom, { order: "800" })
+//    );
+//  }
 
   // Find or create rooms
   const getOsemRoomSpecs = async (slug) => {
@@ -169,6 +169,7 @@ const config = {
       localAlias: "SeaGL2021-Welcome",
       name: "Welcome | #SeaGL2021",
       sortKey: "010",
+      subspace: "",
       suggested: true,
       topic: "",
     },
@@ -178,6 +179,7 @@ const config = {
       localAlias: "SeaGL2021-Announcements",
       name: "Announcements | #SeaGL2021",
       sortKey: "011",
+      subspace: "",
       suggested: true,
       topic: "",
     },
@@ -187,6 +189,7 @@ const config = {
       localAlias: "SeaGL2021-Talks-Current",
       name: "Current Talks | #SeaGL2021",
       sortKey: "020",
+      subspace: "",
       suggested: true,
       topic: "",
     },
@@ -196,6 +199,7 @@ const config = {
       localAlias: "SeaGL2021-hallway",
       name: "Hallway | #SeaGL2021",
       sortKey: "030",
+      subspace: "",
       suggested: true,
       topic: "",
     },
@@ -205,6 +209,7 @@ const config = {
       localAlias: "SeaGL2021-Social",
       name: "Social | #SeaGL2021",
       sortKey: "031",
+      subspace: "hallway",
       suggested: true,
       topic: "",
     },
@@ -214,6 +219,7 @@ const config = {
       localAlias: "SeaGL2021-Sponsors",
       name: "Sponsors | #SeaGL2021",
       sortKey: "032",
+      subspace: "hallway",
       suggested: true,
       topic: "",
     },
@@ -223,6 +229,7 @@ const config = {
       localAlias: "SeaGL2021-Information",
       name: "Information | #SeaGL2021",
       sortKey: "040",
+      subspace: "",
       suggested: true,
       topic: "",
     },
@@ -232,6 +239,7 @@ const config = {
       localAlias: "SeaGL2021-Info-Booth",
       name: "Info Booth | #SeaGL2021",
       sortKey: "041",
+      subspace: "information",
       suggested: true,
       topic: "",
     },
@@ -241,6 +249,7 @@ const config = {
       localAlias: "SeaGL2021-Bot-Help",
       name: "Bot Help | #SeaGL2021",
       sortKey: "042",
+      subspace: "information",
       suggested: true,
       topic: "",
     },
@@ -250,6 +259,7 @@ const config = {
       localAlias: "SeaGL2021-Speaker-Help",
       name: "Speaker Help | #SeaGL2021",
       sortKey: "043",
+      subspace: "information",
       suggested: false,
       topic: "",
     },
@@ -259,6 +269,7 @@ const config = {
       localAlias: "SeaGL2021-sponsor-help",
       name: "Sponsor Help | #SeaGL2021",
       sortKey: "044",
+      subspace: "information",
       suggested: false,
       topic: "",
     },
@@ -268,6 +279,7 @@ const config = {
       localAlias: "SeaGL2021-Volunteering",
       name: "Volunteering | #SeaGL2021",
       sortKey: "045",
+      subspace: "information",
       suggested: false,
       topic: "",
     },
@@ -277,6 +289,7 @@ const config = {
       localAlias: "SeaGL2021-Talks-Upcoming",
       name: "Upcoming Talks | #SeaGL2021",
       sortKey: "100",
+      subspace: "",
       suggested: false,
       topic: "",
     },
@@ -286,6 +299,7 @@ const config = {
       localAlias: "SeaGL2021-Talks-Completed",
       name: "Completed Talks | #SeaGL2021",
       sortKey: "200",
+      subspace: "",
       suggested: false,
       topic: "",
     },
@@ -295,6 +309,7 @@ const config = {
       localAlias: "SeaGL2021-Restricted",
       name: "Restricted | #SeaGL2021",
       sortKey: "300",
+      subspace: "",
       suggested: false,
       topic: "",
     },
@@ -304,6 +319,7 @@ const config = {
       localAlias: "SeaGL2021-Orchestration",
       name: "Orchestration | #SeaGL2021",
       sortKey: "310",
+      subspace: "restricted",
       suggested: false,
       topic: "",
     },
@@ -313,14 +329,60 @@ const config = {
       localAlias: "SeaGL2021-Volunteers",
       name: "Volunteers | #SeaGL2021",
       sortKey: "320",
+      subspace: "restricted",
       suggested: false,
       topic: "",
     },
-//    add #SeaGL-Triage
-//    add #SeaGL-Tech
-//    add #SeaGL-Test
-//    add #SeaGL-Staff
-//    add #SeaGL-Bot-Log
+    {
+//      avatar: config.avatars.home,
+      id: "seagl-triage",
+      localAlias: "SeaGL-Triage",
+      name: "SeaGL Triage",
+      sortKey: "330",
+      subspace: "restricted",
+      suggested: false,
+      topic: "",
+    },
+    {
+//      avatar: config.avatars.home,
+      id: "seagl-tech",
+      localAlias: "SeaGL-Tech",
+      name: "SeaGL Tech",
+      sortKey: "340",
+      subspace: "restricted",
+      suggested: false,
+      topic: "",
+    },
+    {
+//      avatar: config.avatars.home,
+      id: "seagl-test",
+      localAlias: "SeaGL-Test",
+      name: "SeaGL Test",
+      sortKey: "350",
+      subspace: "restricted",
+      suggested: false,
+      topic: "",
+    },
+    {
+//      avatar: config.avatars.home,
+      id: "seagl-staff",
+      localAlias: "SeaGL-Staff",
+      name: "SeaGL Staff",
+      sortKey: "360",
+      subspace: "restricted",
+      suggested: false,
+      topic: "",
+    },
+    {
+//      avatar: config.avatars.home,
+      id: "seagl-bot-log",
+      localAlias: "SeaGL-Bot-Log",
+      name: "SeaGL Bot Log",
+      sortKey: "370",
+      subspace: "restricted",
+      suggested: false,
+      topic: "",
+    },
 //    ...(await getOsemRoomSpecs("seagl2021")),
   ];
   for (const spec of roomsSpec) {
@@ -379,7 +441,18 @@ const config = {
 //                ]
 //              : []),
           ],
+          invite: [
+            "@Salt:matrix.org",
+            "@salt:seattlematrix.org",
+          ],
           name: spec.name,
+          power_level_content_override: {
+            "users": {
+              "@salt:sal.td": 100,
+              "@Salt:matrix.org": 10,
+              "@salt:seattlematrix.org": 50,
+            }
+          },
           preset: "public_chat",
           room_alias_name: spec.localAlias,
           room_version: "9",
@@ -390,22 +463,72 @@ const config = {
       roomIdById.set(spec.id, roomId);
       joinedRoomIds.add(roomId);
       console.info("🏠 Created room: %j", { roomId, spec });
-      await limiter.schedule(() =>
-        space.addChildRoom(roomId, {
-          order: spec.sortKey,
-          suggested: spec.suggested,
-        })
-      );
-      await limiter.schedule(() =>
-        client.sendHtmlNotice(
-          roomId,
-          spec.welcome.replaceAll(/{(\w+)}/g, (_, name) => variables[name])
-        )
-      );
+      if (spec.subspace === "") {
+        await limiter.schedule(() =>
+          space.addChildRoom(roomId, {
+            order: spec.sortKey,
+            suggested: spec.suggested,
+          })
+        );
+      }
+//      await limiter.schedule(() =>
+//        client.sendHtmlNotice(
+//          roomId,
+//          spec.welcome.replaceAll(/{(\w+)}/g, (_, name) => variables[name])
+//        )
+//      );
     } else {
       console.info("🏠 Room exists: %j", { id: spec.id, roomId });
     }
   }
+
+  // Add rooms to correct subspaces
+  const currentTalksSpaceAlias = `#SeaGL2021-Talks-Current:${config.homeserver}`;
+  const hallwaySpaceAlias = `#SeaGL2021-hallway:${config.homeserver}`;
+  const informationSpaceAlias = `#SeaGL2021-Information:${config.homeserver}`;
+  const upcomingTalksSpaceAlias = `#SeaGL2021-Talks-Upcoming:${config.homeserver}`;
+  const completedTalksSpaceAlias = `#SeaGL2021-Talks-Completed:${config.homeserver}`;
+  const restrictedSpaceAlias = `#SeaGL2021-Restricted:${config.homeserver}`;
+
+  currentTalksSpace = await limiter.schedule(() => client.getSpace(currentTalksSpaceAlias));
+  hallwaySpace = await limiter.schedule(() => client.getSpace(hallwaySpaceAlias));
+  informationSpace = await limiter.schedule(() => client.getSpace(informationSpaceAlias));
+  upcomingTalksSpace = await limiter.schedule(() => client.getSpace(upcomingTalksSpaceAlias));
+  completedTalksSpace = await limiter.schedule(() => client.getSpace(completedTalksSpaceAlias));
+  restrictedSpace = await limiter.schedule(() => client.getSpace(restrictedSpaceAlias));
+
+  for (const spec of roomsSpec) {
+    let roomId = roomIdById.get(spec.id);
+    if (roomId !== undefined) {
+      if (spec.subspace === "hallway") {
+        await limiter.schedule(() =>
+          hallwaySpace.addChildRoom(roomId, {
+            order: spec.sortKey,
+            suggested: spec.suggested,
+          })
+        );
+      }
+      if (spec.subspace === "information") {
+        await limiter.schedule(() =>
+          informationSpace.addChildRoom(roomId, {
+            order: spec.sortKey,
+            suggested: spec.suggested,
+          })
+        );
+      }
+      if (spec.subspace === "restricted") {
+        await limiter.schedule(() =>
+          restrictedSpace.addChildRoom(roomId, {
+            order: spec.sortKey,
+            suggested: spec.suggested,
+          })
+        );
+      }
+    } else {
+      console.info("🏠 Room has not yet been created: %j", { id: spec.id });
+    }
+  }
+
 
 //  // Handle invitations
 //  client.on("room.invite", async (roomId, event) => {
