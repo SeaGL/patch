@@ -407,62 +407,62 @@ const config = {
     }
   }
 
-  // Handle invitations
-  client.on("room.invite", async (roomId, event) => {
-    if (roomId === config.staffRoom) {
-      console.info("💌 Accepting invitation: %j", { roomId, event });
-      await limiter.schedule(() => client.joinRoom(roomId));
-      await limiter.schedule(() =>
-        client.sendHtmlNotice(
-          roomId,
-          "Squawk! I’m <strong>Patch</strong> (they/them), the SeaGL mascot."
-        )
-      );
+//  // Handle invitations
+//  client.on("room.invite", async (roomId, event) => {
+//    if (roomId === config.staffRoom) {
+//      console.info("💌 Accepting invitation: %j", { roomId, event });
+//      await limiter.schedule(() => client.joinRoom(roomId));
+//      await limiter.schedule(() =>
+//        client.sendHtmlNotice(
+//          roomId,
+//          "Squawk! I’m <strong>Patch</strong> (they/them), the SeaGL mascot."
+//        )
+//      );
 
-      if (space !== undefined) {
-        await limiter.schedule(() =>
-          space.addChildRoom(roomId, { order: "800" })
-        );
-        await limiter.schedule(() =>
-          client.sendHtmlNotice(roomId, `Come join me in ${variables.space}!`)
-        );
-      }
-    } else {
-      console.warn("🗑️ Rejecting invitation: %j", { roomId, event });
-      await limiter.schedule(() => client.leaveRoom(roomId));
-    }
-  });
+//      if (space !== undefined) {
+//        await limiter.schedule(() =>
+//          space.addChildRoom(roomId, { order: "800" })
+//        );
+//        await limiter.schedule(() =>
+//          client.sendHtmlNotice(roomId, `Come join me in ${variables.space}!`)
+//        );
+//      }
+//    } else {
+//      console.warn("🗑️ Rejecting invitation: %j", { roomId, event });
+//      await limiter.schedule(() => client.leaveRoom(roomId));
+//    }
+//  });
 
-  // Handle kicks
-  client.on("room.leave", async (roomId, event) => {
-    if (event.sender !== userId) {
-      console.warn("👮 Got kicked: %j", { roomId, event });
-    }
-  });
+//  // Handle kicks
+//  client.on("room.leave", async (roomId, event) => {
+//    if (event.sender !== userId) {
+//      console.warn("👮 Got kicked: %j", { roomId, event });
+//    }
+//  });
 
-  // Handle staff commands
-  client.on("room.message", async (roomId, event) => {
-    if (
-      !(
-        event?.content?.msgtype === "m.text" &&
-        event.sender !== userId &&
-        event?.content?.body?.startsWith("!")
-      )
-    ) {
-      return;
-    }
+//  // Handle staff commands
+//  client.on("room.message", async (roomId, event) => {
+//    if (
+//      !(
+//        event?.content?.msgtype === "m.text" &&
+//        event.sender !== userId &&
+//        event?.content?.body?.startsWith("!")
+//      )
+//    ) {
+//      return;
+//    }
 
-    if (!(roomId === config.staffRoom && event?.content?.body === "!hello")) {
-      console.warn("⚠️ Ignoring command: %j", { roomId, event });
-      return;
-    }
+//    if (!(roomId === config.staffRoom && event?.content?.body === "!hello")) {
+//      console.warn("⚠️ Ignoring command: %j", { roomId, event });
+//      return;
+//    }
 
-    const text = "Hello World!";
-    const content = RichReply.createFor(roomId, event, text, text);
-    content.msgtype = "m.notice";
+//    const text = "Hello World!";
+//    const content = RichReply.createFor(roomId, event, text, text);
+//    content.msgtype = "m.notice";
 
-    await limiter.schedule(() => client.sendMessage(roomId, content));
-  });
+//    await limiter.schedule(() => client.sendMessage(roomId, content));
+//  });
 
   // Start
   await client.start();
