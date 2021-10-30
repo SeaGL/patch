@@ -23,6 +23,18 @@ const config = {
 //    videoStream: "mxc://kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
 //  },
 //  staffRoom: "!pQraPupVjTcEUwBmSt:seattlematrix.org", // #SeaGL-test:seattlematrix.org
+
+    staff: [
+      "@Salt:matrix.org",
+      "@salt:seattlematrix.org",
+    ],
+    staff_power: {
+      "users": {
+        "@salt:sal.td": 100,
+        "@Salt:matrix.org": 10,
+        "@salt:seattlematrix.org": 50,
+      }
+    },
 };
 
 (async () => {
@@ -85,17 +97,6 @@ const config = {
       isPublic: true,
       localAlias: "SeaGL2021-Main",
       name: "SeaGL 2021",
-      invite: [
-        "@Salt:matrix.org",
-        "@salt:seattlematrix.org",
-      ],
-      power_level_content_override: {
-        "users": {
-          "@salt:sal.td": 100,
-          "@Salt:matrix.org": 10,
-          "@salt:seattlematrix.org": 50,
-        }
-      },
       suggested: true,
       topic: "Welcome to the #SeaGL2021 Space! Here you'll find a variety of conference rooms. Please look around, introduce yourself in #SeaGL2021-welcome , and ask any questions! | Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc",
     },
@@ -177,9 +178,11 @@ const config = {
         space = await limiter.schedule(() =>
           client.createSpace({
   //          avatarUrl: spec.avatar,
+            invites: config.staff,
             isPublic: spec.isPublic,
             localpart: spec.localAlias,
             name: spec.name,
+  //          power_level_content_override: config.staff_power,
   //          room_version: "9",
             topic: spec.topic,
           })
@@ -192,6 +195,7 @@ const config = {
             isPublic: spec.isPublic,
             localpart: spec.localAlias,
             name: spec.name,
+  //          power_level_content_override: config.staff_power,
   //          room_version: "9",
             topic: spec.topic,
           })
@@ -514,13 +518,7 @@ const config = {
 //              : []),
           ],
           name: spec.name,
-          power_level_content_override: {
-            "users": {
-              "@salt:sal.td": 100,
-              "@Salt:matrix.org": 10,
-              "@salt:seattlematrix.org": 50,
-            }
-          },
+          power_level_content_override: config.staff_power,
           preset: "public_chat",
           room_alias_name: spec.localAlias,
           room_version: "9",
