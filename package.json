@@ -22,6 +22,7 @@
   },
   "scripts": {
     "build": "./node_modules/.bin/tsc",
-    "start": "node ./dist/main.js"
+    "start": "node ./dist/main.js",
+    "test": "node ./dist/testing.js"
   }
 }

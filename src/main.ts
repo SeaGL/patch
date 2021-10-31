@@ -285,8 +285,7 @@ const config = {
       records.set(`${record.type}-${record.id}`, record);
     }
 
-//    return response.data.relationships.events.data.map(({ id, type }) => {
-    const response_map_test = response.data.relationships.events.data.map(({ id, type }) => {
+    return response.data.relationships.events.data.map(({ id, type }) => {
       const record = records.get(`${type}-${id}`);
       const beginning = DateTime.fromISO(record.attributes.beginning);
 
@@ -307,10 +306,6 @@ const config = {
 //        },
       };
     });
-    
-    console.error(response_map_test);
-    process.exitCode = 1;
-    return response_map_test;
   };
   const roomsSpec = [
     {
@@ -775,6 +770,14 @@ const config = {
   // Start
   await client.start();
   console.info("🟢 Ready: %j", { userId, joinedRoomIds });
+  if (createdSpaces) {
+    await limiter.schedule(() =>
+      client.sendHtmlNotice(
+        roomIdById.get("seagl2021-orchestration"),
+        `Come join me in ${variables.mainSpace}!`
+      )
+    );
+  }
 //  if (createdSpace && joinedRoomIds.has(config.staffRoom)) {
 //    await limiter.schedule(() =>
 //      client.sendHtmlNotice(
