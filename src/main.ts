@@ -29,11 +29,9 @@ const config = {
       "@salt:seattlematrix.org",
     ],
     staff_power: {
-      "users": {
-        "@salt:sal.td": 100,
-        "@Salt:matrix.org": 10,
-        "@salt:seattlematrix.org": 50,
-      }
+      "@salt:sal.td": 100,
+      "@Salt:matrix.org": 10,
+      "@salt:seattlematrix.org": 50,
     },
 };
 
@@ -201,6 +199,14 @@ const config = {
           })
         );
       }
+      // set default space power_levels
+      const currentLevels = await limiter.schedule(() =>
+        client.getRoomStateEvent(space.roomId, "m.room.power_levels", "")
+      );
+      currentLevels['users'] = config.staff_power;
+      await limiter.schedule(() =>
+        client.sendStateEvent(space.roomId, "m.room.power_levels", "", currentLevels)
+      );
       joinedRoomIds.add(space.roomId);
       console.info("🏘️ Created space: %j", {
         roomId: space.roomId,
@@ -518,7 +524,9 @@ const config = {
 //              : []),
           ],
           name: spec.name,
-          power_level_content_override: config.staff_power,
+          power_level_content_override: {
+            "users": config.staff_power
+          },
           preset: "public_chat",
           room_alias_name: spec.localAlias,
           room_version: "9",
