@@ -16,22 +16,59 @@ const config = {
   homeserver: env("MATRIX_HOMESERVER"),
   accessToken: env("MATRIX_ACCESS_TOKEN"),
 
-//  avatars: {
-//    home: "mxc://kvalhe.im/cXGNnZfJTYtnTbGIUptUmCsm",
-//    presentation: "mxc://kvalhe.im/JQhaLcmOzIYdRsQfWiqMCkFA",
-//    seagl: "mxc://kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",
-//    videoStream: "mxc://kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
-//  },
+  avatars: {
+    seagl_logo_w_mic: "mxc://sal.td/abNlvOvvkVvujQYlAHGCJQJu",
+//    home: "mxc:kvalhe.im/cXGNnZfJTYtnTbGIUptUmCsm",
+//    presentation: "mxc:kvalhe.im/JQhaLcmOzIYdRsQfWiqMCkFA",
+//    seagl: "mxc:kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",
+//    videoStream: "mxc:kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
+  },
 //  staffRoom: "!pQraPupVjTcEUwBmSt:seattlematrix.org", // #SeaGL-test:seattlematrix.org
 
     staff: [
-      "@Salt:matrix.org",
+//      "@Salt:matrix.org",
       "@salt:seattlematrix.org",
+      "@salt:sal.td",
+      "@tree:seattlematrix.org",
     ],
-    staff_power: {
-      "@salt:sal.td": 100,
-      "@Salt:matrix.org": 10,
-      "@salt:seattlematrix.org": 50,
+//    staff_power_levels: {
+//      "@seagl-bot:seattlematrix.org": 99,
+//      "@salt:sal.td": 100,
+//      "@Salt:matrix.org": 50,
+//      "@salt:seattlematrix.org": 99,
+//    },
+    
+    default_power_levels: {
+      "users": {
+        "@seagl-bot:seattlematrix.org": 99,
+        "@Salt:matrix.org": 50,
+        "@salt:seattlematrix.org": 50,
+        "@salt:sal.td": 100,
+        "@tree:seattlematrix.org": 99,
+      },
+      "users_default": 0,
+      "events": {
+        "m.room.name": 50,
+        "m.room.power_levels": 99,
+        "m.room.history_visibility": 99,
+        "m.room.canonical_alias": 50,
+        "m.room.avatar": 50,
+        "m.room.tombstone": 100,
+        "m.room.server_acl": 100,
+        "m.room.encryption": 100,
+        "m.room.topic": 50,
+        "im.vector.modular.widgets": 99,
+      },
+      "events_default": 0,
+      "state_default": 99,
+      "ban": 50,
+      "kick": 50,
+      "redact": 50,
+      "invite": 50,
+      "historical": 99,
+      "notifications": {
+        "room": 50,
+      },
     },
 };
 
@@ -79,85 +116,85 @@ const config = {
   let createdSpaces = false;
   let space;
   let mainSpace;
-  let currentTalksSpace;
+  let currentSessionsSpace;
   let hallwaySpace;
   let informationSpace;
-  let upcomingTalksSpace;
-  let completedTalksSpace;
+  let upcomingSessionsSpace;
+  let completedSessionsSpace;
   let restrictedSpace;
   const variables: Record<string, string> = {};
 
   // Find or create space
   const spacesSpec = [
     {
-  //    avatar: config.avatars.seagl,
-      id: "seagl2021-main",
+      avatar: config.avatars.seagl_logo_w_mic,
+      id: "seagl2021-test-main",
       isPublic: true,
-      localAlias: "SeaGL2021-Main",
+      localAlias: "SeaGL2021-test-Main",
       name: "SeaGL 2021",
       suggested: true,
       topic: "Welcome to the #SeaGL2021 Space! Here you'll find a variety of conference rooms. Please look around, introduce yourself in #SeaGL2021-welcome , and ask any questions! | Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc",
     },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-talks-current",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-sessions-current",
 //      isPublic: true,
-//      localAlias: "SeaGL2021-Talks-Current",
-//      name: "Current Talks | #SeaGL2021",
+//      localAlias: "SeaGL2021-test-Sessions-Current",
+//      name: "Current Sessions | #SeaGL2021",
 //      sortKey: "020",
 //      suggested: true,
 //      topic: "",
 //    },
     {
-//      avatar: config.avatars.home,
-      id: "seagl2021-hallway",
+      avatar: config.avatars.seagl_logo_w_mic,
+      id: "seagl2021-test-hallway",
       isPublic: true,
-      localAlias: "SeaGL2021-Hallway",
+      localAlias: "SeaGL2021-test-Hallway",
       name: "Hallway | #SeaGL2021",
       sortKey: "030",
       suggested: true,
       topic: "",
     },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-information",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-information",
 //      isPublic: true,
-//      localAlias: "SeaGL2021-Information",
+//      localAlias: "SeaGL2021-test-Information",
 //      name: "Information | #SeaGL2021",
 //      sortKey: "040",
 //      suggested: true,
 //      topic: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-talks-upcoming",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-sessions-upcoming",
 //      isPublic: true,
-//      localAlias: "SeaGL2021-Talks-Upcoming",
-//      name: "Upcoming Talks | #SeaGL2021",
+//      localAlias: "SeaGL2021-test-Sessions-Upcoming",
+//      name: "Upcoming Sessions | #SeaGL2021",
 //      sortKey: "100",
 //      suggested: false,
 //      topic: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-talks-completed",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-sessions-completed",
 //      isPublic: false,
-//      localAlias: "SeaGL2021-Talks-Completed",
-//      name: "Completed Talks | #SeaGL2021",
+//      localAlias: "SeaGL2021-test-Sessions-Completed",
+//      name: "Completed Sessions | #SeaGL2021",
 //      sortKey: "200",
 //      suggested: false,
 //      topic: "",
 //    },
-//    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-restricted",
-//      isPublic: false,
-//      localAlias: "SeaGL2021-Restricted",
-//      name: "Restricted | #SeaGL2021",
-//      sortKey: "300",
-//      suggested: false,
-//      topic: "",
-//    },
+    {
+      avatar: config.avatars.seagl_logo_w_mic,
+      id: "seagl2021-test-restricted",
+      isPublic: false,
+      localAlias: "SeaGL2021-test-Restricted",
+      name: "Restricted | #SeaGL2021",
+      sortKey: "300",
+      suggested: false,
+      topic: "",
+    },
   ];
   for (const spec of spacesSpec) {
     const spaceAlias = `#${spec.localAlias}:${config.homeserver}`;
@@ -172,40 +209,42 @@ const config = {
         throw error;
       }
 
-      if (spec.id === "seagl2021-main") {
+      if (spec.id === "seagl2021-test-main") {
         space = await limiter.schedule(() =>
           client.createSpace({
-  //          avatarUrl: spec.avatar,
+            avatarUrl: spec.avatar,
             invites: config.staff,
             isPublic: spec.isPublic,
             localpart: spec.localAlias,
             name: spec.name,
-  //          power_level_content_override: config.staff_power,
   //          room_version: "9",
             topic: spec.topic,
           })
         );
         mainSpace = space;
+        variables.mainSpace = (await MentionPill.forRoom(mainSpace.roomId, client)).html;
       } else {
         space = await limiter.schedule(() =>
           mainSpace.createChildSpace({
-  //          avatarUrl: spec.avatar,
+            avatarUrl: spec.avatar,
             isPublic: spec.isPublic,
             localpart: spec.localAlias,
             name: spec.name,
-  //          power_level_content_override: config.staff_power,
   //          room_version: "9",
             topic: spec.topic,
           })
         );
       }
       // set default space power_levels
-      const currentLevels = await limiter.schedule(() =>
-        client.getRoomStateEvent(space.roomId, "m.room.power_levels", "")
-      );
-      currentLevels['users'] = config.staff_power;
+//      const currentLevels = await limiter.schedule(() =>
+//        client.getRoomStateEvent(space.roomId, "m.room.power_levels", "")
+//      );
+//      currentLevels['users'] = config.staff_power;
+//      await limiter.schedule(() =>
+//        client.sendStateEvent(space.roomId, "m.room.power_levels", "", currentLevels)
+//      );
       await limiter.schedule(() =>
-        client.sendStateEvent(space.roomId, "m.room.power_levels", "", currentLevels)
+        client.sendStateEvent(space.roomId, "m.room.power_levels", "", config.default_power_levels)
       );
       joinedRoomIds.add(space.roomId);
       console.info("🏘️ Created space: %j", {
@@ -214,14 +253,20 @@ const config = {
       });
     }
   }
-//  currentTalksSpace = await limiter.schedule(() => client.getSpace("#SeaGL2021-Talks-Current:sal.td"));
-  hallwaySpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Hallway:sal.td`));
-//  informationSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Information:sal.td`));
-//  upcomingTalksSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Talks-Upcoming:sal.td`));
-//  completedTalksSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Talks-Completed:sal.td`));
-//  restrictedSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Restricted:sal.td`));
+  mainSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Main:sal.td`));
+//  currentSessionsSpace = await limiter.schedule(() => client.getSpace("#SeaGL2021-test-Sessions-Current:sal.td"));
+  hallwaySpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Hallway:sal.td`));
+//  informationSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Information:sal.td`));
+//  upcomingSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Sessions-Upcoming:sal.td`));
+//  completedSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Sessions-Completed:sal.td`));
+  restrictedSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Restricted:sal.td`));
+//  variables.currentSessionsSpace = (await MentionPill.forRoom(currentSessionsSpace.roomId, client)).html;
+//  variables.hallwaySpace = (await MentionPill.forRoom(hallwaySpace.roomId, client)).html;
+//  variables.informationSpace = (await MentionPill.forRoom(informationSpace.roomId, client)).html;
+//  variables.upcomingSessionsSpace = (await MentionPill.forRoom(upcomingSessionsSpace.roomId, client)).html;
+//  variables.completedSessionsSpace = (await MentionPill.forRoom(completedSessionsSpace.roomId, client)).html;
+//  variables.restrictedSpace = (await MentionPill.forRoom(restrictedSpace.roomId, client)).html;
   createdSpaces = true;
-//  variables.space = (await MentionPill.forRoom(space.roomId, client)).html;
 
 //  // Add staff room to space
 //  if (createdSpace && joinedRoomIds.has(config.staffRoom)) {
@@ -231,192 +276,186 @@ const config = {
 //  }
 
   // Find or create rooms
-//  const getOsemRoomSpecs = async (slug) => {
-//    const url = `https://osem.seagl.org/api/v2/conferences/${slug}`;
-//    const response = (await (await fetch(url)).json()) as any;
+  const getOsemRoomSpecs = async (slug) => {
+    const url = `https://osem.seagl.org/api/v2/conferences/${slug}`;
+    const response = (await (await fetch(url)).json()) as any;
 
-//    const records = new Map<string, any>();
-//    for (const record of response.included) {
-//      records.set(`${record.type}-${record.id}`, record);
-//    }
+    const records = new Map<string, any>();
+    for (const record of response.included) {
+      records.set(`${record.type}-${record.id}`, record);
+    }
 
 //    return response.data.relationships.events.data.map(({ id, type }) => {
-//      const record = records.get(`${type}-${id}`);
-//      const beginning = DateTime.fromISO(record.attributes.beginning);
+    const response_map_test = response.data.relationships.events.data.map(({ id, type }) => {
+      const record = records.get(`${type}-${id}`);
+      const beginning = DateTime.fromISO(record.attributes.beginning);
 
-//      return {
-////        avatar: config.avatars.presentation,
-//        id: `seagl2021-osem-${type}-${id}`,
-//        name: `${beginning.toFormat("EEE HH:mm")} ${record.attributes.title}`,
-//        sortKey: "100",
-//        subspace: "talks",
-//        topic: "Conference Session · Code of Conduct: seagl.org/coc",
-//        welcome:
-//          "Squawk! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This room is dedicated to a single conference session. See {space} for a listing of all rooms.",
-////        widget: {
-////          avatar: config.avatars.videoStream,
-////          name: "Video Stream",
-////          stateKey: "2021roomgenerator",
-////          url: "https://attend.seagl.org/widgets/video-stream.html",
-////        },
-//      };
-//    });
-//  };
+      return {
+        avatar: config.avatars.seagl_logo_w_mic,
+        id: `seagl2021-osem-${type}-${id}`,
+        name: `${beginning.toFormat("EEE HH:mm")} - ${record.attributes.title}`,
+        sortKey: "100",
+        subspace: "sessions",
+        topic: "#SeaGL2021 Conference Session · Code of Conduct: https://seagl.org/coc",
+        welcome:
+          "Squawk! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This room is dedicated to a single conference session. See {mainSpace} for a listing of all rooms.",
+//        widget: {
+//          avatar: config.avatars.seagl_logo_w_mic,
+//          name: "Video Stream",
+//          stateKey: "2021roomgenerator",
+//          url: "https://attend.seagl.org/widgets/video-stream.html",
+//        },
+      };
+    });
+    
+    console.error(response_map_test);
+    process.exitCode = 1;
+    return response_map_test;
+  };
   const roomsSpec = [
-//    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-general",
-//      localAlias: "SeaGL2021-General",
-//      name: "General | #SeaGL2021",
-//      sortKey: "010",
-//      suggested: true,
-//      topic: "General Discussion · Code of Conduct: seagl.org/coc",
-//      welcome:
-//        "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for general discussion. See {space} for a listing of all rooms.",
-////      widget: {
-////        avatar: config.avatars.seagl,
-////        name: "Welcome",
-////        stateKey: "2021roomgenerator",
-////        url: "https://attend.seagl.org/widgets/welcome.html",
-////      },
-//    },
     {
-//      avatar: config.avatars.home,
-      id: "seagl2021-welcome",
-      localAlias: "SeaGL2021-Welcome",
+      avatar: config.avatars.seagl_logo_w_mic,
+      id: "seagl2021-test-welcome",
+      localAlias: "SeaGL2021-test-Welcome",
       name: "Welcome | #SeaGL2021",
       sortKey: "010",
       suggested: true,
       topic: "",
+      welcome:
+        "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for introductions and general discussion. See {mainSpace} for a listing of all rooms.",
+//      widget: {
+//        avatar: config.avatars.seagl_logo_w_mic,
+//        name: "Welcome",
+//        stateKey: "2021roomgenerator",
+//        url: "https://attend.seagl.org/widgets/welcome.html",
+//      },
     },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-announcements",
-//      localAlias: "SeaGL2021-Announcements",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-announcements",
+//      localAlias: "SeaGL2021-test-Announcements",
 //      name: "Announcements | #SeaGL2021",
 //      sortKey: "011",
 //      suggested: true,
 //      topic: "",
+//      welcome: "",
+//    },
+//    {
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-social",
+//      localAlias: "SeaGL2021-test-Social",
+//      name: "Social | #SeaGL2021",
+//      sortKey: "031",
+//      subspace: "hallway",
+//      suggested: true,
+//      topic: "",
+//      welcome:
+//        "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for \"hallway track\" socializing. See {mainSpace} for a listing of all rooms.",
+//    },
+//    {
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-sponsors",
+//      localAlias: "SeaGL2021-test-Sponsors",
+//      name: "Sponsors | #SeaGL2021",
+//      sortKey: "032",
+//      subspace: "hallway",
+//      suggested: true,
+//      topic: "",
+//      welcome:
+//        "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for meeting our generous sponsors. See {mainSpace} for a listing of all rooms.",
 //    },
     {
-//      avatar: config.avatars.home,
-      id: "seagl2021-social",
-      localAlias: "SeaGL2021-Social",
-      name: "Social | #SeaGL2021",
-      sortKey: "031",
+      avatar: config.avatars.seagl_logo_w_mic,
+      id: "seagl2021-test-career-expo",
+      localAlias: "SeaGL2021-test-Career-Expo",
+      name: "Career Expo | #SeaGL2021",
+      sortKey: "033",
       subspace: "hallway",
-      suggested: true,
+      suggested: false,
       topic: "",
-    },
-    {
-//      avatar: config.avatars.home,
-      id: "seagl2021-sponsors",
-      localAlias: "SeaGL2021-Sponsors",
-      name: "Sponsors | #SeaGL2021",
-      sortKey: "032",
-      subspace: "hallway",
-      suggested: true,
-      topic: "",
+      welcome:
+        "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for participating in the career expo. See {mainSpace} for a listing of all rooms.",
     },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-info-booth",
-//      localAlias: "SeaGL2021-Info-Booth",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-info-booth",
+//      localAlias: "SeaGL2021-test-Info-Booth",
 //      name: "Info Booth | #SeaGL2021",
 //      sortKey: "041",
 //      subspace: "information",
 //      suggested: true,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-bot-help",
-//      localAlias: "SeaGL2021-Bot-Help",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-bot-help",
+//      localAlias: "SeaGL2021-test-Bot-Help",
 //      name: "Bot Help | #SeaGL2021",
 //      sortKey: "042",
 //      subspace: "information",
 //      suggested: true,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-speaker-help",
-//      localAlias: "SeaGL2021-Speaker-Help",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-speaker-help",
+//      localAlias: "SeaGL2021-test-Speaker-Help",
 //      name: "Speaker Help | #SeaGL2021",
 //      sortKey: "043",
 //      subspace: "information",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-sponsor-help",
-//      localAlias: "SeaGL2021-Sponsor-Help",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-sponsor-help",
+//      localAlias: "SeaGL2021-test-Sponsor-Help",
 //      name: "Sponsor Help | #SeaGL2021",
 //      sortKey: "044",
 //      subspace: "information",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-volunteering",
-//      localAlias: "SeaGL2021-Volunteering",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-volunteering",
+//      localAlias: "SeaGL2021-test-Volunteering",
 //      name: "Volunteering | #SeaGL2021",
 //      sortKey: "045",
 //      subspace: "information",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
+    {
+      avatar: config.avatars.seagl_logo_w_mic,
+      id: "seagl2021-test-orchestration",
+      localAlias: "SeaGL2021-test-Orchestration",
+      name: "Orchestration | #SeaGL2021",
+      sortKey: "310",
+      subspace: "restricted",
+      suggested: false,
+      topic: "",
+      welcome:
+        "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for orchestrating the conference. See {mainSpace} for a listing of all rooms.",
+    },
 //    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-talks-upcoming",
-//      localAlias: "SeaGL2021-Talks-Upcoming",
-//      name: "Upcoming Talks | #SeaGL2021",
-//      sortKey: "100",
-//      suggested: false,
-//      topic: "",
-//    },
-//    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-talks-completed",
-//      localAlias: "SeaGL2021-Talks-Completed",
-//      name: "Completed Talks | #SeaGL2021",
-//      sortKey: "200",
-//      suggested: false,
-//      topic: "",
-//    },
-//    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-restricted",
-//      localAlias: "SeaGL2021-Restricted",
-//      name: "Restricted | #SeaGL2021",
-//      sortKey: "300",
-//      suggested: false,
-//      topic: "",
-//    },
-//    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-orchestration",
-//      localAlias: "SeaGL2021-Orchestration",
-//      name: "Orchestration | #SeaGL2021",
-//      sortKey: "310",
-//      subspace: "restricted",
-//      suggested: false,
-//      topic: "",
-//    },
-//    {
-////      avatar: config.avatars.home,
-//      id: "seagl2021-volunteers",
-//      localAlias: "SeaGL2021-Volunteers",
+//      avatar: config.avatars.seagl_logo_w_mic,
+//      id: "seagl2021-test-volunteers",
+//      localAlias: "SeaGL2021-test-Volunteers",
 //      name: "Volunteers | #SeaGL2021",
 //      sortKey: "320",
 //      subspace: "restricted",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
+//      avatar: config.avatars.seagl_logo_w_mic,
 //      id: "seagl-triage",
 //      localAlias: "SeaGL-Triage",
 //      name: "SeaGL Triage",
@@ -424,9 +463,10 @@ const config = {
 //      subspace: "restricted",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
+//      avatar: config.avatars.seagl_logo_w_mic,
 //      id: "seagl-tech",
 //      localAlias: "SeaGL-Tech",
 //      name: "SeaGL Tech",
@@ -434,9 +474,10 @@ const config = {
 //      subspace: "restricted",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
+//      avatar: config.avatars.seagl_logo_w_mic,
 //      id: "seagl-test",
 //      localAlias: "SeaGL-Test",
 //      name: "SeaGL Test",
@@ -444,9 +485,10 @@ const config = {
 //      subspace: "restricted",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
+//      avatar: config.avatars.seagl_logo_w_mic,
 //      id: "seagl-staff",
 //      localAlias: "SeaGL-Staff",
 //      name: "SeaGL Staff",
@@ -454,9 +496,10 @@ const config = {
 //      subspace: "restricted",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
 //    {
-////      avatar: config.avatars.home,
+//      avatar: config.avatars.seagl_logo_w_mic,
 //      id: "seagl-bot-log",
 //      localAlias: "SeaGL-Bot-Log",
 //      name: "SeaGL Bot Log",
@@ -464,76 +507,151 @@ const config = {
 //      subspace: "restricted",
 //      suggested: false,
 //      topic: "",
+//      welcome: "",
 //    },
 //    ...(await getOsemRoomSpecs("seagl2021")),
   ];
   for (const spec of roomsSpec) {
     let roomId = roomIdById.get(spec.id);
     if (roomId === undefined) {
-      roomId = await limiter.schedule(() =>
-        client.createRoom({
-          initial_state: [
-//            {
-//              type: "m.room.avatar",
-//              state_key: "",
-//              content: { url: spec.avatar },
-//            },
-            {
-              type: "m.room.guest_access",
-              state_key: "",
-              content: { guest_access: "can_join" },
-            },
-            {
-              type: "m.room.history_visibility",
-              state_key: "",
-              content: { history_visibility: "world_readable" },
-            },
-            {
-              type: "org.seagl.2021roomgenerator",
-              state_key: "",
-              content: { id: spec.id },
-            },
-//            ...(spec.widget
-//              ? [
-//                  {
-//                    type: "im.vector.modular.widgets",
-//                    state_key: spec.widget.stateKey,
-//                    content: {
-//                      type: "customwidget",
-//                      creatorUserId: userId,
-//                      name: spec.widget.name,
-//                      avatar_url: spec.widget.avatar,
-//                      url: spec.widget.url,
-//                    },
-//                  },
-//                  {
-//                    type: "io.element.widgets.layout",
-//                    state_key: "",
-//                    content: {
-//                      widgets: {
-//                        [spec.widget.stateKey]: {
-//                          container: "top",
-//                          height: 25,
-//                          width: 100,
-//                          index: 0,
-//                        },
-//                      },
-//                    },
-//                  },
-//                ]
-//              : []),
-          ],
-          name: spec.name,
-          power_level_content_override: {
-            "users": config.staff_power
-          },
-          preset: "public_chat",
-          room_alias_name: spec.localAlias,
-          room_version: "9",
-          topic: spec.topic,
-          visibility: "public",
-        })
-      );
+      if (spec.subspace === "restricted") {
+        roomId = await limiter.schedule(() =>
+          client.createRoom({
+            initial_state: [
+              {
+                type: "m.room.avatar",
+                state_key: "",
+                content: { url: spec.avatar },
+              },
+              {
+                type: "m.room.guest_access",
+                state_key: "",
+                content: { guest_access: "can_join" },
+              },
+              {
+                type: "m.room.history_visibility",
+                state_key: "",
+                content: { history_visibility: "world_readable" },
+              },
+              {
+                type: "m.room.join_rules",
+                state_key: "",
+                content: {
+                  "join_rule": "restricted",
+                  "allow": [{
+                    "type": "m.room_membership",
+                    "room_id": restrictedSpace.roomId,
+                  }],
+                },
+              },
+              {
+                type: "org.seagl.2021roomgenerator",
+                state_key: "",
+                content: { id: spec.id },
+              },
+  //            ...(spec.widget
+  //              ? [
+  //                  {
+  //                    type: "im.vector.modular.widgets",
+  //                    state_key: spec.widget.stateKey,
+  //                    content: {
+  //                      type: "customwidget",
+  //                      creatorUserId: userId,
+  //                      name: spec.widget.name,
+  //                      avatar_url: spec.widget.avatar,
+  //                      url: spec.widget.url,
+  //                    },
+  //                  },
+  //                  {
+  //                    type: "io.element.widgets.layout",
+  //                    state_key: "",
+  //                    content: {
+  //                      widgets: {
+  //                        [spec.widget.stateKey]: {
+  //                          container: "top",
+  //                          height: 25,
+  //                          width: 100,
+  //                          index: 0,
+  //                        },
+  //                      },
+  //                    },
+  //                  },
+  //                ]
+  //              : []),
+            ],
+            name: spec.name,
+            power_level_content_override: config.default_power_levels,
+  //            preset: "private_chat",
+            room_alias_name: spec.localAlias,
+            room_version: "9",
+            topic: spec.topic,
+            visibility: "private",
+          })
+        );
+      } else {
+        roomId = await limiter.schedule(() =>
+          client.createRoom({
+            initial_state: [
+              {
+                type: "m.room.avatar",
+                state_key: "",
+                content: { url: spec.avatar },
+              },
+              {
+                type: "m.room.guest_access",
+                state_key: "",
+                content: { guest_access: "can_join" },
+              },
+              {
+                type: "m.room.history_visibility",
+                state_key: "",
+                content: { history_visibility: "world_readable" },
+              },
+              {
+                type: "org.seagl.2021roomgenerator",
+                state_key: "",
+                content: { id: spec.id },
+              },
+  //            ...(spec.widget
+  //              ? [
+  //                  {
+  //                    type: "im.vector.modular.widgets",
+  //                    state_key: spec.widget.stateKey,
+  //                    content: {
+  //                      type: "customwidget",
+  //                      creatorUserId: userId,
+  //                      name: spec.widget.name,
+  //                      avatar_url: spec.widget.avatar,
+  //                      url: spec.widget.url,
+  //                    },
+  //                  },
+  //                  {
+  //                    type: "io.element.widgets.layout",
+  //                    state_key: "",
+  //                    content: {
+  //                      widgets: {
+  //                        [spec.widget.stateKey]: {
+  //                          container: "top",
+  //                          height: 25,
+  //                          width: 100,
+  //                          index: 0,
+  //                        },
+  //                      },
+  //                    },
+  //                  },
+  //                ]
+  //              : []),
+            ],
+            name: spec.name,
+            power_level_content_override: config.default_power_levels,
+            preset: "public_chat",
+            room_alias_name: spec.localAlias,
+            room_version: "9",
+            topic: spec.topic,
+            visibility: "public",
+          })
+        );
+      }
       roomIdById.set(spec.id, roomId);
       joinedRoomIds.add(roomId);
       console.info("🏠 Created room: %j", { roomId, spec });
@@ -545,12 +663,12 @@ const config = {
           })
         );
       }
-//      await limiter.schedule(() =>
-//        client.sendHtmlNotice(
-//          roomId,
-//          spec.welcome.replaceAll(/{(\w+)}/g, (_, name) => variables[name])
-//        )
-//      );
+      await limiter.schedule(() =>
+        client.sendHtmlNotice(
+          roomId,
+          spec.welcome.replaceAll(/{(\w+)}/g, (_, name) => variables[name])
+        )
+      );
     } else {
       console.info("🏠 Room exists: %j", { id: spec.id, roomId });
     }
@@ -568,34 +686,37 @@ const config = {
           })
         );
       }
-//      if (spec.subspace === "information") {
-//        await limiter.schedule(() =>
-//          informationSpace.addChildRoom(roomId, {
-//            order: spec.sortKey,
-//            suggested: spec.suggested,
-//          })
-//        );
-//      }
-//      if (spec.subspace === "talks") {
-//        await limiter.schedule(() =>
-//          upcomingTalksSpace.addChildRoom(roomId, {
-//            order: spec.sortKey,
-//            suggested: spec.suggested,
-//          })
-//        );
-//      }
-//      if (spec.subspace === "restricted") {
-//        await limiter.schedule(() =>
-//          restrictedSpace.addChildRoom(roomId, {
-//            order: spec.sortKey,
-//            suggested: spec.suggested,
-//          })
-//        );
-//      }
+      if (spec.subspace === "information") {
+        await limiter.schedule(() =>
+          informationSpace.addChildRoom(roomId, {
+            order: spec.sortKey,
+            suggested: spec.suggested,
+          })
+        );
+      }
+      if (spec.subspace === "sessions") {
+        await limiter.schedule(() =>
+          upcomingSessionsSpace.addChildRoom(roomId, {
+            order: spec.sortKey,
+            suggested: spec.suggested,
+          })
+        );
+      }
+      if (spec.subspace === "restricted") {
+        await limiter.schedule(() =>
+          restrictedSpace.addChildRoom(roomId, {
+            order: spec.sortKey,
+            suggested: spec.suggested,
+          })
+        );
+      }
     } else {
       console.info("🏠 Room has not yet been created: %j", { id: spec.id });
     }
   }
+  
+  // Set restricted space to private
+//  restrictedSpace.power??
 
 
 //  // Handle invitations
@@ -615,7 +736,7 @@ const config = {
 //          space.addChildRoom(roomId, { order: "800" })
 //        );
 //        await limiter.schedule(() =>
-//          client.sendHtmlNotice(roomId, `Come join me in ${variables.space}!`)
+//          client.sendHtmlNotice(roomId, `Come join me in ${variables.mainSpace}!`)
 //        );
 //      }
 //    } else {
@@ -662,7 +783,7 @@ const config = {
 //    await limiter.schedule(() =>
 //      client.sendHtmlNotice(
 //        config.staffRoom,
-//        `Come join me in ${variables.space}!`
+//        `Come join me in ${variables.mainSpace}!`
 //      )
 //    );
 //  }
