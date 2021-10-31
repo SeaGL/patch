@@ -128,18 +128,18 @@ const config = {
   const spacesSpec = [
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-main",
+      id: "seagl2021-main",
       isPublic: true,
-      localAlias: "SeaGL2021-test-Main",
+      localAlias: "SeaGL2021-Main",
       name: "SeaGL 2021",
       suggested: true,
       topic: "Welcome to the #SeaGL2021 Space! Here you'll find a variety of conference rooms. Please look around, introduce yourself in #SeaGL2021-welcome , and ask any questions! | Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc",
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-sessions-current",
+      id: "seagl2021-sessions-current",
       isPublic: true,
-      localAlias: "SeaGL2021-test-Sessions-Current",
+      localAlias: "SeaGL2021-Sessions-Current",
       name: "Current Sessions | #SeaGL2021",
       sortKey: "020",
       suggested: true,
@@ -147,9 +147,9 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-hallway",
+      id: "seagl2021-hallway",
       isPublic: true,
-      localAlias: "SeaGL2021-test-Hallway",
+      localAlias: "SeaGL2021-Hallway",
       name: "Hallway | #SeaGL2021",
       sortKey: "030",
       suggested: true,
@@ -157,9 +157,9 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-information",
+      id: "seagl2021-information",
       isPublic: true,
-      localAlias: "SeaGL2021-test-Information",
+      localAlias: "SeaGL2021-Information",
       name: "Information | #SeaGL2021",
       sortKey: "040",
       suggested: true,
@@ -167,9 +167,9 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-sessions-upcoming",
+      id: "seagl2021-sessions-upcoming",
       isPublic: true,
-      localAlias: "SeaGL2021-test-Sessions-Upcoming",
+      localAlias: "SeaGL2021-Sessions-Upcoming",
       name: "Upcoming Sessions | #SeaGL2021",
       sortKey: "100",
       suggested: false,
@@ -177,9 +177,9 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-sessions-completed",
+      id: "seagl2021-sessions-completed",
       isPublic: false,
-      localAlias: "SeaGL2021-test-Sessions-Completed",
+      localAlias: "SeaGL2021-Sessions-Completed",
       name: "Completed Sessions | #SeaGL2021",
       sortKey: "200",
       suggested: false,
@@ -187,9 +187,9 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-restricted",
+      id: "seagl2021-restricted",
       isPublic: false,
-      localAlias: "SeaGL2021-test-Restricted",
+      localAlias: "SeaGL2021-Restricted",
       name: "Restricted | #SeaGL2021",
       sortKey: "300",
       suggested: false,
@@ -209,7 +209,7 @@ const config = {
         throw error;
       }
 
-      if (spec.id === "seagl2021-test-main") {
+      if (spec.id === "seagl2021-main") {
         space = await limiter.schedule(() =>
           client.createSpace({
             avatarUrl: spec.avatar,
@@ -253,13 +253,13 @@ const config = {
       });
     }
   }
-  mainSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Main:sal.td`));
-  currentSessionsSpace = await limiter.schedule(() => client.getSpace("#SeaGL2021-test-Sessions-Current:sal.td"));
-  hallwaySpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Hallway:sal.td`));
-  informationSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Information:sal.td`));
-  upcomingSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Sessions-Upcoming:sal.td`));
-  completedSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Sessions-Completed:sal.td`));
-  restrictedSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-test-Restricted:sal.td`));
+  mainSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Main:sal.td`));
+  currentSessionsSpace = await limiter.schedule(() => client.getSpace("#SeaGL2021-Sessions-Current:sal.td"));
+  hallwaySpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Hallway:sal.td`));
+  informationSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Information:sal.td`));
+  upcomingSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Sessions-Upcoming:sal.td`));
+  completedSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Sessions-Completed:sal.td`));
+  restrictedSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Restricted:sal.td`));
   variables.currentSessionsSpace = (await MentionPill.forRoom(currentSessionsSpace.roomId, client)).html;
   variables.hallwaySpace = (await MentionPill.forRoom(hallwaySpace.roomId, client)).html;
   variables.informationSpace = (await MentionPill.forRoom(informationSpace.roomId, client)).html;
@@ -315,8 +315,8 @@ const config = {
   const roomsSpec = [
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-welcome",
-      localAlias: "SeaGL2021-test-Welcome",
+      id: "seagl2021-welcome",
+      localAlias: "SeaGL2021-Welcome",
       name: "Welcome | #SeaGL2021",
       sortKey: "010",
       suggested: true,
@@ -332,8 +332,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-announcements",
-      localAlias: "SeaGL2021-test-Announcements",
+      id: "seagl2021-announcements",
+      localAlias: "SeaGL2021-Announcements",
       name: "Announcements | #SeaGL2021",
       sortKey: "011",
       suggested: true,
@@ -342,8 +342,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-social",
-      localAlias: "SeaGL2021-test-Social",
+      id: "seagl2021-social",
+      localAlias: "SeaGL2021-Social",
       name: "Social | #SeaGL2021",
       sortKey: "031",
       subspace: "hallway",
@@ -354,8 +354,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-sponsors",
-      localAlias: "SeaGL2021-test-Sponsors",
+      id: "seagl2021-sponsors",
+      localAlias: "SeaGL2021-Sponsors",
       name: "Sponsors | #SeaGL2021",
       sortKey: "032",
       subspace: "hallway",
@@ -366,8 +366,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-career-expo",
-      localAlias: "SeaGL2021-test-Career-Expo",
+      id: "seagl2021-career-expo",
+      localAlias: "SeaGL2021-Career-Expo",
       name: "Career Expo | #SeaGL2021",
       sortKey: "033",
       subspace: "hallway",
@@ -378,8 +378,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-info-booth",
-      localAlias: "SeaGL2021-test-Info-Booth",
+      id: "seagl2021-info-booth",
+      localAlias: "SeaGL2021-Info-Booth",
       name: "Info Booth | #SeaGL2021",
       sortKey: "041",
       subspace: "information",
@@ -389,8 +389,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-bot-help",
-      localAlias: "SeaGL2021-test-Bot-Help",
+      id: "seagl2021-bot-help",
+      localAlias: "SeaGL2021-Bot-Help",
       name: "Bot Help | #SeaGL2021",
       sortKey: "042",
       subspace: "information",
@@ -400,8 +400,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-speaker-help",
-      localAlias: "SeaGL2021-test-Speaker-Help",
+      id: "seagl2021-speaker-help",
+      localAlias: "SeaGL2021-Speaker-Help",
       name: "Speaker Help | #SeaGL2021",
       sortKey: "043",
       subspace: "information",
@@ -411,8 +411,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-sponsor-help",
-      localAlias: "SeaGL2021-test-Sponsor-Help",
+      id: "seagl2021-sponsor-help",
+      localAlias: "SeaGL2021-Sponsor-Help",
       name: "Sponsor Help | #SeaGL2021",
       sortKey: "044",
       subspace: "information",
@@ -422,8 +422,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-volunteering",
-      localAlias: "SeaGL2021-test-Volunteering",
+      id: "seagl2021-volunteering",
+      localAlias: "SeaGL2021-Volunteering",
       name: "Volunteering | #SeaGL2021",
       sortKey: "045",
       subspace: "information",
@@ -433,8 +433,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-orchestration",
-      localAlias: "SeaGL2021-test-Orchestration",
+      id: "seagl2021-orchestration",
+      localAlias: "SeaGL2021-Orchestration",
       name: "Orchestration | #SeaGL2021",
       sortKey: "310",
       subspace: "restricted",
@@ -445,8 +445,8 @@ const config = {
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
-      id: "seagl2021-test-volunteers",
-      localAlias: "SeaGL2021-test-Volunteers",
+      id: "seagl2021-volunteers",
+      localAlias: "SeaGL2021-Volunteers",
       name: "Volunteers | #SeaGL2021",
       sortKey: "320",
       subspace: "restricted",
