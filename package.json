@@ -22,6 +22,7 @@
   },
   "scripts": {
     "build": "./node_modules/.bin/tsc",
+    "list": "node ./dist/list.js > joinedRooms",
     "start": "node ./dist/main.js",
     "test": "node ./dist/testing.js",
     "wipe": "node ./dist/wipe.js"

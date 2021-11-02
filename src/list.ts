@@ -77,11 +77,11 @@ const config = {
     }
   };
   const userId = await limiter.schedule(() => client.getUserId());
-  const joinedRoomIds = new Set(
-    await limiter.schedule(() => client.getJoinedRooms())
+  const roomIds = new Set(
+    await limiter.schedule(() => client.getrooms())
   );
   const roomIdById = new Map();
-  for (const roomId of joinedRoomIds) {
+  for (const roomId of roomIds) {
     const id = (await getCustomData(roomId))?.id;
     if (id !== undefined) {
       roomIdById.set(id, roomId);
@@ -313,39 +313,28 @@ const config = {
     },
   ];
 
-
-  for (const spec of roomsSpec) {
-    let roomId;
-    let roomMembers;
-    
-    // Get roomId
-    try {
-      if (spec.roomType === "session") {
-        roomId = roomIdById.get(spec.id);
-      } else {
-        roomId = await limiter.schedule(() =>
-          client.resolveRoom(`#${spec.localAlias}:${config.conferenceServer}`)
-        );
-      }
-      console.info("---");
-      console.info("roomId: %j", roomId);
-    } catch (error: any) {
-      if (error.body?.errcode === "M_NOT_FOUND") {
-        continue;
-      }
-    }
-
-    // Get roomStates
+  // Print list of rooms
+  for (const roomId of joinedRoomIds) {
     try {
       const roomState = await limiter.schedule(() =>
         client.getRoomState(roomId)
       );
-      
+
+      try {
+        console.info("roomId: %j", roomState.find(e => e.type === 'm.room.create').room_id,);
+      } catch (error: any) {
+        if (error instanceof TypeError) {
+          console.info("roomCreate not found")
+        } else {
+          throw error;
+        }
+      }
+
       try {
         console.info("roomName: %j", roomState.find(e => e.type === 'm.room.name').content.name);
       } catch (error: any) {
         if (error instanceof TypeError) {
-          console.info("roomName not found");
+          console.info("roomName not found")
         } else {
           throw error;
         }
@@ -355,7 +344,7 @@ const config = {
         console.info("roomJoinRules: %j", roomState.find(e => e.type === 'm.room.join_rules').content.join_rule);
       } catch (error: any) {
         if (error instanceof TypeError) {
-          console.info("roomJoinRules not found");
+          console.info("roomJoinRules not found")
         } else {
           throw error;
         }
@@ -365,109 +354,13 @@ const config = {
         console.info("roomAliases: %j", roomState.find(e => e.type === 'm.room.canonical_alias').content);
       } catch (error: any) {
         if (error instanceof TypeError) {
-          console.info("roomAliases not found");
+          console.info("roomAliases not found")
         } else {
           throw error;
         }
-      }      
-    } catch (error: any) {
-      throw error;
-    }
-    
-//    throw Error;
-
-    // Confirm being in room
-    try {
-      await limiter.schedule(() =>
-        client.joinRoom(roomId, [`${config.conferenceServer}`])
-      );
-    } catch (error: any) {
-      if (error.body?.errcode === "M_UNKNOWN" && error.body?.error === "No known servers") {
-        continue;
-      } else {
-        throw error;
       }
-    }
-
-    // Confirm room is in clean state
-    try {
-      await limiter.schedule(() =>
-        client.sendStateEvent(roomId, "m.room.power_levels", "", config.default_power_levels)
-      );
-    } catch (error: any) {
-      throw error;
-    }
-    try {
-      await limiter.schedule(() =>
-        client.sendStateEvent(roomId, "m.room.join_rules", "", {"join_rule": "public"})
-      );
-    } catch (error: any) {
-      throw error;
-    }
-    try {
-      await limiter.schedule(() =>
-        client.sendStateEvent(roomId, "m.room.history_visibility", "", {"history_visibility": "world_readable"})
-      );
-    } catch (error: any) {
-      throw error;
-    }
-
-    // Remove room aliases
-    try {
-      await limiter.schedule(() =>
-        client.sendStateEvent(roomId, "m.room.canonical_alias", "", {})
-      );
-    } catch (error: any) {
-      throw error;
-    }
-
-//    // Set room to invite-only
-//    await limiter.schedule(() =>
-//      client.sendStateEvent(roomId, "m.room.join_rules", "", {"join_rule": "invite"})
-//    );
-    
-    // Get roomMembers
-    try {
-      roomMembers = await limiter.schedule(() =>
-        client.getRoomMembers(roomId)
-      );
-      console.info("roomMembers: %j", roomMembers);
-    } catch (error: any) {
-      throw error;
-    }
-
-    // Kick other members
-    for (const member of roomMembers) {
-      const memberId = member.event.user_id;
-      if (memberId !== userId) {
-        try {
-          await limiter.schedule(() =>
-            client.kickUser(memberId, roomId, "Wiping SeaGL 2021 rooms and spaces.")
-          );
-        } catch (error: any) {
-          if (error.body?.errcode === "M_FORBIDDEN" && error.body?.error === "You cannot kick user @salt:sal.td.") {
-            try {
-              await limiter.schedule(() =>
-                client.inviteUser("@salt:seattlematrix.org", roomId)
-              );
-              console.info("Room needs manual intervention.")
-              continue;
-            } catch (error: any) {
-                throw error;
-            }
-          } else {
-            throw error;
-          }
-        }
-      }
-    }
-    
-    // Leave room
-    try {
-      await limiter.schedule(() =>
-        client.leaveRoom(roomId)
-      );
-      console.info("Left %j", roomId);
+      
+      console.info("---")
     } catch (error: any) {
       throw error;
     }
@@ -475,7 +368,7 @@ const config = {
 
   // Start
   await client.start();
-  console.info("🟢 Ready: %j", { userId, joinedRoomIds });
+  console.info("🟢 Ready: %j", { userId, roomIds });
 
 })();
 
