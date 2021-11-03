@@ -24,7 +24,7 @@ const config = {
 //    videoStream: "mxc:kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
   },
 
-  staffRoom: "!pQraPupVjTcEUwBmSt:seattlematrix.org", // #SeaGL-test:seattlematrix.org
+  staffRoom: "!VkmwSHxGfbMNXUSseK:seattlematrix.org", // #SeaGL-staff:seattlematrix.org
 
   staffInvites: [
     "@salt:sal.td",
@@ -290,9 +290,12 @@ const config = {
         );
       }
       // set default space power_levels
-//      const currentLevels = await limiter.schedule(() =>
-//        client.getRoomStateEvent(space.roomId, "m.room.power_levels", "")
-//      );
+      const currentLevels = await limiter.schedule(() =>
+        client.getRoomStateEvent(space.roomId, "m.room.power_levels", "")
+      );
+      console.info("🔋 Intial space power levels: %j", 
+        currentLevels
+      );
 //      currentLevels['users'] = config.staff_power;
 //      await limiter.schedule(() =>
 //        client.sendStateEvent(space.roomId, "m.room.power_levels", "", currentLevels)
@@ -374,7 +377,8 @@ const config = {
       sortKey: "011",
       suggested: true,
       topic: "The place to be for timely conference updates and announcements.",
-      welcome: "",
+      welcome:
+        "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. Important information such as scheduling announcements will be posted here. See {mainSpace} for a listing of all rooms.",
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -898,12 +902,12 @@ const config = {
       )
     );
   }
-//  if (createdSpace && joinedRoomIds.has(config.staffRoom)) {
-//    await limiter.schedule(() =>
-//      client.sendHtmlNotice(
-//        config.staffRoom,
-//        `Come join me in ${variables.mainSpace}!`
-//      )
-//    );
-//  }
+  if (createdSpace && joinedRoomIds.has(config.staffRoom)) {
+    await limiter.schedule(() =>
+      client.sendHtmlNotice(
+        config.staffRoom,
+        `Come join me in ${variables.mainSpace}!`
+      )
+    );
+  }
 })();
