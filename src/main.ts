@@ -349,6 +349,7 @@ const config = {
         topic: "#SeaGL2021 Conference Session | Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc",
         welcome:
           "Squawk! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This room is dedicated to a single conference session. See {mainSpace} for a listing of all rooms.",
+        widget: true,
       };
     });
   };
@@ -363,12 +364,7 @@ const config = {
       topic: "This is the central room for introductions and orientation. Please join the sessions you are interested in attending and #SeaGL2021-Social for general discussion. | Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for introductions and orientation. See {mainSpace} for a listing of all conference rooms.",
-//      widget: {
-//        avatar: config.avatars.seagl_logo_w_mic,
-//        name: "Welcome",
-//        stateKey: "2021roomgenerator",
-//        url: "https://attend.seagl.org/widgets/welcome.html",
-//      },
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -658,6 +654,37 @@ const config = {
   for (const spec of roomsSpec) {
     let roomId = roomIdById.get(spec.id);
     if (roomId === undefined) {
+      const widgetStateKey = `🪶${spec.id}`;
+      const widgetEvents = spec.widget
+        ? [
+            {
+              type: "im.vector.modular.widgets",
+              state_key: widgetStateKey,
+              content: {
+                type: "customwidget",
+                creatorUserId: userId,
+                name: "SeaGL 2021",
+                avatar_url: config.avatars.seagl_logo_w_mic,
+                url: "https://attend.seagl.org/widgets/index.html",
+              },
+            },
+            {
+              type: "io.element.widgets.layout",
+              state_key: "",
+              content: {
+                widgets: {
+                  [widgetStateKey]: {
+                    container: "top",
+                    height: 25,
+                    width: 100,
+                    index: 0,
+                  },
+                },
+              },
+            },
+          ]
+        : [];
+
       if (spec.subspace === "restricted") {
         roomId = await limiter.schedule(() =>
           client.createRoom({
@@ -693,35 +720,7 @@ const config = {
                 state_key: "",
                 content: { id: spec.id },
               },
-  //            ...(spec.widget
-  //              ? [
-  //                  {
-  //                    type: "im.vector.modular.widgets",
-  //                    state_key: spec.widget.stateKey,
-  //                    content: {
-  //                      type: "customwidget",
-  //                      creatorUserId: userId,
-  //                      name: spec.widget.name,
-  //                      avatar_url: spec.widget.avatar,
-  //                      url: spec.widget.url,
-  //                    },
-  //                  },
-  //                  {
-  //                    type: "io.element.widgets.layout",
-  //                    state_key: "",
-  //                    content: {
-  //                      widgets: {
-  //                        [spec.widget.stateKey]: {
-  //                          container: "top",
-  //                          height: 25,
-  //                          width: 100,
-  //                          index: 0,
-  //                        },
-  //                      },
-  //                    },
-  //                  },
-  //                ]
-  //              : []),
+             ...widgetEvents,
             ],
             name: spec.name,
             power_level_content_override: config.defaultPowerLevels,
@@ -756,35 +755,7 @@ const config = {
                 state_key: "",
                 content: { id: spec.id },
               },
-  //            ...(spec.widget
-  //              ? [
-  //                  {
-  //                    type: "im.vector.modular.widgets",
-  //                    state_key: spec.widget.stateKey,
-  //                    content: {
-  //                      type: "customwidget",
-  //                      creatorUserId: userId,
-  //                      name: spec.widget.name,
-  //                      avatar_url: spec.widget.avatar,
-  //                      url: spec.widget.url,
-  //                    },
-  //                  },
-  //                  {
-  //                    type: "io.element.widgets.layout",
-  //                    state_key: "",
-  //                    content: {
-  //                      widgets: {
-  //                        [spec.widget.stateKey]: {
-  //                          container: "top",
-  //                          height: 25,
-  //                          width: 100,
-  //                          index: 0,
-  //                        },
-  //                      },
-  //                    },
-  //                  },
-  //                ]
-  //              : []),
+              ...widgetEvents,
             ],
             name: spec.name,
             power_level_content_override: config.defaultPowerLevels,
