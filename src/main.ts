@@ -15,9 +15,11 @@ Settings.defaultZone = "America/Los_Angeles";
 const config = {
   homeserver: env("MATRIX_HOMESERVER"),
   accessToken: env("MATRIX_ACCESS_TOKEN"),
+  conferenceServer: "seattlematrix.org",
 
   avatars: {
-    seagl_logo_w_mic: "mxc://seattlematrix.org/ruyxFzzGiRNpMeXjoKiEJQzU",
+    seagl_logo_w_mic: "mxc://seattlematrix.org/OvtPvQJgPcFWLxDfBxHnFSiv",
+    seagl_sticker_03: "mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx",
 //    home: "mxc:kvalhe.im/cXGNnZfJTYtnTbGIUptUmCsm",
 //    presentation: "mxc:kvalhe.im/JQhaLcmOzIYdRsQfWiqMCkFA",
 //    seagl: "mxc:kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",

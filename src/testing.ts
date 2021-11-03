@@ -15,14 +15,11 @@ Settings.defaultZone = "America/Los_Angeles";
 const config = {
   homeserver: env("MATRIX_HOMESERVER"),
   accessToken: env("MATRIX_ACCESS_TOKEN"),
+  conferenceServer: "seattlematrix.org",
 
   avatars: {
-    seagl_logo_w_mic: "mxc://seattlematrix.org/ruyxFzzGiRNpMeXjoKiEJQzU",
-    seagl_sticker_03: "mxc://seattlematrix.org/FDvpKqLbeUgzRUOxSzCupSzO",
-//    home: "mxc:kvalhe.im/cXGNnZfJTYtnTbGIUptUmCsm",
-//    presentation: "mxc:kvalhe.im/JQhaLcmOzIYdRsQfWiqMCkFA",
-//    seagl: "mxc:kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",
-//    videoStream: "mxc:kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
+    seagl_logo_w_mic: "mxc://seattlematrix.org/OvtPvQJgPcFWLxDfBxHnFSiv",
+    seagl_sticker_03: "mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx",
   },
 
   staffRoom: "!VkmwSHxGfbMNXUSseK:seattlematrix.org", // #SeaGL-staff:seattlematrix.org
@@ -104,13 +101,13 @@ const config = {
 //  await limiter.schedule(() =>
 //    client.setDisplayName("Patch")
 //  );
-  await limiter.schedule(() =>
-    client.setAvatarUrl(config.avatars.seagl_sticker_03)
-  );
+//  await limiter.schedule(() =>
+//    client.setAvatarUrl(config.avatars.seagl_sticker_03)
+//  );
 
     try {
       await limiter.schedule(() =>
-        client.joinRoom("!KfDiePpsuSLAwIJjBi:seattlematrix.org")
+        client.setUserPowerLevel("@seagl-bot:seattlematrix.org", "!XBpXsfEUdGiqTwGlVS:seattlematrix.org", 99)
 //        client.leaveRoom(testRoom)
       );
     } catch (error: any) {

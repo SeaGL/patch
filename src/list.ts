@@ -17,6 +17,13 @@ const config = {
   accessToken: env("MATRIX_ACCESS_TOKEN"),
   conferenceServer: "seattlematrix.org",
 
+  avatars: {
+    seagl_logo_w_mic: "mxc://seattlematrix.org/OvtPvQJgPcFWLxDfBxHnFSiv",
+    seagl_sticker_03: "mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx",
+  },
+
+  staffRoom: "!VkmwSHxGfbMNXUSseK:seattlematrix.org", // #SeaGL-staff:seattlematrix.org
+
   default_power_levels: {
     "users": {
       "@seagl-bot:seattlematrix.org": 99,
