@@ -923,7 +923,7 @@ const config = {
       )
     );
   }
-  if (createdSpace && joinedRoomIds.has(config.staffRoom)) {
+  if (createdSpaces && joinedRoomIds.has(config.staffRoom)) {
     await limiter.schedule(() =>
       client.sendHtmlNotice(
         config.staffRoom,

@@ -77,11 +77,11 @@ const config = {
     }
   };
   const userId = await limiter.schedule(() => client.getUserId());
-  const roomIds = new Set(
-    await limiter.schedule(() => client.getrooms())
+  const joinedRoomIds = new Set(
+    await limiter.schedule(() => client.getJoinedRooms())
   );
   const roomIdById = new Map();
-  for (const roomId of roomIds) {
+  for (const roomId of joinedRoomIds) {
     const id = (await getCustomData(roomId))?.id;
     if (id !== undefined) {
       roomIdById.set(id, roomId);
@@ -368,7 +368,7 @@ const config = {
 
   // Start
   await client.start();
-  console.info("🟢 Ready: %j", { userId, roomIds });
+  console.info("🟢 Ready: %j", { userId, joinedRoomIds });
 
 })();
 
