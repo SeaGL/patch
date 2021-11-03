@@ -16,6 +16,17 @@ const config = {
   homeserver: env("MATRIX_HOMESERVER"),
   accessToken: env("MATRIX_ACCESS_TOKEN"),
 
+  avatars: {
+    seagl_logo_w_mic: "mxc://seattlematrix.org/ruyxFzzGiRNpMeXjoKiEJQzU",
+    seagl_sticker_03: "mxc://seattlematrix.org/FDvpKqLbeUgzRUOxSzCupSzO",
+//    home: "mxc:kvalhe.im/cXGNnZfJTYtnTbGIUptUmCsm",
+//    presentation: "mxc:kvalhe.im/JQhaLcmOzIYdRsQfWiqMCkFA",
+//    seagl: "mxc:kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",
+//    videoStream: "mxc:kvalhe.im/sfRfgfLzEAVbnprJQYjbQRJm",
+  },
+
+  staffRoom: "!VkmwSHxGfbMNXUSseK:seattlematrix.org", // #SeaGL-staff:seattlematrix.org
+
   default_power_levels: {
     "users": {
       "@seagl-bot:seattlematrix.org": 99,
@@ -89,33 +100,99 @@ const config = {
   
   // TESTING
 
+
+//  await limiter.schedule(() =>
+//    client.setDisplayName("Patch")
+//  );
+  await limiter.schedule(() =>
+    client.setAvatarUrl(config.avatars.seagl_sticker_03)
+  );
+
+    try {
+      await limiter.schedule(() =>
+        client.joinRoom("!KfDiePpsuSLAwIJjBi:seattlematrix.org")
+//        client.leaveRoom(testRoom)
+      );
+    } catch (error: any) {
+      throw error;
+    }
+
+
+  throw Error;
+
 //joinedRoomId: "!FFDqTbOmPmhfEacIXy:seattlematrix.org"
 //joinedRoomName not found
 //joinedRoomJoinRules: "invite"
 //joinedRoomAliases not found
     let testRoom;
+    testRoom = "!VkmwSHxGfbMNXUSseK:seattlematrix.org";
 
-    try {
-      testRoom = await limiter.schedule(() =>
-        client.resolveRoom("!FFDqTbOmPmhfEacIXy:seattlematrix.org")
-      );
-    } catch (error: any) {
-      throw error;
-    }
+//    try {
+//      testRoom = await limiter.schedule(() =>
+//        client.resolveRoom("#SeaGL2021-Speaker-Help:seattlematrix.org")
+//      );
+//    } catch (error: any) {
+//      throw error;
+//    }
 
-    try {
-      await limiter.schedule(() =>
-        client.inviteUser("@salt:seattlematrix.org", testRoom)
-      );
-    } catch (error: any) {
-      throw error;
-    }
+//    try {
+//      await limiter.schedule(() =>
+//        client.inviteUser("@salt:seattlematrix.org", testRoom)
+//      );
+//    } catch (error: any) {
+//      throw error;
+//    }
+
+  await limiter.schedule(() =>
+    client.sendStateEvent(testRoom, "org.seagl.2021roomgenerator", "", {"id": "seagl-staff"})
+  );
+
+  await limiter.schedule(() =>
+    client.sendStateEvent(testRoom, "m.room.avatar", "", {"url": config.avatars.seagl_logo_w_mic})
+  );
+
+  await limiter.schedule(() =>
+    client.sendStateEvent(testRoom, "m.room.topic", "", {"topic": "Birdhouse dedicated to the SeaGL staff."})
+  );
+
+
+//  const widgetStateKey = `🪶seagl-triage`;
+//  await limiter.schedule(() =>
+//    client.sendStateEvent(testRoom, "im.vector.modular.widgets", widgetStateKey, {
+//      type: "customwidget",
+//      creatorUserId: userId,
+//      name: "SeaGL 2021",
+//      avatar_url: config.avatars.seagl_logo_w_mic,
+//      url: "https://attend.seagl.org/widgets/index.html",
+//    })
+//  );
+
+//  await limiter.schedule(() =>
+//    client.sendStateEvent(testRoom, "io.element.widgets.layout", "", {
+//      widgets: {
+//        [widgetStateKey]: {
+//          container: "top",
+//          height: 25,
+//          width: 100,
+//          index: 0,
+//        },
+//      },
+//    })
+//  );
+
+  const restrictedSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Restricted:${config.homeserver}`));
+
+  await limiter.schedule(() =>
+    restrictedSpace.addChildRoom(testRoom, {"order": "170"})
+  );
+
+
 
   throw Error;
 
   const testSpec = [
     {
-      localAlias: "SeaGL-Staff",
+      localAlias: "SeaGL2021-Orchestration",
     },
   ];
   for (const spec of testSpec) {
@@ -129,11 +206,11 @@ const config = {
         continue;
       }
     }
-    console.info("🏘️ Room ID: %j", testRoom);
-    const testRoomState = await limiter.schedule(() =>
-      client.getRoomState(testRoom)
-    );
-    console.info("🏘️ Room State: %j", testRoomState);
+//    console.info("🏘️ Room ID: %j", testRoom);
+//    const testRoomState = await limiter.schedule(() =>
+//      client.getRoomState(testRoom)
+//    );
+//    console.info("🏘️ Room State: %j", testRoomState);
 
     try {
       await limiter.schedule(() =>
@@ -146,9 +223,9 @@ const config = {
       }
     }
     
-//    await limiter.schedule(() =>
-//      client.sendStateEvent(testRoom, "m.room.power_levels", "", config.default_power_levels)
-//    );
+    await limiter.schedule(() =>
+      client.sendStateEvent(testRoom, "m.room.power_levels", "", config.default_power_levels)
+    );
     await limiter.schedule(() =>
       client.sendStateEvent(testRoom, "m.room.join_rules", "", {"join_rule": "public"})
     );
@@ -159,15 +236,15 @@ const config = {
       client.sendStateEvent(testRoom, "m.room.name", "", {"name": "BAD BOT"})
     );
     
-    try {
-      await limiter.schedule(() =>
-        client.inviteUser("@salt:sal.td", testRoom)
-      );
-    } catch (error: any) {
-      if (error.body?.errcode !== "M_NOT_FOUND" && error.body?.errcode !== "M_FORBIDDEN") {
-        throw error;
-      }
-    }
+//    try {
+//      await limiter.schedule(() =>
+//        client.inviteUser("@salt:sal.td", testRoom)
+//      );
+//    } catch (error: any) {
+//      if (error.body?.errcode !== "M_NOT_FOUND" && error.body?.errcode !== "M_FORBIDDEN") {
+//        throw error;
+//      }
+//    }
     try {
       await limiter.schedule(() =>
         client.inviteUser("@salt:seattlematrix.org", testRoom)
@@ -185,220 +262,6 @@ const config = {
 //  );
   
   // DONE TESTING
-
-//  // State
-//  let createdSpaces = false;
-//  let space;
-//  let mainSpace;
-//  let currentSessionsSpace;
-//  let hallwaySpace;
-//  let informationSpace;
-//  let upcomingSessionsSpace;
-//  let completedSessionsSpace;
-//  let restrictedSpace;
-//  const variables: Record<string, string> = {};
-
-//  // Find or create space
-//  const spacesSpec = [
-//    {
-//      id: "seagl2021-main",
-//      localAlias: "SeaGL2021-Main",
-//    },
-//    {
-//      id: "seagl2021-sessions-current",
-//      localAlias: "SeaGL2021-Sessions-Current",
-//      sortKey: "020",
-//    },
-//    {
-//      id: "seagl2021-hallway",
-//      localAlias: "SeaGL2021-Hallway",
-//      sortKey: "030",
-//    },
-//    {
-//      id: "seagl2021-information",
-//      localAlias: "SeaGL2021-Information",
-//      sortKey: "040",
-//    },
-//    {
-//      id: "seagl2021-sessions-upcoming",
-//      localAlias: "SeaGL2021-Sessions-Upcoming",
-//      sortKey: "100",
-//    },
-//    {
-//      id: "seagl2021-sessions-completed",
-//      localAlias: "SeaGL2021-Sessions-Completed",
-//      sortKey: "200",
-//    },
-//    {
-//      id: "seagl2021-restricted",
-//      localAlias: "SeaGL2021-Restricted",
-//      sortKey: "300",
-//    },
-//  ];
-//  for (const spec of spacesSpec) {
-//    const spaceAlias = `#${spec.localAlias}:${config.homeserver}`;
-//    try {
-//      space = await limiter.schedule(() => client.getSpace(spaceAlias));
-//      console.info("🏘️ Space exists: %j", {
-//        alias: spaceAlias,
-//        roomId: space.roomId,
-//      });
-//    } catch (error: any) {
-//      if (error.body?.errcode !== "M_NOT_FOUND") {
-//        throw error;
-//      }
-//    }
-//  }
-
-//  // Find or create rooms
-//  const getOsemRoomSpecs = async (slug) => {
-//    const url = `https://osem.seagl.org/api/v2/conferences/${slug}`;
-//    const response = (await (await fetch(url)).json()) as any;
-
-//    const records = new Map<string, any>();
-//    for (const record of response.included) {
-//      records.set(`${record.type}-${record.id}`, record);
-//    }
-
-//    return response.data.relationships.events.data.map(({ id, type }) => {
-//      const record = records.get(`${type}-${id}`);
-//      const beginning = DateTime.fromISO(record.attributes.beginning);
-
-//      return {
-//        id: `seagl2021-osem-${type}-${id}`,
-//        sortKey: "100",
-//        subspace: "sessions",
-////        widget: {
-////          stateKey: "2021roomgenerator",
-////          url: "https://attend.seagl.org/widgets/video-stream.html",
-////        },
-//      };
-//    });
-//  };
-//  const roomsSpec = [
-//    {
-//      id: "seagl2021-welcome",
-//      localAlias: "SeaGL2021-Welcome",
-//      sortKey: "010",
-//    },
-//    {
-//      id: "seagl2021-announcements",
-//      localAlias: "SeaGL2021-Announcements",
-//      sortKey: "011",
-//    },
-//    {
-//      id: "seagl2021-social",
-//      localAlias: "SeaGL2021-Social",
-//      sortKey: "031",
-//      subspace: "hallway",
-//    },
-//    {
-//      id: "seagl2021-sponsors",
-//      localAlias: "SeaGL2021-Sponsors",
-//      sortKey: "032",
-//      subspace: "hallway",
-//    },
-//    {
-//      id: "seagl2021-career-expo",
-//      localAlias: "SeaGL2021-Career-Expo",
-//      sortKey: "033",
-//      subspace: "hallway",
-//    },
-//    {
-//      id: "seagl2021-info-booth",
-//      localAlias: "SeaGL2021-Info-Booth",
-//      sortKey: "041",
-//      subspace: "information",
-//    },
-//    {
-//      id: "seagl2021-bot-help",
-//      localAlias: "SeaGL2021-Bot-Help",
-//      sortKey: "042",
-//      subspace: "information",
-//    },
-//    {
-//      id: "seagl2021-speaker-help",
-//      localAlias: "SeaGL2021-Speaker-Help",
-//      sortKey: "043",
-//      subspace: "information",
-//    },
-//    {
-//      id: "seagl2021-sponsor-help",
-//      localAlias: "SeaGL2021-Sponsor-Help",
-//      sortKey: "044",
-//      subspace: "information",
-//    },
-//    {
-//      id: "seagl2021-volunteering",
-//      localAlias: "SeaGL2021-Volunteering",
-//      sortKey: "045",
-//      subspace: "information",
-//    },
-//    {
-//      id: "seagl2021-orchestration",
-//      localAlias: "SeaGL2021-Orchestration",
-//      sortKey: "310",
-//      subspace: "restricted",
-//    },
-//    {
-//      id: "seagl2021-volunteers",
-//      localAlias: "SeaGL2021-Volunteers",
-//      sortKey: "320",
-//      subspace: "restricted",
-//    },
-//    {
-//      id: "seagl-triage",
-//      localAlias: "SeaGL-Triage",
-//      sortKey: "330",
-//      subspace: "restricted",
-//    },
-//    {
-//      id: "seagl-tech",
-//      localAlias: "SeaGL-Tech",
-//      sortKey: "340",
-//      subspace: "restricted",
-//    },
-//    {
-//      id: "seagl-test",
-//      localAlias: "SeaGL-Test",
-//      sortKey: "350",
-//      subspace: "restricted",
-//    },
-//    {
-//      id: "seagl-staff",
-//      localAlias: "SeaGL-Staff",
-//      sortKey: "360",
-//      subspace: "restricted",
-//    },
-//    {
-//      id: "seagl-bot-log",
-//      localAlias: "SeaGL-Bot-Log",
-//      sortKey: "370",
-//      subspace: "restricted",
-//    },
-////    ...(await getOsemRoomSpecs("seagl2021")),
-//  ];
-//  for (const spec of roomsSpec) {
-//    let roomId = roomIdById.get(spec.id);
-//    if (roomId === undefined) {
-//      console.info("Room not in roomIdById list: %j'", { id: spec.id, roomId});
-//    } else {
-//      console.info("🏠 Room exists: %j", { id: spec.id, roomId });
-//    }
-
-//    const roomAlias = `#${spec.localAlias}:${config.homeserver}`;
-//    try {
-//      const room = await limiter.schedule(() => client.lookupRoomAlias(roomAlias));
-//      console.info("🏘️ Room exists: %j", {
-//        alias: roomAlias,
-//        roomId: room.roomId,
-//      });
-//    } catch (error: any) {
-//      if (error.body?.errcode !== "M_NOT_FOUND") {
-//        throw error;
-//      }
-//    }
-//  }
 
   // Start
   await client.start();

@@ -262,6 +262,9 @@ const config = {
         alias: spaceAlias,
         roomId: space.roomId,
       });
+      if (spec.localAlias === "SeaGL2021-Main") {
+        mainSpace = space;
+      }
     } catch (error: any) {
       if (error.body?.errcode !== "M_NOT_FOUND") {
         throw error;
