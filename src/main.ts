@@ -50,6 +50,8 @@ const config = {
 
 //    "@sri:gnome.org",
 //    "@flox_advocate:matrix.org",
+//    "@LuftHans:libera.chat",
+//    "@xHans:libera.chat",
 //    "@norm.norm:matrix.org",
 
 //    "@eximious:matrix.org",
@@ -89,6 +91,8 @@ const config = {
 
       "@sri:gnome.org": 50,
       "@flox_advocate:matrix.org": 50,
+      "@LuftHans:libera.chat": 50,
+      "@xHans:libera.chat": 50,
       "@norm.norm:matrix.org": 50,
 
       "@eximious:matrix.org": 50,
@@ -379,6 +383,7 @@ const config = {
       topic: "The place to be for timely conference updates and announcements.",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. Important information such as scheduling announcements will be posted here. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -391,6 +396,7 @@ const config = {
       topic: "Have a question? Not sure where to look? We'll point you in the right direction!",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to ask questions and get help with any conference related topics. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -403,6 +409,7 @@ const config = {
       topic: "Information about and help for Patch, the SeaGL seagull bot.",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to ask questions and get help about intereacting with me! See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -415,6 +422,7 @@ const config = {
       topic: "Need help with your talk? Have a question about your session? We're here to help!",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room for speakers to ask questions and get help. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -439,6 +447,7 @@ const config = {
       topic: "Do you want to volunteer to help with SeaGL? Let us know! FInd out more on the SeaGL site: https:seagl.org/get_involved.html or join our volunteer communications by sending a quick email to participate@seagl.org",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to learn more about lending a wing or beak in service of this all-volunteer staffed conference. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -451,6 +460,7 @@ const config = {
       topic: "A place to socialize and chat with other attendees about whatever. Social events such as TeaGL and the evening parties will take place here. | Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for \"hallway track\" socializing. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -463,6 +473,7 @@ const config = {
       topic: "Looking for work? Looking to hire? Looking for help with your resume? Let us know! | Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc | The Career Expo is presented by RaiseMe",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for participating in the Career Expo. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -475,6 +486,7 @@ const config = {
       topic: "Come meet the wonderful folks who make this conference possible! | Please note, the SeaGL Code of Conduct is in effect and can be found here: https:seagl.org/coc",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for meeting our generous sponsors. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -487,6 +499,7 @@ const config = {
       topic: "Come speak to representatives from our sponsor, Amazon Web Services",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to speak with representatives from our sponsor Amazon Web Services. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -499,6 +512,7 @@ const config = {
       topic: "Come speak to representatives from our sponsor, JMP.chat",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to speak with representatives from our sponsor JMP.chat. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -511,6 +525,7 @@ const config = {
       topic: "Come speak to representatives from our sponsor, Google",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to speak with representatives from our sponsor Google. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -523,6 +538,7 @@ const config = {
       topic: "Come speak to representatives from our sponsor, the Ubuntu Community Fund",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room dedicated to the Ubuntu Community Fund. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -535,6 +551,7 @@ const config = {
       topic: "Come speak to representatives from our sponsor, Red Hat",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to speak with representatives from our sponsor, Red Hat. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -547,6 +564,7 @@ const config = {
       topic: "Come speak to representatives from our sponsor, Tidelift",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to speak with representatives from our sponsor, Tidelift. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -559,6 +577,7 @@ const config = {
       topic: "Come speak to representatives from our sponsor, ExtraHop",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room to speak with representatives from our sponsor, ExtraHop. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -571,6 +590,7 @@ const config = {
       topic: "Ready your batons! This is the SeaGL 2021 control-center.",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is a central room for orchestrating the conference. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
@@ -583,6 +603,7 @@ const config = {
       topic: "This is the operational room for all SeaGL 2021 volunteers. Please join this room if you are volunteering with SeaGL 2021.",
       welcome:
         "Welcome to SeaGL 2021! I’m <strong>Patch</strong> (they/them), the SeaGL mascot. This is the room for coordinating all of the SeaGL 2021 volunteers. See {mainSpace} for a listing of all rooms.",
+      widget: true,
     },
     {
       avatar: config.avatars.seagl_logo_w_mic,
