@@ -17,7 +17,7 @@ const config = {
   accessToken: env("MATRIX_ACCESS_TOKEN"),
 
   avatars: {
-    seagl_logo_w_mic: "mxc://sal.td/abNlvOvvkVvujQYlAHGCJQJu",
+    seagl_logo_w_mic: "mxc://seattlematrix.org/ruyxFzzGiRNpMeXjoKiEJQzU",
 //    home: "mxc:kvalhe.im/cXGNnZfJTYtnTbGIUptUmCsm",
 //    presentation: "mxc:kvalhe.im/JQhaLcmOzIYdRsQfWiqMCkFA",
 //    seagl: "mxc:kvalhe.im/bmasxrBuggGXtMmcaudPmYAN",
