@@ -23,6 +23,7 @@
   "scripts": {
     "build": "./node_modules/.bin/tsc",
     "listRooms": "node ./dist/list.js > joinedRooms",
+    "setPower": "node ./dist/power.js",
     "start": "node ./dist/main.js",
     "test": "node ./dist/testing.js",
     "wipe": "node ./dist/wipe.js"
