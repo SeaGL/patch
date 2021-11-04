@@ -12,47 +12,11 @@ import { env } from "./utilities.js";
 
 Settings.defaultZone = "America/Los_Angeles";
 
-const config = {
-  homeserver: env("MATRIX_HOMESERVER"),
-  accessToken: env("MATRIX_ACCESS_TOKEN"),
-  conferenceServer: "seattlematrix.org",
+import { config } from "./config.js";
 
-  avatars: {
-    seagl_logo_w_mic: "mxc://seattlematrix.org/OvtPvQJgPcFWLxDfBxHnFSiv",
-    seagl_sticker_03: "mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx",
-  },
-
-  staffRoom: "!VkmwSHxGfbMNXUSseK:seattlematrix.org", // #SeaGL-staff:seattlematrix.org
-
-  default_power_levels: {
-    "users": {
-      "@seagl-bot:seattlematrix.org": 99,
-      "@salt:seattlematrix.org": 100,
-    },
-    "users_default": 0,
-    "events": {
-      "m.room.name": 50,
-      "m.room.power_levels": 99,
-      "m.room.history_visibility": 99,
-      "m.room.canonical_alias": 50,
-      "m.room.avatar": 50,
-      "m.room.tombstone": 100,
-      "m.room.server_acl": 100,
-      "m.room.encryption": 100,
-      "m.room.topic": 50,
-      "im.vector.modular.widgets": 99,
-    },
-    "events_default": 0,
-    "state_default": 99,
-    "ban": 50,
-    "kick": 50,
-    "redact": 50,
-    "invite": 0,
-    "historical": 99,
-    "notifications": {
-      "room": 50,
-    },
-  },
+config.defaultPowerLevels.users = {
+  "@seagl-bot:seattlematrix.org": 99,
+  "@salt:seattlematrix.org": 100,
 };
 
 (async () => {
