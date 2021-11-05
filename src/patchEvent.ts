@@ -14,11 +14,6 @@ Settings.defaultZone = "America/Los_Angeles";
 
 import { config } from "./config.js";
 
-//config.defaultPowerLevels.users = {
-//  "@seagl-bot:seattlematrix.org": 99,
-//  "@salt:seattlematrix.org": 100,
-//};
-
 (async () => {
   // Rate limiter
   const limiter = new Bottleneck({ maxConcurrent: 1, minTime: 1 });
@@ -59,13 +54,13 @@ import { config } from "./config.js";
     }
   }
   
-  // Specify lists of rooms
+  // Specify lists of spaces and rooms
   const spacesSpec = [
-//    {
-//      id: "seagl2021-main",
-//      isPublic: true,
-//      localAlias: "SeaGL2021-Main",
-//    },
+    {
+      id: "seagl2021-main",
+      isPublic: true,
+      localAlias: "SeaGL2021",
+    },
     {
       id: "seagl2021-sessions-current",
       isPublic: true,
@@ -245,30 +240,30 @@ import { config } from "./config.js";
       sortKey: "130",
       subspace: "restricted",
     },
-//    {
-////      id: "seagl-triage",
-//      localAlias: "SeaGL-Triage",
-//      sortKey: "140",
-//      subspace: "restricted",
-//    },
-//    {
-////      id: "seagl-tech",
-//      localAlias: "SeaGL-Tech",
-//      sortKey: "150",
-//      subspace: "restricted",
-//    },
-//    {
-////      id: "seagl-test",
-//      localAlias: "SeaGL-Test",
-//      sortKey: "160",
-//      subspace: "restricted",
-//    },
-//    {
-////      id: "seagl-staff",
-//      localAlias: "SeaGL-Staff",
-//      sortKey: "170",
-//      subspace: "restricted",
-//    },
+    {
+      id: "seagl-triage",
+      localAlias: "SeaGL-Triage",
+      sortKey: "140",
+      subspace: "restricted",
+    },
+    {
+      id: "seagl-tech",
+      localAlias: "SeaGL-Tech",
+      sortKey: "150",
+      subspace: "restricted",
+    },
+    {
+      id: "seagl-test",
+      localAlias: "SeaGL-Test",
+      sortKey: "160",
+      subspace: "restricted",
+    },
+    {
+      id: "seagl-staff",
+      localAlias: "SeaGL-Staff",
+      sortKey: "170",
+      subspace: "restricted",
+    },
     {
       id: "seagl-bot-log",
       localAlias: "SeaGL-Bot-Log",
@@ -284,161 +279,84 @@ import { config } from "./config.js";
     },
   ];
 
+  const sessionRooms = [
+    "!vWcDbxDwvPHXWyzNTy:seattlematrix.org",
+    "!DdVJAoondbSwOGSofc:seattlematrix.org",
+    "!SVmZdIiUaPfcQpMSJZ:seattlematrix.org",
+    "!YkwOOVQDgmbQdJpBDn:seattlematrix.org",
+//    "!KfDiePpsuSLAwIJjBi:seattlematrix.org",
+    "!bLogtCGMRwfjibAjhf:seattlematrix.org",
+    "!ftizaXTTZYpJLhnTVW:seattlematrix.org",
+    "!pMNlExochDZkipVghs:seattlematrix.org",
+    "!aKOqpocUqKIBhDNVpd:matrix.org",
+//    "!zsCmqoFNSIlcwpCIuk:seattlematrix.org",
+    "!TNwgVTOtLKtpsAwEBc:seattlematrix.org",
+    "!WMkRrOCDMPNyclflNd:seattlematrix.org",
+    "!elDQODQIaGtbuwjXjy:seattlematrix.org",
+    "!OuIFWRhLzGYPOPfmSI:seattlematrix.org",
+    "!CpIkgnZHSugBwwzywj:seattlematrix.org",
+    "!uIzzOtYPhiHmvMQbuA:seattlematrix.org",
+    "!sCCCJRWJhyMymODsVK:seattlematrix.org",
+    "!uVdbWGkTYdAcoJHCTU:seattlematrix.org",
+    "!fhbXydYAdHZjZLpkGY:seattlematrix.org",
+    "!PBdleolqnzYxNWRwNe:seattlematrix.org",
+    "!TeystpCkqtAgDuAzWE:seattlematrix.org",
+    "!MbbNrygqBBpoXmPVoA:seattlematrix.org",
+    "!sxFwNhoBcNrruydqOy:seattlematrix.org",
+    "!ZNoHXmbhVYkHwGlzcH:seattlematrix.org",
+    "!XXQofQouGXsmyxvtJF:seattlematrix.org",
+    "!JCpsxuBhvplziTEClu:seattlematrix.org",
+//    "!VkmwSHxGfbMNXUSseK:seattlematrix.org",
+    "!VzpUWygJxRlMozUBBd:seattlematrix.org",
+    "!zymbJqbtWzmhoDqPcC:seattlematrix.org",
+    "!xmNJDpbBDGOVbDwFEe:seattlematrix.org",
+    "!kDhvTKPIYYFSnVfGJl:seattlematrix.org",
+    "!LNrEMNUyFRFhWdgZwx:seattlematrix.org",
+    "!OaNCZgCPNpGSgCCKZC:seattlematrix.org",
+    "!AqvlsQxtAcrOZRWAQt:seattlematrix.org",
+    "!rqLJGesbIoXDENwPpq:seattlematrix.org",
+    "!yuygpJsluDVcEkZUKz:seattlematrix.org",
+    "!eUqnZpDuWntHtWFeNl:seattlematrix.org",
+    "!dDJUMaohCrgNxAOBWa:seattlematrix.org",
+//    "!NfmvinvjRxTLXKTsDe:seattlematrix.org",
+    "!HsFBvfwMwCvcrwZVPp:seattlematrix.org",
+    "!XnEdjjSKNAlaWPHkLb:seattlematrix.org",
+    "!ZzgZvrYaSrxtqeNGca:seattlematrix.org",
+    "!lmMWeNGbvifeRjRFTN:seattlematrix.org",
+    "!YYTIJMHFAYTLQXnfgT:seattlematrix.org",
+    "!UgGtJBRgMnMALCgrVY:seattlematrix.org",
+    "!WfqoOcoLFEZQINvcZV:seattlematrix.org",
+    "!WeheDPdQtknmyrBkFy:seattlematrix.org",
+    "!aywyhLrUDHhjiHLJXb:seattlematrix.org",
+    "!HZJomLZEPRtDCsGwcC:seattlematrix.org",
+    "!TScCFMpNAZyQGUIeYL:seattlematrix.org"
+  ]
 
   for (const spec of roomsSpec) {
-    let roomId;
-    let roomMembers;
-    
     // Get roomId
+    const roomId = roomIdById.get(spec.id);
+    console.info("---");
+    console.info("roomId: %j", roomId);
+
+    // Get roomName
     try {
-      if (spec.roomType === "session") {
-        roomId = roomIdById.get(spec.id);
-      } else {
-        roomId = await limiter.schedule(() =>
-          client.resolveRoom(`#${spec.localAlias}:${config.conferenceServer}`)
-        );
-      }
-      console.info("---");
-      console.info("roomId: %j", roomId);
-    } catch (error: any) {
-      if (error.body?.errcode === "M_NOT_FOUND") {
-        continue;
-      }
-    }
-
-    // Get roomStates
-    try {
-      const roomState = await limiter.schedule(() =>
-        client.getRoomState(roomId)
-      );
-      
-      try {
-        console.info("roomName: %j", roomState.find(e => e.type === 'm.room.name').content.name);
-      } catch (error: any) {
-        if (error instanceof TypeError) {
-          console.info("roomName not found");
-        } else {
-          throw error;
-        }
-      }
-
-      try {
-        console.info("roomJoinRules: %j", roomState.find(e => e.type === 'm.room.join_rules').content.join_rule);
-      } catch (error: any) {
-        if (error instanceof TypeError) {
-          console.info("roomJoinRules not found");
-        } else {
-          throw error;
-        }
-      }
-
-      try {
-        console.info("roomAliases: %j", roomState.find(e => e.type === 'm.room.canonical_alias').content);
-      } catch (error: any) {
-        if (error instanceof TypeError) {
-          console.info("roomAliases not found");
-        } else {
-          throw error;
-        }
-      }      
-    } catch (error: any) {
-      throw error;
-    }
-    
-//    throw Error;
-
-    // Confirm being in room
-    try {
-      await limiter.schedule(() =>
-        client.joinRoom(roomId, [`${config.conferenceServer}`])
+      console.info("roomName: %j", await limiter.schedule(() =>
+        client.getRoomStateEvent(roomId, "m.room.name", ""))
       );
     } catch (error: any) {
-      if (error.body?.errcode === "M_UNKNOWN" && error.body?.error === "No known servers") {
-        continue;
+      if (error instanceof TypeError) {
+        console.info("roomName not found");
       } else {
         throw error;
       }
     }
 
-    // Confirm room is in clean state
+    // Add org.seagl.patch event to all rooms
     try {
       await limiter.schedule(() =>
-        client.sendStateEvent(roomId, "m.room.power_levels", "", config.defaultPowerLevels)
+        client.sendStateEvent(roomId, "org.seagl.patch", "", {})
       );
-    } catch (error: any) {
-      throw error;
-    }
-    try {
-      await limiter.schedule(() =>
-        client.sendStateEvent(roomId, "m.room.join_rules", "", {"join_rule": "public"})
-      );
-    } catch (error: any) {
-      throw error;
-    }
-    try {
-      await limiter.schedule(() =>
-        client.sendStateEvent(roomId, "m.room.history_visibility", "", {"history_visibility": "world_readable"})
-      );
-    } catch (error: any) {
-      throw error;
-    }
-
-    // Remove room aliases
-    try {
-      await limiter.schedule(() =>
-        client.sendStateEvent(roomId, "m.room.canonical_alias", "", {})
-      );
-    } catch (error: any) {
-      throw error;
-    }
-
-//    // Set room to invite-only
-//    await limiter.schedule(() =>
-//      client.sendStateEvent(roomId, "m.room.join_rules", "", {"join_rule": "invite"})
-//    );
-    
-    // Get roomMembers
-    try {
-      roomMembers = await limiter.schedule(() =>
-        client.getRoomMembers(roomId)
-      );
-      console.info("roomMembers: %j", roomMembers);
-    } catch (error: any) {
-      throw error;
-    }
-
-    // Kick other members
-    for (const member of roomMembers) {
-      const memberId = member.event.user_id;
-      if (memberId !== userId) {
-        try {
-          await limiter.schedule(() =>
-            client.kickUser(memberId, roomId, "Wiping SeaGL 2021 rooms and spaces.")
-          );
-        } catch (error: any) {
-          if (error.body?.errcode === "M_FORBIDDEN" && error.body?.error === "You cannot kick user @salt:sal.td.") {
-            try {
-              await limiter.schedule(() =>
-                client.inviteUser("@salt:seattlematrix.org", roomId)
-              );
-              console.info("Room needs manual intervention.")
-              continue;
-            } catch (error: any) {
-                throw error;
-            }
-          } else {
-            throw error;
-          }
-        }
-      }
-    }
-    
-    // Leave room
-    try {
-      await limiter.schedule(() =>
-        client.leaveRoom(roomId)
-      );
-      console.info("Left %j", roomId);
+      console.info("org.seagl.patch event added");
     } catch (error: any) {
       throw error;
     }

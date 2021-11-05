@@ -1,10 +1,20 @@
-roomId: "!AXMYwWVQalpaDITLKU:seattlematrix.org"
-roomName: "JMP.chat Booth | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsor-JMP:seattlematrix.org"}
+roomId: "!VOlgfOQQBXirZEkuAx:seattlematrix.org"
+roomName: "Volunteers | #SeaGL2021"
+roomJoinRules: "restricted"
+roomAliases: {"alias":"#SeaGL2021-Volunteers:seattlematrix.org"}
 ---
-roomId: "!TNwgVTOtLKtpsAwEBc:seattlematrix.org"
-roomName: "Sat 15:30 - Expressive Security"
+roomId: "!DdVJAoondbSwOGSofc:seattlematrix.org"
+roomName: "Sat 10:00 - Understanding the MySQL Authentication Process"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!pQraPupVjTcEUwBmSt:seattlematrix.org"
+roomName: "SeaGL Test"
+roomJoinRules: "invite"
+roomAliases: {"alias":"#SeaGL-test:seattlematrix.org"}
+---
+roomId: "!HsFBvfwMwCvcrwZVPp:seattlematrix.org"
+roomName: "Sat 13:15 - Open Source Governance: Six Types and Three Models"
 roomJoinRules: "public"
 roomAliases not found
 ---
@@ -13,83 +23,8 @@ roomName: "Sat 15:30 - Your bug tracker and you"
 roomJoinRules: "public"
 roomAliases not found
 ---
-roomId: "!elDQODQIaGtbuwjXjy:seattlematrix.org"
-roomName: "Sat 10:00 - Know Your Rights as a Tech Worker"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!ZzgZvrYaSrxtqeNGca:seattlematrix.org"
-roomName: "Fri 10:50 - Intro to jq: grep for JSON"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!VzpUWygJxRlMozUBBd:seattlematrix.org"
-roomName: "Fri 14:00 - Developing on Nextcloud"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!PBdleolqnzYxNWRwNe:seattlematrix.org"
-roomName: "Fri 13:15 - JSON Document Validation in MySQL 8.0"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!MbbNrygqBBpoXmPVoA:seattlematrix.org"
-roomName: "Fri 15:30 - Software Tools for Collective Self-Governance"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!KfDiePpsuSLAwIJjBi:seattlematrix.org"
-roomName: "SeaGL Matrix Assets"
-roomJoinRules: "public"
-roomAliases: {"alt_aliases":[],"alias":"#SeaGL-matrix-assets:seattlematrix.org"}
----
-roomId: "!OuIFWRhLzGYPOPfmSI:seattlematrix.org"
-roomName: "Fri 10:10 - SSH from your DevOps CI/CD securely"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!WMkRrOCDMPNyclflNd:seattlematrix.org"
-roomName: "Sat 14:00 - Birds by Starlight: Tracking Nocturnal Flight Calls Using Open Source Software"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!SVmZdIiUaPfcQpMSJZ:seattlematrix.org"
-roomName: "Sat 09:30 - [Keynote] (Dr. Morgan Lemmer-Webber and Christine Lemmer-Webber)"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!zUUyLjJIyMoJjnFSlj:seattlematrix.org"
-roomName: "Upcoming Sessions | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sessions-Upcoming:seattlematrix.org"}
----
-roomId: "!qaknqrjpLjlrCTlPcQ:seattlematrix.org"
-roomName: "SeaGL 2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Main:seattlematrix.org"}
----
-roomId: "!zsCmqoFNSIlcwpCIuk:seattlematrix.org"
-roomName: "SeaGL Tech"
-roomJoinRules: "invite"
-roomAliases: {"alt_aliases":[],"alias":"#SeaGL-Tech:seattlematrix.org"}
----
-roomId: "!VOlgfOQQBXirZEkuAx:seattlematrix.org"
-roomName: "Volunteers | #SeaGL2021"
-roomJoinRules: "restricted"
-roomAliases: {"alias":"#SeaGL2021-Volunteers:seattlematrix.org"}
----
-roomId: "!KlyvHVjOjtDLmXxtIv:seattlematrix.org"
-roomName: "Google Booth | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsor-Google:seattlematrix.org"}
----
-roomId: "!YkwOOVQDgmbQdJpBDn:seattlematrix.org"
-roomName: "Fri 09:00 - Welcome to SeaGL 2021!"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!uIzzOtYPhiHmvMQbuA:seattlematrix.org"
-roomName: "Fri 13:15 - Introduction to Nextcloud"
+roomId: "!JCpsxuBhvplziTEClu:seattlematrix.org"
+roomName: "Sat 18:30 - Trivia Contest for fun and prizes!"
 roomJoinRules: "public"
 roomAliases not found
 ---
@@ -98,283 +33,8 @@ roomName: "Career Expo | #SeaGL2021"
 roomJoinRules: "public"
 roomAliases: {"alias":"#SeaGL2021-Career-Expo:seattlematrix.org"}
 ---
-roomId: "!fFCQOVsGnnZEiECDTt:seattlematrix.org"
-roomName: "Volunteering | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Volunteering:seattlematrix.org"}
----
-roomId: "!pQraPupVjTcEUwBmSt:seattlematrix.org"
-roomName: "SeaGL Test"
-roomJoinRules: "invite"
-roomAliases: {"alias":"#SeaGL-test:seattlematrix.org"}
----
-roomId: "!XoOEGlWDpDQzKTXXRY:seattlematrix.org"
-roomName: "Completed Sessions | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sessions-Completed:seattlematrix.org"}
----
-roomId: "!WfqoOcoLFEZQINvcZV:seattlematrix.org"
-roomName: "Fri 10:50 - PostgreSQL Participation in Google's Summer of Code"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!sCCCJRWJhyMymODsVK:seattlematrix.org"
-roomName: "Sat 11:30 - Sounds of Open Source archaeology: processing sound with sox"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!DdVJAoondbSwOGSofc:seattlematrix.org"
-roomName: "Sat 10:00 - Understanding the MySQL Authentication Process"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!eUqnZpDuWntHtWFeNl:seattlematrix.org"
-roomName: "Fri 09:10 - [Keynote] HACK THE PLANET: how to get stuff done in open source (Elana Hashman)"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!pMNlExochDZkipVghs:seattlematrix.org"
-roomName: "Sat 15:30 - Technically Biased: Taking Free Software's Niche Appeal Mainstream"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!aFSRsjhcktkCMpdDIF:seattlematrix.org"
-roomName: "Tidelift Booth | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsor-Tidelift:seattlematrix.org"}
----
-roomId: "!doQICJvnjDGptzHJOc:seattlematrix.org"
-roomName: "Social | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Social:seattlematrix.org"}
----
-roomId: "!NpeUqehrtQDgNfvzPt:seattlematrix.org"
-roomName: "Info Booth | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Info-Booth:seattlematrix.org"}
----
-roomId: "!kFORSEGnLHtFhLFXPr:seattlematrix.org"
-roomName: "Restricted | #SeaGL2021"
-roomJoinRules: "invite"
-roomAliases: {"alias":"#SeaGL2021-Restricted:seattlematrix.org"}
----
-roomId: "!vWcDbxDwvPHXWyzNTy:seattlematrix.org"
-roomName: "Fri 10:50 - Predictive Modeling and Privacy"
-roomJoinRules: "public"
-roomAliases not found
----
 roomId: "!zymbJqbtWzmhoDqPcC:seattlematrix.org"
 roomName: "Fri 09:35 - [Keynote] (Marie Nordin)"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!WnTDIdHtxjakDrrXWg:seattlematrix.org"
-roomName: "Announcements | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Announcements:seattlematrix.org"}
----
-roomId: "!aywyhLrUDHhjiHLJXb:seattlematrix.org"
-roomName: "Fri 16:30 - DevOps Party Games"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!OaNCZgCPNpGSgCCKZC:seattlematrix.org"
-roomName: "Sat 13:15 - Stories from reviving and extending a university's information security program"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!bLogtCGMRwfjibAjhf:seattlematrix.org"
-roomName: "Sat 10:45 - Does open source need its own Priority of Constituencies?"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!YYTIJMHFAYTLQXnfgT:seattlematrix.org"
-roomName: "Sat 11:30 - Computing Confidentially in the Clouds"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!VkmwSHxGfbMNXUSseK:seattlematrix.org"
-roomName: "SeaGL Staff"
-roomJoinRules: "invite"
-roomAliases: {"alt_aliases":["#SeaGL-staff:matrix.org"],"alias":"#SeaGL-Staff:seattlematrix.org"}
----
-roomId: "!MvTiWLbdOAHJxcxFWj:seattlematrix.org"
-roomName: "Orchestration | #SeaGL2021"
-roomJoinRules: "restricted"
-roomAliases: {"alias":"#SeaGL2021-Orchestration:seattlematrix.org"}
----
-roomId: "!HZJomLZEPRtDCsGwcC:seattlematrix.org"
-roomName: "Fri 10:10 - FLOSS daily — but FLO all the time"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!AqvlsQxtAcrOZRWAQt:seattlematrix.org"
-roomName: "Fri 15:30 - Good Shell Patterns"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!CpIkgnZHSugBwwzywj:seattlematrix.org"
-roomName: "Sat 17:30 - Make Tea Sandwiches with Molly and Sri!"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!svxTLGasrBMRlJkbfh:seattlematrix.org"
-roomName: "Hallway | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Hallway:seattlematrix.org"}
----
-roomId: "!lmMWeNGbvifeRjRFTN:seattlematrix.org"
-roomName: "Fri 10:10 - Responding Thoughtfully to a Crisis"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!UgGtJBRgMnMALCgrVY:seattlematrix.org"
-roomName: "Fri 14:45 - Friday Booth Crawl"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!kDhvTKPIYYFSnVfGJl:seattlematrix.org"
-roomName: "Fri 11:30 - Lightning Talks"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!sxFwNhoBcNrruydqOy:seattlematrix.org"
-roomName: "Sat 14:45 - Saturday TeaGL"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!dDwimUloXNXvweKWTB:seattlematrix.org"
-roomName: "Ubuntu Booth | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsor-Ubuntu:seattlematrix.org"}
----
-roomId: "!UdaSNhOClnPJcqKTuu:seattlematrix.org"
-roomName: "Red Hat Booth | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsor-Red-Hat:seattlematrix.org"}
----
-roomId: "!XXQofQouGXsmyxvtJF:seattlematrix.org"
-roomName: "Sat 14:00 - Open Source Business Practices"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!fGgDyLaASDQrXSyPHW:seattlematrix.org"
-roomName: "Bot Help | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Bot-Help:seattlematrix.org"}
----
-roomId: "!uVdbWGkTYdAcoJHCTU:seattlematrix.org"
-roomName: "Sat 09:15 - Costume contest!"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!uGiaRBQRDGlglSGtfI:seattlematrix.org"
-roomName: "Welcome | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Welcome:seattlematrix.org"}
----
-roomId: "!hBumWeIUqBQLgdIbiH:seattlematrix.org"
-roomName: "SeaGL Volunteers"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL-volunteers:seattlematrix.org"}
----
-roomId: "!xiuLJwXhIUKlvdIdQN:seattlematrix.org"
-roomName: "Sponsor Help | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsor-Help:seattlematrix.org"}
----
-roomId: "!LNrEMNUyFRFhWdgZwx:seattlematrix.org"
-roomName: "Sat 13:15 - Cross debugging on Linux : A history, current state of the art and  coming improvements"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!fhbXydYAdHZjZLpkGY:seattlematrix.org"
-roomName: "Sat 16:30 - [Keynote] Seize the Means of Computation (Cory Doctorow)"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!UtkOZQIiqmtxIXpwau:seattlematrix.org"
-roomName: "Speaker Help | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Speaker-Help:seattlematrix.org"}
----
-roomId: "!xCPNcFMWOHKQJhMATQ:seattlematrix.org"
-roomName: "ExtraHop Booth | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsor-ExtraHop:seattlematrix.org"}
----
-roomId: "!HsFBvfwMwCvcrwZVPp:seattlematrix.org"
-roomName: "Sat 13:15 - Open Source Governance: Six Types and Three Models"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!CzLomemszvWjlkdecL:seattlematrix.org"
-roomName: "SeaGL Bot Log"
-roomJoinRules: "restricted"
-roomAliases: {"alias":"#SeaGL-Bot-Log:seattlematrix.org"}
----
-roomId: "!dDJUMaohCrgNxAOBWa:seattlematrix.org"
-roomName: "Fri 13:15 - Lessons Learned from a Ransomware Attack"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!qdQBFptYYyWzwNkzjS:seattlematrix.org"
-roomName: "AWS Booth | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsor-AWS:seattlematrix.org"}
----
-roomId: "!rqLJGesbIoXDENwPpq:seattlematrix.org"
-roomName: "Sat 14:30 - Winners announced!"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!lFSJlgZmxAwmaeAifp:seattlematrix.org"
-roomName: "Career Expo Internal | #SeaGL2021"
-roomJoinRules: "invite"
-roomAliases: {"alias":"#SeaGL2021-Career-Expo-Internal:seattlematrix.org"}
----
-roomId: "!yuygpJsluDVcEkZUKz:seattlematrix.org"
-roomName: "Sat 10:45 - Building cloud networks: Terraform or Ansible?"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!XnEdjjSKNAlaWPHkLb:seattlematrix.org"
-roomName: "Fri 15:30 - Building and Supporting Open Source Communities Through Metrics"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!SFQLOvVefEBFyeRDiw:seattlematrix.org"
-roomName: "Sponsors | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sponsors:seattlematrix.org"}
----
-roomId: "!WeheDPdQtknmyrBkFy:seattlematrix.org"
-roomName: "Fri 14:00 - The Stories We Don't Tell"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!ZNoHXmbhVYkHwGlzcH:seattlematrix.org"
-roomName: "Sat 10:45 - Walking The Cultural Tightrope"
-roomJoinRules: "public"
-roomAliases not found
----
-roomId: "!aKOqpocUqKIBhDNVpd:matrix.org"
-roomName: "SeaGL Triage"
-roomJoinRules: "invite"
-roomAliases: {"alt_aliases":[],"alias":"#SeaGL-Triage:seattlematrix.org"}
----
-roomId: "!NfmvinvjRxTLXKTsDe:seattlematrix.org"
-roomName: "[SM] Radio"
-roomJoinRules: "public"
-roomAliases: {"alt_aliases":[],"alias":"#radio:seattlematrix.org"}
----
-roomId: "!EWRxOUwgUPRsvOlmtS:seattlematrix.org"
-roomName: "Current Sessions | #SeaGL2021"
-roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Sessions-Current:seattlematrix.org"}
----
-roomId: "!TeystpCkqtAgDuAzWE:seattlematrix.org"
-roomName: "Sat 10:00 - Free Security for Open-Source Projects"
 roomJoinRules: "public"
 roomAliases not found
 ---
@@ -383,8 +43,278 @@ roomName: "Sat 14:00 - Debugging Reproducible Builds One Day at a Time"
 roomJoinRules: "public"
 roomAliases not found
 ---
-roomId: "!JCpsxuBhvplziTEClu:seattlematrix.org"
-roomName: "Sat 18:30 - Trivia Contest for fun and prizes!"
+roomId: "!YYTIJMHFAYTLQXnfgT:seattlematrix.org"
+roomName: "Sat 11:30 - Computing Confidentially in the Clouds"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!uGiaRBQRDGlglSGtfI:seattlematrix.org"
+roomName: "Welcome | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Welcome:seattlematrix.org"}
+---
+roomId: "!VzpUWygJxRlMozUBBd:seattlematrix.org"
+roomName: "Fri 14:00 - Developing on Nextcloud"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!RPpMOHuEysSugUyyrM:seattlematrix.org"
+roomName: "Lobby | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Lobby:seattlematrix.org"}
+---
+roomId: "!OaNCZgCPNpGSgCCKZC:seattlematrix.org"
+roomName: "Sat 13:15 - Stories from reviving and extending a university's information security program"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!PBdleolqnzYxNWRwNe:seattlematrix.org"
+roomName: "Fri 13:15 - JSON Document Validation in MySQL 8.0"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!SVmZdIiUaPfcQpMSJZ:seattlematrix.org"
+roomName: "Sat 09:30 - [Keynote] (Dr. Morgan Lemmer-Webber and Christine Lemmer-Webber)"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!zsCmqoFNSIlcwpCIuk:seattlematrix.org"
+roomName: "SeaGL Tech"
+roomJoinRules: "public"
+roomAliases: {"alt_aliases":[]}
+---
+roomId: "!qaknqrjpLjlrCTlPcQ:seattlematrix.org"
+roomName: "SeaGL 2021"
+roomJoinRules: "public"
+roomAliases: {"alt_aliases":[],"alias":"#SeaGL2021:seattlematrix.org"}
+---
+roomId: "!VkmwSHxGfbMNXUSseK:seattlematrix.org"
+roomName: "SeaGL Staff"
+roomJoinRules: "invite"
+roomAliases: {"alt_aliases":["#SeaGL-staff:matrix.org"],"alias":"#SeaGL-Staff:seattlematrix.org"}
+---
+roomId: "!HZJomLZEPRtDCsGwcC:seattlematrix.org"
+roomName: "Fri 10:10 - FLOSS daily — but FLO all the time"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!XnEdjjSKNAlaWPHkLb:seattlematrix.org"
+roomName: "Fri 15:30 - Building and Supporting Open Source Communities Through Metrics"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!kDhvTKPIYYFSnVfGJl:seattlematrix.org"
+roomName: "Fri 11:30 - Lightning Talks"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!qmXqteBlLfZmFIhpbd:seattlematrix.org"
+roomName: "Information | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Information:seattlematrix.org"}
+---
+roomId: "!AqvlsQxtAcrOZRWAQt:seattlematrix.org"
+roomName: "Fri 15:30 - Good Shell Patterns"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!sCCCJRWJhyMymODsVK:seattlematrix.org"
+roomName: "Sat 11:30 - Sounds of Open Source archaeology: processing sound with sox"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!WMkRrOCDMPNyclflNd:seattlematrix.org"
+roomName: "Sat 14:00 - Birds by Starlight: Tracking Nocturnal Flight Calls Using Open Source Software"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!SFQLOvVefEBFyeRDiw:seattlematrix.org"
+roomName: "Sponsors | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsors:seattlematrix.org"}
+---
+roomId: "!NfmvinvjRxTLXKTsDe:seattlematrix.org"
+roomName: "[SM] Radio"
+roomJoinRules: "public"
+roomAliases: {"alt_aliases":[],"alias":"#radio:seattlematrix.org"}
+---
+roomId: "!UdaSNhOClnPJcqKTuu:seattlematrix.org"
+roomName: "Red Hat Booth | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsor-Red-Hat:seattlematrix.org"}
+---
+roomId: "!WeheDPdQtknmyrBkFy:seattlematrix.org"
+roomName: "Fri 14:00 - The Stories We Don't Tell"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!NpeUqehrtQDgNfvzPt:seattlematrix.org"
+roomName: "Info Booth | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Info-Booth:seattlematrix.org"}
+---
+roomId: "!MvTiWLbdOAHJxcxFWj:seattlematrix.org"
+roomName: "Orchestration | #SeaGL2021"
+roomJoinRules: "restricted"
+roomAliases: {"alias":"#SeaGL2021-Orchestration:seattlematrix.org"}
+---
+roomId: "!XBpXsfEUdGiqTwGlVS:seattlematrix.org"
+roomName: "SeaGL Matrix Assets"
+roomJoinRules: "restricted"
+roomAliases: {"alias":"#SeaGL-matrix-assets:seattlematrix.org"}
+---
+roomId: "!YkwOOVQDgmbQdJpBDn:seattlematrix.org"
+roomName: "Fri 09:00 - Welcome to SeaGL 2021!"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!rqLJGesbIoXDENwPpq:seattlematrix.org"
+roomName: "Sat 14:30 - Winners announced!"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!WnTDIdHtxjakDrrXWg:seattlematrix.org"
+roomName: "Announcements | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Announcements:seattlematrix.org"}
+---
+roomId: "!ZNoHXmbhVYkHwGlzcH:seattlematrix.org"
+roomName: "Sat 10:45 - Walking The Cultural Tightrope"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!dDJUMaohCrgNxAOBWa:seattlematrix.org"
+roomName: "Fri 13:15 - Lessons Learned from a Ransomware Attack"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!lmMWeNGbvifeRjRFTN:seattlematrix.org"
+roomName: "Fri 10:10 - Responding Thoughtfully to a Crisis"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!EWRxOUwgUPRsvOlmtS:seattlematrix.org"
+roomName: "Current Sessions | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sessions-Current:seattlematrix.org"}
+---
+roomId: "!bLogtCGMRwfjibAjhf:seattlematrix.org"
+roomName: "Sat 10:45 - Does open source need its own Priority of Constituencies?"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!xCPNcFMWOHKQJhMATQ:seattlematrix.org"
+roomName: "ExtraHop Booth | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsor-ExtraHop:seattlematrix.org"}
+---
+roomId: "!CzLomemszvWjlkdecL:seattlematrix.org"
+roomName: "SeaGL Bot Log"
+roomJoinRules: "restricted"
+roomAliases: {"alias":"#SeaGL-Bot-Log:seattlematrix.org"}
+---
+roomId: "!TNwgVTOtLKtpsAwEBc:seattlematrix.org"
+roomName: "Sat 15:30 - Expressive Security"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!KfDiePpsuSLAwIJjBi:seattlematrix.org"
+roomName: "SeaGL Matrix Assets"
+roomJoinRules: "public"
+roomAliases: {"alt_aliases":[]}
+---
+roomId: "!dDwimUloXNXvweKWTB:seattlematrix.org"
+roomName: "Ubuntu Booth | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsor-Ubuntu:seattlematrix.org"}
+---
+roomId: "!pMNlExochDZkipVghs:seattlematrix.org"
+roomName: "Sat 15:30 - Technically Biased: Taking Free Software's Niche Appeal Mainstream"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!fhbXydYAdHZjZLpkGY:seattlematrix.org"
+roomName: "Sat 16:30 - [Keynote] Seize the Means of Computation (Cory Doctorow)"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!fFCQOVsGnnZEiECDTt:seattlematrix.org"
+roomName: "Volunteering | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Volunteering:seattlematrix.org"}
+---
+roomId: "!CpIkgnZHSugBwwzywj:seattlematrix.org"
+roomName: "Sat 17:30 - Make Tea Sandwiches with Molly and Sri!"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!aywyhLrUDHhjiHLJXb:seattlematrix.org"
+roomName: "Fri 16:30 - DevOps Party Games"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!AXMYwWVQalpaDITLKU:seattlematrix.org"
+roomName: "JMP.chat Booth | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsor-JMP:seattlematrix.org"}
+---
+roomId: "!xiuLJwXhIUKlvdIdQN:seattlematrix.org"
+roomName: "Sponsor Help | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsor-Help:seattlematrix.org"}
+---
+roomId: "!vWcDbxDwvPHXWyzNTy:seattlematrix.org"
+roomName: "Fri 10:50 - Predictive Modeling and Privacy"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!XoOEGlWDpDQzKTXXRY:seattlematrix.org"
+roomName: "Completed Sessions | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sessions-Completed:seattlematrix.org"}
+---
+roomId: "!aFSRsjhcktkCMpdDIF:seattlematrix.org"
+roomName: "Tidelift Booth | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsor-Tidelift:seattlematrix.org"}
+---
+roomId: "!UtkOZQIiqmtxIXpwau:seattlematrix.org"
+roomName: "Speaker Help | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Speaker-Help:seattlematrix.org"}
+---
+roomId: "!lFSJlgZmxAwmaeAifp:seattlematrix.org"
+roomName: "Career Expo Internal | #SeaGL2021"
+roomJoinRules: "invite"
+roomAliases: {"alias":"#SeaGL2021-Career-Expo-Internal:seattlematrix.org"}
+---
+roomId: "!elDQODQIaGtbuwjXjy:seattlematrix.org"
+roomName: "Sat 10:00 - Know Your Rights as a Tech Worker"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!qdQBFptYYyWzwNkzjS:seattlematrix.org"
+roomName: "AWS Booth | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsor-AWS:seattlematrix.org"}
+---
+roomId: "!aKOqpocUqKIBhDNVpd:matrix.org"
+roomName: "SeaGL Triage"
+roomJoinRules: "invite"
+roomAliases: {"alt_aliases":[],"alias":"#SeaGL-Triage:seattlematrix.org"}
+---
+roomId: "!svxTLGasrBMRlJkbfh:seattlematrix.org"
+roomName: "Hallway | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Hallway:seattlematrix.org"}
+---
+roomId: "!UgGtJBRgMnMALCgrVY:seattlematrix.org"
+roomName: "Fri 14:45 - Friday Booth Crawl"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!TeystpCkqtAgDuAzWE:seattlematrix.org"
+roomName: "Sat 10:00 - Free Security for Open-Source Projects"
 roomJoinRules: "public"
 roomAliases not found
 ---
@@ -393,9 +323,89 @@ roomName: "Fri 17:45 - Cocktails and Mocktails with Mako"
 roomJoinRules: "public"
 roomAliases not found
 ---
-roomId: "!qmXqteBlLfZmFIhpbd:seattlematrix.org"
-roomName: "Information | #SeaGL2021"
+roomId: "!OuIFWRhLzGYPOPfmSI:seattlematrix.org"
+roomName: "Fri 10:10 - SSH from your DevOps CI/CD securely"
 roomJoinRules: "public"
-roomAliases: {"alias":"#SeaGL2021-Information:seattlematrix.org"}
+roomAliases not found
+---
+roomId: "!ZzgZvrYaSrxtqeNGca:seattlematrix.org"
+roomName: "Fri 10:50 - Intro to jq: grep for JSON"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!eUqnZpDuWntHtWFeNl:seattlematrix.org"
+roomName: "Fri 09:10 - [Keynote] HACK THE PLANET: how to get stuff done in open source (Elana Hashman)"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!MbbNrygqBBpoXmPVoA:seattlematrix.org"
+roomName: "Fri 15:30 - Software Tools for Collective Self-Governance"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!sxFwNhoBcNrruydqOy:seattlematrix.org"
+roomName: "Sat 14:45 - Saturday TeaGL"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!fGgDyLaASDQrXSyPHW:seattlematrix.org"
+roomName: "Bot Help | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Bot-Help:seattlematrix.org"}
+---
+roomId: "!kFORSEGnLHtFhLFXPr:seattlematrix.org"
+roomName: "Restricted | #SeaGL2021"
+roomJoinRules: "invite"
+roomAliases: {"alias":"#SeaGL2021-Restricted:seattlematrix.org"}
+---
+roomId: "!uVdbWGkTYdAcoJHCTU:seattlematrix.org"
+roomName: "Sat 09:15 - Costume contest!"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!yuygpJsluDVcEkZUKz:seattlematrix.org"
+roomName: "Sat 10:45 - Building cloud networks: Terraform or Ansible?"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!zUUyLjJIyMoJjnFSlj:seattlematrix.org"
+roomName: "Upcoming Sessions | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sessions-Upcoming:seattlematrix.org"}
+---
+roomId: "!uIzzOtYPhiHmvMQbuA:seattlematrix.org"
+roomName: "Fri 13:15 - Introduction to Nextcloud"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!XXQofQouGXsmyxvtJF:seattlematrix.org"
+roomName: "Sat 14:00 - Open Source Business Practices"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!KlyvHVjOjtDLmXxtIv:seattlematrix.org"
+roomName: "Google Booth | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Sponsor-Google:seattlematrix.org"}
+---
+roomId: "!LNrEMNUyFRFhWdgZwx:seattlematrix.org"
+roomName: "Sat 13:15 - Cross debugging on Linux : A history, current state of the art and  coming improvements"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!iIyNUzteCSJGtfvDTk:seattlematrix.org"
+roomName: "SeaGL Tech"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL-Tech:seattlematrix.org"}
+---
+roomId: "!WfqoOcoLFEZQINvcZV:seattlematrix.org"
+roomName: "Fri 10:50 - PostgreSQL Participation in Google's Summer of Code"
+roomJoinRules: "public"
+roomAliases not found
+---
+roomId: "!doQICJvnjDGptzHJOc:seattlematrix.org"
+roomName: "Social | #SeaGL2021"
+roomJoinRules: "public"
+roomAliases: {"alias":"#SeaGL2021-Social:seattlematrix.org"}
 ---
 🟢 Ready: {"userId":"@seagl-bot:seattlematrix.org","joinedRoomIds":{}}

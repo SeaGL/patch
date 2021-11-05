@@ -24,6 +24,8 @@
     "build": "./node_modules/.bin/tsc",
     "disableJitsi": "node ./dist/jitsi.js",
     "listRooms": "node ./dist/list.js > joinedRooms",
+    "generateRoom": "node ./dist/generateRoom.js",
+    "patchPatch": "node ./dist/patchEvent.js",
     "setPower": "node ./dist/power.js",
     "start": "node ./dist/main.js",
     "test": "node ./dist/testing.js",

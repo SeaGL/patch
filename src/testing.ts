@@ -14,10 +14,10 @@ Settings.defaultZone = "America/Los_Angeles";
 
 import { config } from "./config.js";
 
-config.defaultPowerLevels.users = {
-  "@seagl-bot:seattlematrix.org": 99,
-  "@salt:seattlematrix.org": 100,
-};
+//config.defaultPowerLevels.users = {
+//  "@seagl-bot:seattlematrix.org": 99,
+//  "@salt:seattlematrix.org": 100,
+//};
 
 (async () => {
   // Rate limiter
@@ -69,14 +69,14 @@ config.defaultPowerLevels.users = {
 //    client.setAvatarUrl(config.avatars.seagl_sticker_03)
 //  );
 
-    try {
-      await limiter.schedule(() =>
-        client.setUserPowerLevel("@seagl-bot:seattlematrix.org", "!XBpXsfEUdGiqTwGlVS:seattlematrix.org", 99)
-//        client.leaveRoom(testRoom)
-      );
-    } catch (error: any) {
-      throw error;
-    }
+//    try {
+//      await limiter.schedule(() =>
+//        client.setUserPowerLevel("@seagl-bot:seattlematrix.org", "!XBpXsfEUdGiqTwGlVS:seattlematrix.org", 99)
+////        client.leaveRoom(testRoom)
+//      );
+//    } catch (error: any) {
+//      throw error;
+//    }
 
 
   throw Error;

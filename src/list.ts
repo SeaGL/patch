@@ -14,10 +14,10 @@ Settings.defaultZone = "America/Los_Angeles";
 
 import { config } from "./config.js";
 
-config.defaultPowerLevels.users = {
-  "@seagl-bot:seattlematrix.org": 99,
-  "@salt:seattlematrix.org": 100,
-};
+//config.defaultPowerLevels.users = {
+//  "@seagl-bot:seattlematrix.org": 99,
+//  "@salt:seattlematrix.org": 100,
+//};
 
 (async () => {
   // Rate limiter

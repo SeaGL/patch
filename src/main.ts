@@ -72,7 +72,7 @@ import { config } from "./config.js";
       avatar: config.avatars.seagl_logo_w_mic,
       id: "seagl2021-main",
       isPublic: true,
-      localAlias: "SeaGL2021-Main",
+      localAlias: "SeaGL2021",
       name: "SeaGL 2021",
       suggested: true,
       topic: "Welcome to the #SeaGL2021 Space! Here you'll find a variety of conference rooms. Please look around, introduce yourself in #SeaGL2021-welcome , and ask any questions! | Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc",
@@ -146,7 +146,7 @@ import { config } from "./config.js";
         alias: spaceAlias,
         roomId: space.roomId,
       });
-      if (spec.localAlias === "SeaGL2021-Main") {
+      if (spec.localAlias === "SeaGL2021") {
         mainSpace = space;
       }
     } catch (error: any) {
@@ -202,7 +202,7 @@ import { config } from "./config.js";
     }
   }
 
-  mainSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Main:${config.homeserver}`));
+  mainSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021:${config.homeserver}`));
   currentSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Sessions-Current:${config.homeserver}`));
   hallwaySpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Hallway:${config.homeserver}`));
   informationSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Information:${config.homeserver}`));
