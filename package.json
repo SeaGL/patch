@@ -22,6 +22,7 @@
   },
   "scripts": {
     "build": "./node_modules/.bin/tsc",
+    "announce": "node ./dist/announce.js",
     "disableJitsi": "node ./dist/jitsi.js",
     "listRooms": "node ./dist/list.js > joinedRooms",
     "generateRoom": "node ./dist/generateRoom.js",
