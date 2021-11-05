@@ -13,7 +13,7 @@ import { env } from "./utilities.js";
 Settings.defaultZone = "America/Los_Angeles";
 
 import { config } from "./config.js";
-import { conferenceRooms } from "./conferenceRooms.js";
+import { conferenceRooms } from "./roomLists/conferenceRooms.js";
 
 (async () => {
   // Rate limiter

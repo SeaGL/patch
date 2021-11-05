@@ -13,6 +13,7 @@ import { env } from "./utilities.js";
 Settings.defaultZone = "America/Los_Angeles";
 
 import { config } from "./config.js";
+import { sessions } from "./roomLists/sessions.js";
 
 (async () => {
   // Rate limiter
@@ -42,81 +43,37 @@ import { config } from "./config.js";
       }
     }
   };
-  const userId = await limiter.schedule(() => client.getUserId());
-  const joinedRoomIds = new Set(
-    await limiter.schedule(() => client.getJoinedRooms())
-  );
-  const roomIdById = new Map();
-  for (const roomId of joinedRoomIds) {
-    const id = (await getCustomData(roomId))?.id;
-    if (id !== undefined) {
-      roomIdById.set(id, roomId);
-    }
-  }
   
   // Grab spaces
   const currentSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Sessions-Current:${config.homeserver}`));
   const upcomingSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Sessions-Upcoming:${config.homeserver}`));
   const completedSessionsSpace = await limiter.schedule(() => client.getSpace(`#SeaGL2021-Sessions-Completed:${config.homeserver}`));
 
-  // Specify lists of rooms
-  const sessionRooms = [
-//    {
-//      id: "!room:seattlematrix.org",
-//      session: "outgoing",
-//    },
-//    {
-//      id: "!room:seattlematrix.org",
-//      session: "outgoing",
-//    },
-//    {
-//      id: "!room:seattlematrix.org",
-//      session: "outgoing",
-//    },
-//    {
-//      id: "!room:seattlematrix.org",
-//      session: "incoming",
-//    },
-//    {
-//      id: "!room:seattlematrix.org",
-//      session: "incoming",
-//    },
-    {
-      id: "!JCpsxuBhvplziTEClu:seattlematrix.org",
-      session: "incoming",
-    },
-  ];
-
+  let oldSpace;
+  let newSpace;
+  
+  let prevTime;
+  let nextTime;
+    
   // Move rooms to correct spaces
-  for (const room of sessionRooms) {
-    let oldSpace;
-    let newSpace;
-    
+  for (const room of sessions) {
     const roomId = room.id;
-    console.info("roomId: %j", {roomId});
-    
-    if (room.session === "outgoing") {
+    const roomName = room.name;
+  
+//    const prevTime = "Fri 11:30";
+    const nextTime = "Fri 13:15";
+
+    if (prevTime !== undefined && roomName.includes(prevTime)) {
       oldSpace = currentSessionsSpace;
       newSpace = completedSessionsSpace;
-    } else if (room.session === "incoming") {
+    } else if (nextTime !== undefined && roomName.includes(nextTime)) {
       oldSpace = upcomingSessionsSpace;
       newSpace = currentSessionsSpace;
     } else {
-      throw Error;
+      continue;
     }
-    
-    // Get roomName
-    try {
-      console.info("roomName: %j", await limiter.schedule(() =>
-        client.getRoomStateEvent(roomId, "m.room.name", ""))
-      );
-    } catch (error: any) {
-      if (error instanceof TypeError) {
-        console.info("roomName not found");
-      } else {
-        throw error;
-      }
-    }
+ 
+    console.info("Room: %j", room);
 
     // Add to new space
     try {
@@ -138,7 +95,7 @@ import { config } from "./config.js";
 
   // Start
   await client.start();
-  console.info("🟢 Ready: %j", { userId });
+  console.info("🟢 Ready");
 
 })();
 
