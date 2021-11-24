@@ -60,8 +60,8 @@ import { sessions } from "./roomLists/sessions.js";
     const roomId = room.id;
     const roomName = room.name;
   
-//    const prevTime = "Fri 11:30";
-    const nextTime = "Fri 13:15";
+    const prevTime = "Sat 15:30";
+    const nextTime = "Sat 16:30";
 
     if (prevTime !== undefined && roomName.includes(prevTime)) {
       oldSpace = currentSessionsSpace;

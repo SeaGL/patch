@@ -14,6 +14,7 @@ Settings.defaultZone = "America/Los_Angeles";
 
 import { config } from "./config.js";
 import { conferenceRooms } from "./roomLists/conferenceRooms.js";
+import { testRooms } from "./roomLists/testRooms.js";
 
 (async () => {
   // Rate limiter
@@ -47,23 +48,28 @@ import { conferenceRooms } from "./roomLists/conferenceRooms.js";
   const joinedRoomIds = new Set(
     await limiter.schedule(() => client.getJoinedRooms())
   );
-  const roomIdById = new Map();
-  for (const roomId of joinedRoomIds) {
-    const id = (await getCustomData(roomId))?.id;
-    if (id !== undefined) {
-      roomIdById.set(id, roomId);
-    }
-  }
   
-  const messageText = "";
+  const mainSpace = await limiter.schedule(() => client.getSpace("#SeaGL:seattlematrix.org"));
+  const mainSpacePill = (await MentionPill.forRoom(mainSpace.roomId, client)).html;
+  
+  const messageText = `<p>Thank you for an amazing SeaGL 2021!</p>
+<p>Please join us in our year-round community space at <a href="https://matrix.to/#/#SeaGL:seattlematrix.org">#SeaGL:seattlematrix.org</a>.</p>
+<p>To wrap up the conference:<br>
+<ul>
+<li>We'll be making all conference rooms <strong>read-only</strong> and redirecting discussion to <a href="https://matrix.to/#/#SeaGL:seattlematrix.org">#SeaGL:seattlematrix.org</a></li>
+<li>If you’ve been using a temporary account (at <code>:seagl​.org</code>), you’ll need to <a href="https://seagl.org/meet">use another provider</a> to continue accessing Matrix.</li>
+<li>All temporary accounts will be <strong>deleted</strong> on 2021-12-01.</li>
+</ul>
+</p>`;
 
   // Print list of rooms
-  for (const room of conferenceRooms) {
+//  for (const room of conferenceRooms) {
+  for (const room of testRooms) {
     const roomId = room.roomId;
     
     try {
       await limiter.schedule(() =>
-        client.sendHtmlText(roomId, messageText)
+        client.sendHtmlNotice(roomId, messageText)
       );
       console.info("Message announced in: %j", {roomId});
     } catch (error: any) {

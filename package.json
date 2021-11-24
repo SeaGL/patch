@@ -31,6 +31,7 @@
     "setPower": "node ./dist/power.js",
     "start": "node ./dist/main.js",
     "test": "node ./dist/testing.js",
+    "tombstone": "node ./dist/tombstoneRooms.js",
     "wipe": "node ./dist/wipe.js"
   }
 }

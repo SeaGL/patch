@@ -78,15 +78,58 @@ import { config } from "./config.js";
 //      throw error;
 //    }
 
+//  try {
+//    await limiter.schedule(() =>
+//      client.joinRoom(testRoom)
+////        client.leaveRoom(testRoom)
+//    );
+//  } catch (error: any) {
+//    if (error.body?.errcode !== "M_NOT_FOUND" && error.body?.errcode !== "M_UNKNOWN") {
+//      throw error;
+//    }
+//  }
 
-  throw Error;
+
+//  throw Error;
 
 //joinedRoomId: "!FFDqTbOmPmhfEacIXy:seattlematrix.org"
 //joinedRoomName not found
 //joinedRoomJoinRules: "invite"
 //joinedRoomAliases not found
     let testRoom;
-    testRoom = "!VkmwSHxGfbMNXUSseK:seattlematrix.org";
+    testRoom = "!vQmCKQQlAPkbfXjwQy:seattlematrix.org";
+
+    try {
+      await limiter.schedule(() =>
+        client.joinRoom(testRoom)
+  //        client.leaveRoom(testRoom)
+      );
+    } catch (error: any) {
+      throw error;
+    }
+
+//    try {
+//      await limiter.schedule(() =>
+//        client.inviteUser("@salt:sal.td", testRoom)
+//      );
+//    } catch (error: any) {
+//      if (error.body?.errcode !== "M_NOT_FOUND" && error.body?.errcode !== "M_FORBIDDEN") {
+//        throw error;
+//      }
+//    }
+    try {
+      await limiter.schedule(() =>
+        client.inviteUser("@salt:seattlematrix.org", testRoom)
+      );
+    } catch (error: any) {
+      if (error.body?.errcode !== "M_NOT_FOUND" && error.body?.errcode !== "M_FORBIDDEN") {
+        throw error;
+      }
+    }
+
+
+    throw Error;
+
 
 //    try {
 //      testRoom = await limiter.schedule(() =>
@@ -104,17 +147,17 @@ import { config } from "./config.js";
 //      throw error;
 //    }
 
-  await limiter.schedule(() =>
-    client.sendStateEvent(testRoom, "org.seagl.2021roomgenerator", "", {"id": "seagl-staff"})
-  );
+//  await limiter.schedule(() =>
+//    client.sendStateEvent(testRoom, "org.seagl.2021roomgenerator", "", {"id": "seagl-staff"})
+//  );
 
-  await limiter.schedule(() =>
-    client.sendStateEvent(testRoom, "m.room.avatar", "", {"url": config.avatars.seagl_logo_w_mic})
-  );
+//  await limiter.schedule(() =>
+//    client.sendStateEvent(testRoom, "m.room.avatar", "", {"url": config.avatars.seagl_logo_w_mic})
+//  );
 
-  await limiter.schedule(() =>
-    client.sendStateEvent(testRoom, "m.room.topic", "", {"topic": "Birdhouse dedicated to the SeaGL staff."})
-  );
+//  await limiter.schedule(() =>
+//    client.sendStateEvent(testRoom, "m.room.topic", "", {"topic": "Birdhouse dedicated to the SeaGL staff."})
+//  );
 
 
 //  const widgetStateKey = `🪶seagl-triage`;
