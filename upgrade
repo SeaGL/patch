@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+mutex="$XDG_RUNTIME_DIR/matrix.seattlematrix.org.lock"
+staff_space_id='!EwzYSXvKlKQPSFwQBb:seattlematrix.org'
+
+debug() { <<<"$*" mute >&2; }
+error() { echo "$(tput setaf 1)$1$(tput sgr0)$([[ -z "${2+?}" ]] || <<<" ${*:2}" mute)" >&2; }
+fail() { error "$@"; exit 1; }
+info() { echo "$(tput bold)$1$(tput sgr0)$([[ -z "${2+?}" ]] || <<<" ${*:2}" mute)" >&2; }
+mute() { echo "$(tput dim)$(cat)$(tput sgr0)"; }
+
+api() {
+  # Rate limit
+  if [[ -f "$mutex" ]]; then
+    wait="$(( "$(date --reference "$mutex" '+%s')" + 5 - EPOCHSECONDS ))"
+    (( wait > 0 )) && debug 'Wait' duration="${wait}s" && sleep "${wait}s"
+  fi
+  touch "$mutex"
+
+  # Request with credentials
+  debug "→ $*"
+  http --check-status --ignore-stdin \
+    "$1" "https://matrix.seattlematrix.org/_matrix/client/v3/$2" \
+    Authorization:"Bearer $MATRIX_ACCESS_TOKEN" \
+    "${@:3}" \
+  | tee >(debug "← $(cat)")
+}
+
+create() { access="$1"; proxy_alias_name="$2"; display_name="$3"; topic="$4"
+  extra_args=()
+
+  # Derive local alias name
+  case "$proxy_alias_name" in
+    'SeaGL') local_alias_name="$proxy_alias_name";;
+    *) local_alias_name="SeaGL-$proxy_alias_name";;
+  esac
+
+  # Select access preset
+  # shellcheck disable=SC2191
+  case "$access" in
+    'private') extra_args+=(
+      preset='private_chat'
+      'initial_state[2][type]'='m.room.join_rules'
+      'initial_state[2][content][join_rule]'='knock'
+    );;
+    'public') extra_args+=(
+      preset='public'
+    );;
+    'staff') extra_args+=(
+      preset='private_chat'
+      'initial_state[2][type]'='m.room.join_rules'
+      'initial_state[2][content][join_rule]'='knock_restricted'
+      'initial_state[2][content][allow][0][type]'='m.room_membership'
+      'initial_state[2][content][allow][0][room_id]'="$staff_space_id"
+    );;
+    *) fail 'Unknown access preset' access="$access";;
+  esac
+
+  # Create room and output room ID
+  info 'Create room' alias="#$local_alias_name:seattlematrix.org"
+  api post 'createRoom' \
+    room_version='10' \
+    room_alias_name="$local_alias_name" \
+    name="$display_name" \
+    topic="$topic" \
+    'invite[0]'='\@salt\:sal.td' \
+    'power_level_content_override[events][m.room.avatar]':='50' \
+    'power_level_content_override[events][m.room.canonical_alias]':='50' \
+    'power_level_content_override[events][m.room.encryption]':='99' \
+    'power_level_content_override[events][m.room.history_visibility]':='99' \
+    'power_level_content_override[events][m.room.name]':='50' \
+    'power_level_content_override[events][m.room.power_levels]':='99' \
+    'power_level_content_override[events][m.room.server_acl]':='99' \
+    'power_level_content_override[events][m.room.tombstone]':='99' \
+    'power_level_content_override[historical]':='99' \
+    'power_level_content_override[users][\@alex\:strugee.net]':='99' \
+    'power_level_content_override[users][\@andrew\:kvalhe.im]':='99' \
+    'power_level_content_override[users][\@salt\:sal.td]':='99' \
+    'power_level_content_override[users][\@seagl-bot\:seattlematrix.org]':='100' \
+    'power_level_content_override[users][\@sntxrr\:seattlematrix.org]':='99' \
+    'initial_state[0][type]'='m.room.canonical_alias' \
+    'initial_state[0][content][alias]'="#$proxy_alias_name:seagl.org" \
+    'initial_state[0][content][alt_aliases][0]'="#$proxy_alias_name:seagl.org" \
+    'initial_state[0][content][alt_aliases][1]'="#$local_alias_name:seattlematrix.org" \
+    'initial_state[1][type]'='m.room.avatar' \
+    'initial_state[1][content][url]'='mxc://seattlematrix.org/OvtPvQJgPcFWLxDfBxHnFSiv' \
+    "${extra_args[@]}" `# initial_state[2]` \
+    "${@:5}" \
+  | jq --raw-output '.room_id'
+}
+
+upgrade() { previous_room_id="$1"; access="$2"; proxy_alias_name="$3"; display_name="$4"; topic="$5"
+  # Collect data from previous room
+  info 'Get power levels and latest event' room_id="$previous_room_id"
+  sync_json="$(api get 'sync' filter=='{
+    "account_data": { "types": [] },
+    "event_fields": ["content", "event_id", "type"],
+    "presence": { "types": [] },
+    "room": { "rooms": ["'"$previous_room_id"'"],
+      "state": { "types": ["m.room.power_levels"] },
+      "timeline": { "limit": 1 } } }')"
+  latest_event_id="$(<<<"$sync_json" jq --raw-output \
+    '.rooms.join."'"$previous_room_id"'".timeline.events[0].event_id')"
+  previous_power_levels="$(<<<"$sync_json" jq \
+    '.rooms.join."'"$previous_room_id"'".state.events[] | select(.type=="m.room.power_levels") | .content')"
+
+  # Unlink aliases from previous room
+  info 'Unset canonical alias' room_id="$previous_room_id"
+  api put "rooms/$previous_room_id/state/m.room.canonical_alias" --raw '{}'
+  info 'List aliases' room_id="$previous_room_id"
+  readarray -t aliases <(api get "rooms/$previous_room_id/aliases" | jq --raw-output '.aliases[]')
+  for alias in "${aliases[@]}"; do
+    info 'Unset alias' alias="$alias"
+    api delete "directory/room/${alias/\#/\%23}"
+  done
+
+  # Create next room
+  next_room_id="$(create "$access" "$proxy_alias_name" "$display_name" "$topic" \
+    'creation_content[predecessor][room_id]'="$previous_room_id" \
+    'creation_content[predecessor][event_id]'="$latest_event_id" \
+  )"
+
+  # Append tombstone to previous room
+  info 'Append tombstone' from="$previous_room_id" to="$next_room_id"
+  api post "rooms/$previous_room_id/state/m.room.tombstone" \
+    replacement_room="$next_room_id"
+
+  # Set previous room to read-only
+  info 'Update power levels' room_id="$previous_room_id"
+  api put "rooms/$previous_room_id/state/m.room.power_levels" \
+    --raw "$(<<<"$previous_power_levels" jq '(.events_default, .invite) = ([50, .users_default + 1] | max)')"
+}
+
+validate_identity() {
+  info 'Validate identity'
+  user_id="$(api get 'account/whoami' | jq --raw-output '.user_id')"
+  [[ "$user_id" == '@seagl-bot:seattlematrix.org' ]] || fail "Unexpected user" user_id="$user_id"
+}
+
+# Before:
+#
+#   - Disconnect IRC bridges
+#   - upgrade_space '!fHutkXSXrHfkdyIiRX:seattlematrix.org' 'public' 'SeaGL' 'SeaGL' 'SeaGL: The Seattle GNU/Linux Conference'
+#   - upgrade_space '!wkqePXVxcAnMEZYERl:seattlematrix.org' 'staff' 'staff' 'SeaGL Staff Rooms' 'Behind the curtain of the all volunteer SeaGL organizing efforts'
+
+info 'Starting'
+
+validate_identity
+# upgrade '!pQraPupVjTcEUwBmSt:seattlematrix.org' 'staff' 'test' 'SeaGL Testing' 'Sandbox for experimenting with Matrix'
+# create 'public' 'irc' 'SeaGL IRC Bridge' 'Bringing in the SeaGL community from Libera.Chat'
+# create 'public' 'support' 'SeaGL Support' 'The place for all SeaGL related questions'
+# upgrade '!NlEIUUZNgVXRcUOIay:seattlematrix.org' 'public' 'announce' 'SeaGL Announcements' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
+# upgrade '!bQeqvvhdiyzTEhBDaa:seattlematrix.org' 'public' 'general' 'SeaGL General Discussions' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
+# upgrade '!OSwhxVfZENcsMpzCDu:matrix.org' 'public' 'participate' 'SeaGL Participate' 'Where folks flock to lend a wing or beak to the SeaGL organizing effort. Join us!'
+# upgrade '!JTTivRrYKTLzcMmTaj:seattlematrix.org' 'public' 'TeaGL' 'SeaGL TeaGL House' 'Sip tea and chat with your feathered SeaGL friends'
+# upgrade '!cTnkSFRMtOyrZzVTEJ:seattlematrix.org' 'staff' 'all-staff' 'SeaGL All Staff Discussions' 'Birdhouse dedicated to the SeaGL staff'
+# upgrade '!SqXbkdceZbIXNQZfvI:seattlematrix.org' 'staff' 'attendee-experience' 'SeaGL Attendee Experience Committee' 'Focusing on attendee matters and prioritizing the SeaGL community'
+# upgrade '!obAfCpYOXsRmiFMhdi:seattlematrix.org' 'private' 'CoC' 'SeaGL Code of Conduct Committee' 'Making sure the policies and protocols in place keep SeaGL a safe space'
+# upgrade '!dTWtbnFnmKbrZksWeH:seattlematrix.org' 'private' 'finance' 'SeaGL Finance Committee' 'Keeping an eye on the SeaGL books and issuing reimbursements | Meetings on alternate Mondays at 4pm PT'
+# upgrade '!BKfFuOInoibHHSJxCr:seattlematrix.org' 'staff' 'IDEA' 'SeaGL IDEA Committee' 'Promoting inclusion, diversity, equity, and access at SeaGL and beyond'
+# upgrade '!XBpXsfEUdGiqTwGlVS:seattlematrix.org' 'staff' 'assets' 'SeaGL Matrix Assets' 'Media Assets for use in various SeaGL Matrix Rooms/Spaces'
+# upgrade '!pWLuBdCAVDFXRvbkuH:seattlematrix.org' 'staff' 'partnerships' 'SeaGL Partnerships Committee' 'Connecting SeaGL with other groups, organizations, and sponsors'
+# upgrade '!pigkbvrSvYNGkDHWhl:seattlematrix.org' 'staff' 'programming' 'SeaGL Programming & Flow Committee' 'Packing the SeaGL program with amazing content'
+# upgrade '!EqKLewWpHnMWPzIOrA:seattlematrix.org' 'staff' 'outreach' 'SeaGL Promotion & Outreach Committee' 'Spreading the word about SeaGL world wide | Meetings 30 minutes before All-Hands, Tuesdays at 5:30pm PT'
+# upgrade '!iIyNUzteCSJGtfvDTk:seattlematrix.org' 'staff' 'tech' 'SeaGL SRE & Tech Committee' 'Central nest for SeaGL technical operations | Meetings on alternate Wednesdays at 6pm PT | Jitsi: https://meet.seattlematrix.org/SeaGL_Tech | Pad: https://pad.seattlematrix.org/p/SeaGL_Tech'
+# upgrade '!aKOqpocUqKIBhDNVpd:matrix.org' 'private' 'triage' 'SeaGL Triage' 'Operational room for SeaGL Code of Conduct moderation and triage'
+# upgrade '!nKscbiAUZsyZRyzHiL:seattlematrix.org' 'staff' 'volunteers' 'SeaGL Volunteers Committee' 'Keeping the SeaGL staff happy and recruiting new volunteers to the flock'
+
+info 'Done' elapsed="${SECONDS}s"
+
+# After:
+#
+#   - Organize spaces
+#   - Connect IRC bridges
