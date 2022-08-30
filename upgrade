@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+s_per_request='2'
 mutex="$XDG_RUNTIME_DIR/matrix.seattlematrix.org.lock"
 staff_space_id='!EwzYSXvKlKQPSFwQBb:seattlematrix.org'
 
@@ -13,7 +14,7 @@ mute() { echo "$(tput dim)$(cat)$(tput sgr0)"; }
 api() {
   # Rate limit
   if [[ -f "$mutex" ]]; then
-    wait="$(( "$(date --reference "$mutex" '+%s')" + 5 - EPOCHSECONDS ))"
+    wait="$(( "$(date --reference "$mutex" '+%s')" + s_per_request - EPOCHSECONDS ))"
     (( wait > 0 )) && debug 'Wait' duration="${wait}s" && sleep "${wait}s"
   fi
   touch "$mutex"
