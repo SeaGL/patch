@@ -10,6 +10,7 @@ error() { echo "$(tput setaf 1)$1$(tput sgr0)$([[ -z "${2+?}" ]] || <<<" ${*:2}"
 fail() { error "$@"; exit 1; }
 info() { echo "$(tput bold)$1$(tput sgr0)$([[ -z "${2+?}" ]] || <<<" ${*:2}" mute)" >&2; }
 mute() { echo "$(tput dim)$(cat)$(tput sgr0)"; }
+skip() { info 'Skip' "${*}"; }
 
 api() {
   # Rate limit
@@ -148,25 +149,25 @@ validate_identity() {
 info 'Starting'
 
 validate_identity
-# upgrade '!pQraPupVjTcEUwBmSt:seattlematrix.org' 'staff' 'test' 'SeaGL Testing' 'Sandbox for experimenting with Matrix'
-# create 'public' 'irc' 'SeaGL IRC Bridge' 'Bringing in the SeaGL community from Libera.Chat'
-# create 'public' 'support' 'SeaGL Support' 'The place for all SeaGL related questions'
-# upgrade '!NlEIUUZNgVXRcUOIay:seattlematrix.org' 'public' 'announce' 'SeaGL Announcements' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
-# upgrade '!bQeqvvhdiyzTEhBDaa:seattlematrix.org' 'public' 'general' 'SeaGL General Discussions' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
+skip upgrade '!pQraPupVjTcEUwBmSt:seattlematrix.org' 'staff' 'test' 'SeaGL Testing' 'Sandbox for experimenting with Matrix'
+skip create 'public' 'support' 'SeaGL Support' 'The place for all SeaGL related questions'
+skip create 'public' 'irc' 'SeaGL IRC Bridge' 'Bringing in the SeaGL community from Libera.Chat'
+skip upgrade '!aKOqpocUqKIBhDNVpd:matrix.org' 'private' 'triage' 'SeaGL Triage' 'Operational room for SeaGL Code of Conduct moderation and triage'
+skip upgrade '!obAfCpYOXsRmiFMhdi:seattlematrix.org' 'private' 'CoC' 'SeaGL Code of Conduct Committee' 'Making sure the policies and protocols in place keep SeaGL a safe space'
+skip upgrade '!dTWtbnFnmKbrZksWeH:seattlematrix.org' 'private' 'finance' 'SeaGL Finance Committee' 'Keeping an eye on the SeaGL books and issuing reimbursements | Meetings on alternate Mondays at 4pm PT'
+skip upgrade '!iIyNUzteCSJGtfvDTk:seattlematrix.org' 'staff' 'tech' 'SeaGL SRE & Tech Committee' 'Central nest for SeaGL technical operations | Meetings on alternate Wednesdays at 6pm PT | Jitsi: https://meet.seattlematrix.org/SeaGL_Tech | Pad: https://pad.seattlematrix.org/p/SeaGL_Tech'
+skip upgrade '!XBpXsfEUdGiqTwGlVS:seattlematrix.org' 'staff' 'assets' 'SeaGL Matrix Assets' 'Media Assets for use in various SeaGL Matrix Rooms/Spaces'
+skip upgrade '!SqXbkdceZbIXNQZfvI:seattlematrix.org' 'staff' 'attendee-experience' 'SeaGL Attendee Experience Committee' 'Focusing on attendee matters and prioritizing the SeaGL community'
+skip upgrade '!BKfFuOInoibHHSJxCr:seattlematrix.org' 'staff' 'IDEA' 'SeaGL IDEA Committee' 'Promoting inclusion, diversity, equity, and access at SeaGL and beyond'
+skip upgrade '!pWLuBdCAVDFXRvbkuH:seattlematrix.org' 'staff' 'partnerships' 'SeaGL Partnerships Committee' 'Connecting SeaGL with other groups, organizations, and sponsors'
+skip upgrade '!EqKLewWpHnMWPzIOrA:seattlematrix.org' 'staff' 'outreach' 'SeaGL Promotion & Outreach Committee' 'Spreading the word about SeaGL world wide | Meetings 30 minutes before All-Hands, Tuesdays at 5:30pm PT'
+skip upgrade '!nKscbiAUZsyZRyzHiL:seattlematrix.org' 'staff' 'volunteers' 'SeaGL Volunteers Committee' 'Keeping the SeaGL staff happy and recruiting new volunteers to the flock'
+# upgrade '!pigkbvrSvYNGkDHWhl:seattlematrix.org' 'staff' 'programming' 'SeaGL Programming & Flow Committee' 'Packing the SeaGL program with amazing content'
+# upgrade '!cTnkSFRMtOyrZzVTEJ:seattlematrix.org' 'staff' 'all-staff' 'SeaGL All Staff Discussions' 'Birdhouse dedicated to the SeaGL staff'
 # upgrade '!OSwhxVfZENcsMpzCDu:matrix.org' 'public' 'participate' 'SeaGL Participate' 'Where folks flock to lend a wing or beak to the SeaGL organizing effort. Join us!'
 # upgrade '!JTTivRrYKTLzcMmTaj:seattlematrix.org' 'public' 'TeaGL' 'SeaGL TeaGL House' 'Sip tea and chat with your feathered SeaGL friends'
-# upgrade '!cTnkSFRMtOyrZzVTEJ:seattlematrix.org' 'staff' 'all-staff' 'SeaGL All Staff Discussions' 'Birdhouse dedicated to the SeaGL staff'
-# upgrade '!SqXbkdceZbIXNQZfvI:seattlematrix.org' 'staff' 'attendee-experience' 'SeaGL Attendee Experience Committee' 'Focusing on attendee matters and prioritizing the SeaGL community'
-# upgrade '!obAfCpYOXsRmiFMhdi:seattlematrix.org' 'private' 'CoC' 'SeaGL Code of Conduct Committee' 'Making sure the policies and protocols in place keep SeaGL a safe space'
-# upgrade '!dTWtbnFnmKbrZksWeH:seattlematrix.org' 'private' 'finance' 'SeaGL Finance Committee' 'Keeping an eye on the SeaGL books and issuing reimbursements | Meetings on alternate Mondays at 4pm PT'
-# upgrade '!BKfFuOInoibHHSJxCr:seattlematrix.org' 'staff' 'IDEA' 'SeaGL IDEA Committee' 'Promoting inclusion, diversity, equity, and access at SeaGL and beyond'
-# upgrade '!XBpXsfEUdGiqTwGlVS:seattlematrix.org' 'staff' 'assets' 'SeaGL Matrix Assets' 'Media Assets for use in various SeaGL Matrix Rooms/Spaces'
-# upgrade '!pWLuBdCAVDFXRvbkuH:seattlematrix.org' 'staff' 'partnerships' 'SeaGL Partnerships Committee' 'Connecting SeaGL with other groups, organizations, and sponsors'
-# upgrade '!pigkbvrSvYNGkDHWhl:seattlematrix.org' 'staff' 'programming' 'SeaGL Programming & Flow Committee' 'Packing the SeaGL program with amazing content'
-# upgrade '!EqKLewWpHnMWPzIOrA:seattlematrix.org' 'staff' 'outreach' 'SeaGL Promotion & Outreach Committee' 'Spreading the word about SeaGL world wide | Meetings 30 minutes before All-Hands, Tuesdays at 5:30pm PT'
-# upgrade '!iIyNUzteCSJGtfvDTk:seattlematrix.org' 'staff' 'tech' 'SeaGL SRE & Tech Committee' 'Central nest for SeaGL technical operations | Meetings on alternate Wednesdays at 6pm PT | Jitsi: https://meet.seattlematrix.org/SeaGL_Tech | Pad: https://pad.seattlematrix.org/p/SeaGL_Tech'
-# upgrade '!aKOqpocUqKIBhDNVpd:matrix.org' 'private' 'triage' 'SeaGL Triage' 'Operational room for SeaGL Code of Conduct moderation and triage'
-# upgrade '!nKscbiAUZsyZRyzHiL:seattlematrix.org' 'staff' 'volunteers' 'SeaGL Volunteers Committee' 'Keeping the SeaGL staff happy and recruiting new volunteers to the flock'
+# upgrade '!bQeqvvhdiyzTEhBDaa:seattlematrix.org' 'public' 'general' 'SeaGL General Discussions' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
+# upgrade '!NlEIUUZNgVXRcUOIay:seattlematrix.org' 'public' 'announce' 'SeaGL Announcements' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
 
 info 'Done' elapsed="${SECONDS}s"
 
