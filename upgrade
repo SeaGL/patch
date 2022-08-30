@@ -45,7 +45,7 @@ create() { access="$1"; proxy_alias_name="$2"; display_name="$3"; topic="$4"
       'initial_state[2][content][join_rule]'='knock'
     );;
     'public') extra_args+=(
-      preset='public'
+      preset='public_chat'
     );;
     'staff') extra_args+=(
       preset='private_chat'
@@ -91,6 +91,16 @@ create() { access="$1"; proxy_alias_name="$2"; display_name="$3"; topic="$4"
 }
 
 upgrade() { previous_room_id="$1"; access="$2"; proxy_alias_name="$3"; display_name="$4"; topic="$5"
+  # Unlink aliases from previous room
+  info 'Unset canonical alias' room_id="$previous_room_id"
+  api put "rooms/$previous_room_id/state/m.room.canonical_alias" --raw '{}'
+  info 'List aliases' room_id="$previous_room_id"
+  readarray -t aliases < <(api get "rooms/$previous_room_id/aliases" | jq --raw-output '.aliases[]')
+  for alias in "${aliases[@]}"; do
+    info 'Unset alias' alias="$alias"
+    api delete "directory/room/${alias/\#/\%23}"
+  done
+
   # Collect data from previous room
   info 'Get power levels and latest event' room_id="$previous_room_id"
   sync_json="$(api get 'sync' filter=='{
@@ -105,16 +115,6 @@ upgrade() { previous_room_id="$1"; access="$2"; proxy_alias_name="$3"; display_n
   previous_power_levels="$(<<<"$sync_json" jq \
     '.rooms.join."'"$previous_room_id"'".state.events[] | select(.type=="m.room.power_levels") | .content')"
 
-  # Unlink aliases from previous room
-  info 'Unset canonical alias' room_id="$previous_room_id"
-  api put "rooms/$previous_room_id/state/m.room.canonical_alias" --raw '{}'
-  info 'List aliases' room_id="$previous_room_id"
-  readarray -t aliases <(api get "rooms/$previous_room_id/aliases" | jq --raw-output '.aliases[]')
-  for alias in "${aliases[@]}"; do
-    info 'Unset alias' alias="$alias"
-    api delete "directory/room/${alias/\#/\%23}"
-  done
-
   # Create next room
   next_room_id="$(create "$access" "$proxy_alias_name" "$display_name" "$topic" \
     'creation_content[predecessor][room_id]'="$previous_room_id" \
@@ -123,7 +123,7 @@ upgrade() { previous_room_id="$1"; access="$2"; proxy_alias_name="$3"; display_n
 
   # Append tombstone to previous room
   info 'Append tombstone' from="$previous_room_id" to="$next_room_id"
-  api post "rooms/$previous_room_id/state/m.room.tombstone" \
+  api put "rooms/$previous_room_id/state/m.room.tombstone" \
     replacement_room="$next_room_id"
 
   # Set previous room to read-only
