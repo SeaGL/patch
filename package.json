@@ -5,20 +5,20 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "16"
+    "node": "18"
   },
   "dependencies": {
     "bottleneck": "^2.19.5",
-    "luxon": "^2.0.2",
-    "matrix-bot-sdk": "^0.5.19",
-    "matrix-js-sdk": "^12.5.0",
-    "node-fetch": "^3.0.0"
+    "luxon": "^3.0.3",
+    "matrix-bot-sdk": "^0.6.1",
+    "matrix-js-sdk": "^19.5.0",
+    "node-fetch": "^3.2.10"
   },
   "devDependencies": {
-    "@tsconfig/node16": "^1.0.2",
-    "@types/luxon": "^2.0.3",
-    "@types/node": "^16.7.10",
-    "typescript": "^4.4.2"
+    "@tsconfig/node18": "^1.0.1",
+    "@types/luxon": "^3.0.1",
+    "@types/node": "^18.7.18",
+    "typescript": "^4.8.3"
   },
   "scripts": {
     "build": "./node_modules/.bin/tsc",

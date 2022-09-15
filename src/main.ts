@@ -2,13 +2,14 @@ import Bottleneck from "bottleneck";
 import { DateTime, Settings } from "luxon";
 import {
   MatrixClient,
+  MatrixError,
   MentionPill,
   RichReply,
   SimpleFsStorageProvider,
 } from "matrix-bot-sdk";
 import { AutoDiscovery } from "matrix-js-sdk";
 import fetch from "node-fetch";
-import { env } from "./utilities";
+import { env, expect } from "./utilities";
 
 Settings.defaultZone = "America/Los_Angeles";
 
@@ -29,8 +30,12 @@ const config = {
   // Rate limiter
   const limiter = new Bottleneck({ maxConcurrent: 1, minTime: 1 });
   limiter.on("failed", async (error, jobInfo) => {
-    if (jobInfo.retryCount < 3 && error?.body?.errcode === "M_LIMIT_EXCEEDED") {
-      const ms = error?.body?.retry_after_ms ?? 5000;
+    if (
+      jobInfo.retryCount < 3 &&
+      error instanceof MatrixError &&
+      error.errcode === "M_LIMIT_EXCEEDED"
+    ) {
+      const ms = error.retryAfterMs ?? 5000;
 
       console.warn(`Rate limited for ${ms} ms`);
       return ms;
@@ -39,7 +44,7 @@ const config = {
 
   // Client
   const wellKnown = await AutoDiscovery.findClientConfig(config.homeserver);
-  const baseUrl = wellKnown["m.homeserver"].base_url;
+  const baseUrl = expect(wellKnown["m.homeserver"]?.base_url, "homeserver URL");
   const storage = new SimpleFsStorageProvider("data/state.json");
   const client = new MatrixClient(baseUrl, config.accessToken, storage);
   const getCustomData = async (roomId) => {
@@ -47,8 +52,8 @@ const config = {
       return await limiter.schedule(() =>
         client.getRoomStateEvent(roomId, "org.seagl.patch", "")
       );
-    } catch (error: any) {
-      if (error.body?.errcode !== "M_NOT_FOUND") {
+    } catch (error) {
+      if (!(error instanceof MatrixError && error.errcode === "M_NOT_FOUND")) {
         throw error;
       }
     }
@@ -84,8 +89,8 @@ const config = {
       alias: spaceAlias,
       roomId: space.roomId,
     });
-  } catch (error: any) {
-    if (error.body?.errcode !== "M_NOT_FOUND") {
+  } catch (error) {
+    if (!(error instanceof MatrixError && error.errcode === "M_NOT_FOUND")) {
       throw error;
     }
 
