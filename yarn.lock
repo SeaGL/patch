@@ -685,10 +685,10 @@ lru-cache@^7.10.1:
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.14.0.tgz#21be64954a4680e303a09e9468f880b98a0b3c7f"
   integrity sha512-EIRtP1GrSJny0dqb50QXRUNBxHJhcpxHC++M5tD7RYbvLLn5KVWKsbyswSSqDuU15UFi3bgTQIY8nhDMeF6aDQ==
 
-matrix-bot-sdk@^0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/matrix-bot-sdk/-/matrix-bot-sdk-0.6.1.tgz#29c5d92fd6bc2eb0f6be2540ed133d8ffadaed93"
-  integrity sha512-xbSQUpbuQq9Oj5f5GeprKndJZqdB9N9majg+VwIEcBGBscpWCskX32kTaoNhTHAE92XlM+qnwFME45TYElf4tA==
+matrix-bot-sdk@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/matrix-bot-sdk/-/matrix-bot-sdk-0.6.2.tgz#c9334b39f62a9742d74e46312def566429dfef26"
+  integrity sha512-+kXlXkQBQgWC6oUwYEosJlXjceaj7jQUnPlALFhGeAabgVm8tmuvFNVKqClwvrrjj+0Gzsmt+rcJHmkvqymFXA==
   dependencies:
     "@matrix-org/matrix-sdk-crypto-nodejs" "^0.1.0-beta.1"
     "@types/express" "^4.17.13"
