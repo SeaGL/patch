@@ -1,5 +1,6 @@
 import Bottleneck from "bottleneck";
 import { MatrixClient } from "matrix-bot-sdk";
+import { warn } from "./utilities.js";
 
 export default class LimitedClient extends MatrixClient {
   public constructor(...args: ConstructorParameters<typeof MatrixClient>) {
@@ -11,7 +12,7 @@ export default class LimitedClient extends MatrixClient {
       if (info.retryCount < 3 && error.errcode === "M_LIMIT_EXCEEDED") {
         const ms: number = error.retryAfterMs ?? 5000;
 
-        console.warn(`Rate limited for ${ms} ms`);
+        warn(`Rate limited for ${ms} ms`);
         return ms;
       }
 
