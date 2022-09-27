@@ -25,8 +25,8 @@ export default class Patch {
   }
 
   public async start() {
-    info("🪪 Authenticate: %j", { user: this.#plan.user });
-    assert.equal(await this.#matrix.getUserId(), this.#plan.user);
+    info("🪪 Authenticate: %j", { user: this.#plan.steward.id });
+    assert.equal(await this.#matrix.getUserId(), this.#plan.steward.id);
 
     await this.reconcile();
 
@@ -35,7 +35,7 @@ export default class Patch {
   }
 
   private handleLeave(roomId: string, event: RoomEvent) {
-    if (event.sender === this.#plan.user) return;
+    if (event.sender === this.#plan.steward.id) return;
 
     warn("👮 Got kicked: %j", { roomId, event });
   }

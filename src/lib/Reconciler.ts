@@ -1,6 +1,9 @@
 import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
-import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
+import type {
+  MatrixProfileInfo,
+  PowerLevelsEventContent as PowerLevels,
+} from "matrix-bot-sdk";
 import { assert, Equals } from "tsafe";
 import type Client from "./Client";
 import {
@@ -22,6 +25,7 @@ export default class Reconciler {
 
   public async reconcile() {
     info("🔃 Starting reconciliation");
+    await this.reconcileProfile(this.plan.steward);
     await this.reconcileRooms(this.plan.rooms);
     info("🔃 Finished reconciliation");
   }
@@ -113,13 +117,13 @@ export default class Reconciler {
         const reason = "Decommissioning room";
         const members = await this.matrix.getJoinedRoomMembers(existing);
         for (const user of members) {
-          if (user === this.plan.user) continue;
+          if (user === this.plan.steward.id) continue;
 
-          info("👤 Kick user: %j", { room: existing, user, reason });
+          info("🚪 Kick user: %j", { room: existing, user, reason });
           await this.matrix.kickUser(user, existing, reason);
         }
 
-        info("👤 Leave room: %j", { room: existing });
+        info("🚪 Leave room: %j", { room: existing });
         await this.matrix.leaveRoom(existing);
 
         info("📇 Forget room: %j", { room: existing });
@@ -198,6 +202,24 @@ export default class Reconciler {
 
     if (expected.initial_state)
       for (const event of expected.initial_state) await this.reconcileState(room, event);
+  }
+
+  private async reconcileProfile({ avatar, name }: Plan["steward"]) {
+    const user = this.plan.steward.id;
+
+    info("👤 Get profile: %j", { user });
+    const actual: MatrixProfileInfo = await this.matrix.getUserProfile(user);
+
+    if (!(actual.displayname === name)) {
+      info("👤 Set display name: %j", { user, from: actual.displayname, to: name });
+      await this.matrix.setDisplayName(name);
+    }
+
+    const url = this.resolveAvatar(avatar);
+    if (!(actual.avatar_url === url)) {
+      info("👤 Set avatar: %j", { user, from: actual.avatar_url, to: url });
+      await this.matrix.setAvatarUrl(url);
+    }
   }
 
   private async reconcileRoom(

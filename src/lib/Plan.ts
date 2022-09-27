@@ -49,13 +49,19 @@ const PowerLevels: t.Type<PowerLevels> = t.partial(
   }).props
 );
 
+const StewardPlan = t.intersection([
+  t.type({ id: t.string, name: t.string }),
+  t.partial(t.type({ avatar: t.string }).props),
+]);
+export type StewardPlan = t.TypeOf<typeof StewardPlan>;
+
 const Plan = t.type({
   avatars: t.record(t.string, t.string),
   defaultRoomVersion: t.string,
   homeserver: t.string,
   powerLevels: PowerLevels,
   rooms: RoomsPlan,
-  user: t.string,
+  steward: StewardPlan,
 });
 export type Plan = t.TypeOf<typeof Plan>;
 
@@ -64,9 +70,9 @@ export const parsePlan = (yaml: string): Plan => {
   if (isLeft(result)) throw new Error(PathReporter.report(result).join("\n"));
   const plan = result.right;
 
-
-  if (!(plan.powerLevels.users?.[plan.user] === 100))
-    throw new Error("Insufficient self power level");
+  const { users } = plan.powerLevels;
+  if (!(users?.["steward"] === 100)) throw new Error("Insufficient steward power level");
+  delete Object.assign(users, { [plan.steward.id]: users["steward"] })["steward"];
 
   return plan;
 };
