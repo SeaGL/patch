@@ -18,9 +18,7 @@ interface Room extends RoomPlan {
 }
 
 export default class Reconciler {
-  public constructor(private readonly matrix: Client, private readonly plan: Plan) {
-    this.validatePlan();
-  }
+  public constructor(private readonly matrix: Client, private readonly plan: Plan) {}
 
   public async reconcile() {
     info("🔃 Starting reconciliation");
@@ -265,10 +263,5 @@ export default class Reconciler {
 
   private resolveAvatar(name: string): string {
     return expect(this.plan.avatars[name], `avatar ${name}`);
-  }
-
-  private validatePlan() {
-    if (!(this.plan.powerLevels.users?.[this.userId] === 100))
-      throw new Error("Missing self power level");
   }
 }

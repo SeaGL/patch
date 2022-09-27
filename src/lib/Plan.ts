@@ -1,6 +1,9 @@
 // Pending samchon/typescript-json#153
 
+import { isLeft } from "fp-ts/lib/Either.js";
 import t from "io-ts";
+import { PathReporter } from "io-ts/lib/PathReporter.js";
+import { load } from "js-yaml";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 
 const RoomPlan: t.Type<RoomPlan> = t.recursion("RoomPlan", () =>
@@ -54,3 +57,18 @@ const Plan = t.type({
   user: t.string,
 });
 export type Plan = t.TypeOf<typeof Plan>;
+
+export const parsePlan = (yaml: string): Plan => {
+  const result = Plan.decode(load(yaml));
+
+  if (isLeft(result)) {
+    throw new Error(PathReporter.report(result).join("\n"));
+  } else {
+    const plan = result.right;
+
+    if (!(plan.powerLevels.users?.[plan.user] === 100))
+      throw new Error("Missing self power level");
+
+    return plan;
+  }
+};
