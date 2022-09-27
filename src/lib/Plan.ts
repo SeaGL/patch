@@ -3,6 +3,19 @@
 import t from "io-ts";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 
+const RoomPlan: t.Type<RoomPlan> = t.recursion("RoomPlan", () =>
+  t.intersection([
+    t.type({ avatar: t.string, name: t.string, topic: t.string }),
+    t.partial(
+      t.type({
+        children: RoomsPlan,
+        destroy: t.boolean,
+        private: t.boolean,
+        suggested: t.boolean,
+      }).props
+    ),
+  ])
+);
 export interface RoomPlan {
   avatar: string;
   children?: RoomsPlan;
@@ -12,24 +25,11 @@ export interface RoomPlan {
   suggested?: boolean;
   topic: string;
 }
-const TRoomPlan: t.Type<RoomPlan> = t.recursion("RoomPlan", () =>
-  t.intersection([
-    t.type({ avatar: t.string, name: t.string, topic: t.string }),
-    t.partial(
-      t.type({
-        children: TRoomsPlan,
-        destroy: t.boolean,
-        private: t.boolean,
-        suggested: t.boolean,
-      }).props
-    ),
-  ])
-);
 
+const RoomsPlan = t.record(t.string, RoomPlan);
 export type RoomsPlan = Record<string, RoomPlan>;
-const TRoomsPlan = t.record(t.string, TRoomPlan);
 
-const TPowerLevels: t.Type<PowerLevels> = t.partial(
+const PowerLevels: t.Type<PowerLevels> = t.partial(
   t.type({
     ban: t.number,
     events: t.record(t.string, t.number),
@@ -45,12 +45,12 @@ const TPowerLevels: t.Type<PowerLevels> = t.partial(
   }).props
 );
 
-export type Plan = t.TypeOf<typeof TPlan>;
-export const TPlan = t.type({
+const Plan = t.type({
   avatars: t.record(t.string, t.string),
   defaultRoomVersion: t.string,
   homeserver: t.string,
-  powerLevels: TPowerLevels,
-  rooms: TRoomsPlan,
+  powerLevels: PowerLevels,
+  rooms: RoomsPlan,
   user: t.string,
 });
+export type Plan = t.TypeOf<typeof Plan>;
