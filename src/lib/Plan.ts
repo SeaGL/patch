@@ -61,15 +61,12 @@ export type Plan = t.TypeOf<typeof Plan>;
 
 export const parsePlan = (yaml: string): Plan => {
   const result = Plan.decode(load(yaml));
+  if (isLeft(result)) throw new Error(PathReporter.report(result).join("\n"));
+  const plan = result.right;
 
-  if (isLeft(result)) {
-    throw new Error(PathReporter.report(result).join("\n"));
-  } else {
-    const plan = result.right;
 
-    if (!(plan.powerLevels.users?.[plan.user] === 100))
-      throw new Error("Missing self power level");
+  if (!(plan.powerLevels.users?.[plan.user] === 100))
+    throw new Error("Insufficient self power level");
 
-    return plan;
-  }
+  return plan;
 };
