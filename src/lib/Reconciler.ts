@@ -10,30 +10,11 @@ import {
   RoomCreateOptions,
   StateEvent,
 } from "./matrix.js";
+import type { Plan, RoomPlan, RoomsPlan } from "./Plan.js";
 import { expect, info } from "./utilities.js";
-
-export interface Plan {
-  avatars: Record<string, string>;
-  defaultRoomVersion: string;
-  homeserver: string;
-  powerLevels: PowerLevels;
-  rooms: RoomsPlan;
-}
 
 interface Room extends RoomPlan {
   id: string;
-}
-
-type RoomsPlan = Record<string, RoomPlan>;
-
-interface RoomPlan {
-  avatar: string;
-  children?: RoomsPlan;
-  destroy?: boolean;
-  name: string;
-  private?: boolean;
-  suggested?: boolean;
-  topic: string;
 }
 
 export default class Reconciler {

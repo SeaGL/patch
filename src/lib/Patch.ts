@@ -1,7 +1,8 @@
 import assert from "assert/strict";
 import { RoomEvent, SimpleFsStorageProvider } from "matrix-bot-sdk";
 import Client from "./Client.js";
-import Reconciler, { Plan } from "./Reconciler.js";
+import type { Plan } from "./Plan.js";
+import Reconciler from "./Reconciler.js";
 import { info, warn } from "./utilities.js";
 
 interface Config {

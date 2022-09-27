@@ -1,4 +1,4 @@
-export const { debug, info, warn } = console;
+export const { debug, error, info, warn } = console;
 
 export const env = (key: string): string =>
   expect(process.env[key], `environment variable ${key}`);
