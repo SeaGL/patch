@@ -9,27 +9,24 @@ interface Config {
   accessToken: string;
   baseUrl: string;
   plan: Plan;
-  userId: string;
 }
 
 export default class Patch {
   readonly #matrix: Client;
   readonly #plan: Plan;
-  readonly #userId: string;
 
-  public constructor({ accessToken, baseUrl, plan, userId }: Config) {
+  public constructor({ accessToken, baseUrl, plan }: Config) {
     const storage = new SimpleFsStorageProvider("data/state.json");
 
     this.#matrix = new Client(baseUrl, accessToken, storage);
     this.#plan = plan;
-    this.#userId = userId;
 
     this.#matrix.on("room.leave", this.handleLeave.bind(this));
   }
 
   public async start() {
-    info("🪪 Authenticate: %j", { user: this.#userId });
-    assert.equal(await this.#matrix.getUserId(), this.#userId);
+    info("🪪 Authenticate: %j", { user: this.#plan.user });
+    assert.equal(await this.#matrix.getUserId(), this.#plan.user);
 
     await this.reconcile();
 
@@ -38,12 +35,12 @@ export default class Patch {
   }
 
   private handleLeave(roomId: string, event: RoomEvent) {
-    if (event.sender === this.#userId) return;
+    if (event.sender === this.#plan.user) return;
 
     warn("👮 Got kicked: %j", { roomId, event });
   }
 
   private async reconcile() {
-    await new Reconciler(this.#matrix, this.#userId, this.#plan).reconcile();
+    await new Reconciler(this.#matrix, this.#plan).reconcile();
   }
 }

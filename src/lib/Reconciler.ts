@@ -18,11 +18,7 @@ interface Room extends RoomPlan {
 }
 
 export default class Reconciler {
-  public constructor(
-    private readonly matrix: Client,
-    private readonly userId: string,
-    private readonly plan: Plan
-  ) {
+  public constructor(private readonly matrix: Client, private readonly plan: Plan) {
     this.validatePlan();
   }
 
@@ -119,7 +115,7 @@ export default class Reconciler {
         const reason = "Decommissioning room";
         const members = await this.matrix.getJoinedRoomMembers(existing);
         for (const user of members) {
-          if (user === this.userId) continue;
+          if (user === this.plan.user) continue;
 
           info("👤 Kick user: %j", { room: existing, user, reason });
           await this.matrix.kickUser(user, existing, reason);

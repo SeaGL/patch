@@ -52,4 +52,5 @@ export const TPlan = t.type({
   homeserver: t.string,
   powerLevels: TPowerLevels,
   rooms: TRoomsPlan,
+  user: t.string,
 });

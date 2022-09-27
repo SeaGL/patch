@@ -10,7 +10,6 @@ const start = async (plan: Plan) => {
   const config = {
     accessToken: env("MATRIX_ACCESS_TOKEN"),
     baseUrl: env("MATRIX_BASE_URL"),
-    userId: env("MATRIX_USER_ID"),
 
     plan,
   };
