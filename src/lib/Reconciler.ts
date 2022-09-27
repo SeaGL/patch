@@ -29,6 +29,7 @@ type RoomsPlan = Record<string, RoomPlan>;
 interface RoomPlan {
   avatar: string;
   children?: RoomsPlan;
+  destroy?: boolean;
   name: string;
   private?: boolean;
   suggested?: boolean;
@@ -123,34 +124,60 @@ export default class Reconciler {
     local: string,
     expected: RoomPlan,
     privateParent?: string
-  ): Promise<[string, boolean]> {
+  ): Promise<[string | undefined, boolean]> {
     const alias = `#${local}:${this.plan.homeserver}`;
 
     info("🏷️ Resolve alias: %j", { alias });
     const existing = (await this.matrix.lookupRoomAlias(alias).catch(orNone))?.roomId;
-    if (existing) return [existing, false];
 
-    info("🏠 Create room: %j", { alias });
-    const [isPrivate, isSpace] = [Boolean(expected.private), Boolean(expected.children)];
-    const avatar = this.resolveAvatar(expected.avatar);
-    const created = await this.matrix.createRoom(
-      mergeWithMatrixState<RoomCreateOptions, Partial<RoomCreateOptions>>(
-        {
-          room_version: this.plan.defaultRoomVersion,
-          room_alias_name: local,
-          name: expected.name,
-          topic: expected.topic,
-          power_level_content_override: this.plan.powerLevels,
-          initial_state: [
-            { type: "m.room.avatar", content: { url: avatar } },
-            { type: "m.room.canonical_alias", content: { alias } },
-          ],
-          ...(isSpace ? { creation_content: { type: "m.space" } } : {}),
-        },
-        this.getAccessOptions({ isPrivate, isSpace, privateParent })
-      )
-    );
-    return [created, true];
+    if (expected.destroy) {
+      if (existing) {
+        info("🏷️ Delete alias: %j", { alias });
+        await this.matrix.deleteRoomAlias(alias);
+
+        const reason = "Decommissioning room";
+        const members = await this.matrix.getJoinedRoomMembers(existing);
+        for (const user of members) {
+          if (user === this.userId) continue;
+
+          info("👤 Kick user: %j", { room: existing, user, reason });
+          await this.matrix.kickUser(user, existing, reason);
+        }
+
+        info("👤 Leave room: %j", { room: existing });
+        await this.matrix.leaveRoom(existing);
+
+        info("📇 Forget room: %j", { room: existing });
+        await this.matrix.forgetRoom(existing);
+      }
+
+      return [undefined, false];
+    } else {
+      if (existing) return [existing, false];
+
+      info("🏠 Create room: %j", { alias });
+      const isPrivate = Boolean(expected.private);
+      const isSpace = Boolean(expected.children);
+      const avatar = this.resolveAvatar(expected.avatar);
+      const created = await this.matrix.createRoom(
+        mergeWithMatrixState<RoomCreateOptions, Partial<RoomCreateOptions>>(
+          {
+            room_version: this.plan.defaultRoomVersion,
+            room_alias_name: local,
+            name: expected.name,
+            topic: expected.topic,
+            power_level_content_override: this.plan.powerLevels,
+            initial_state: [
+              { type: "m.room.avatar", content: { url: avatar } },
+              { type: "m.room.canonical_alias", content: { alias } },
+            ],
+            ...(isSpace ? { creation_content: { type: "m.space" } } : {}),
+          },
+          this.getAccessOptions({ isPrivate, isSpace, privateParent })
+        )
+      );
+      return [created, true];
+    }
   }
 
   private async reconcileName(room: string, expected: string) {
@@ -202,10 +229,10 @@ export default class Reconciler {
     local: string,
     expected: RoomPlan,
     privateParent?: string
-  ): Promise<Room> {
+  ): Promise<Room | undefined> {
     const [id, created] = await this.reconcileExistence(local, expected, privateParent);
 
-    if (!created) {
+    if (id && !created) {
       const isPrivate = Boolean(expected.private);
       const isSpace = Boolean(expected.children);
 
@@ -220,10 +247,10 @@ export default class Reconciler {
       const privateParent = expected.private ? id : undefined;
       const children = await this.reconcileRooms(expected.children, privateParent);
 
-      await this.reconcileChildren(id, children);
+      if (id) await this.reconcileChildren(id, children);
     }
 
-    return { ...expected, id };
+    return id ? { ...expected, id } : undefined;
   }
 
   private async reconcileRooms(
@@ -232,8 +259,11 @@ export default class Reconciler {
   ): Promise<Room[]> {
     const rooms = [];
 
-    for (const [local, plan] of Object.entries(expected))
-      rooms.push(await this.reconcileRoom(local, plan, privateParent));
+    for (const [local, plan] of Object.entries(expected)) {
+      const room = await this.reconcileRoom(local, plan, privateParent);
+
+      if (room) rooms.push(room);
+    }
 
     return rooms;
   }
