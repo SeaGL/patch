@@ -8,9 +8,10 @@ import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 
 const RoomPlan: t.Type<RoomPlan> = t.recursion("RoomPlan", () =>
   t.intersection([
-    t.type({ avatar: t.string, name: t.string, topic: t.string }),
+    t.type({ name: t.string, topic: t.string }),
     t.partial(
       t.type({
+        avatar: t.string,
         children: RoomsPlan,
         destroy: t.boolean,
         private: t.boolean,
@@ -20,7 +21,7 @@ const RoomPlan: t.Type<RoomPlan> = t.recursion("RoomPlan", () =>
   ])
 );
 export interface RoomPlan {
-  avatar: string;
+  avatar?: string;
   children?: RoomsPlan;
   destroy?: boolean;
   name: string;

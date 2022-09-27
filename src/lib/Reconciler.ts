@@ -61,7 +61,7 @@ export default class Reconciler {
     };
   }
 
-  private async reconcileAvatar(room: string, expected: string) {
+  private async reconcileAvatar(room: string, expected: Room["avatar"]) {
     await this.reconcileState(room, {
       type: "m.room.avatar",
       content: { url: this.resolveAvatar(expected) },
@@ -261,7 +261,7 @@ export default class Reconciler {
     });
   }
 
-  private resolveAvatar(name: string): string {
+  private resolveAvatar(name: string = "default"): string {
     return expect(this.plan.avatars[name], `avatar ${name}`);
   }
 }
