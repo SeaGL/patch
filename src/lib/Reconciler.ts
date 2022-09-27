@@ -250,13 +250,13 @@ export default class Reconciler {
   }
 
   private async reconcileState(room: string, expected: StateEvent) {
-    const { type, state_key: key = "", content: to } = expected;
+    const { type, state_key: key, content: to } = expected;
     info("🗄️ Get state: %j", { room, type, key });
     const from = await this.matrix.getRoomStateEvent(room, type, key).catch(orNone);
 
     if (!isEqual(from, to)) {
       info("🗄️ Set state: %j", { room, type, key, from, to });
-      await this.matrix.sendStateEvent(room, type, key, to);
+      await this.matrix.sendStateEvent(room, type, key ?? "", to);
     }
   }
 
