@@ -6,12 +6,19 @@ import { PathReporter } from "io-ts/lib/PathReporter.js";
 import { load } from "js-yaml";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 
+const SessionGroupId = t.keyof({
+  CURRENT_SESSIONS: undefined,
+  FUTURE_SESSIONS: undefined,
+  PAST_SESSIONS: undefined,
+});
+export type SessionGroupId = t.TypeOf<typeof SessionGroupId>;
+
 const RoomPlan: t.Type<RoomPlan> = t.recursion("RoomPlan", () =>
   t.intersection([
     t.strict({ name: t.string }),
     t.partial({
       avatar: t.string,
-      children: RoomsPlan,
+      children: t.union([RoomsPlan, SessionGroupId]),
       destroy: t.boolean,
       private: t.boolean,
       suggested: t.boolean,
@@ -21,7 +28,7 @@ const RoomPlan: t.Type<RoomPlan> = t.recursion("RoomPlan", () =>
 );
 export interface RoomPlan {
   avatar?: string;
-  children?: RoomsPlan;
+  children?: RoomsPlan | SessionGroupId;
   destroy?: boolean;
   name: string;
   private?: boolean;
@@ -46,6 +53,12 @@ const PowerLevels: t.Type<PowerLevels> = t.partial({
   notifications: t.partial({ room: t.number }),
 });
 
+const SessionsPlan = t.strict({
+  conference: t.string,
+  prefix: t.string,
+});
+export type SessionsPlan = t.TypeOf<typeof SessionsPlan>;
+
 const StewardPlan = t.intersection([
   t.strict({ id: t.string, name: t.string }),
   t.partial({ avatar: t.string }),
@@ -58,6 +71,7 @@ const Plan = t.strict({
   homeserver: t.string,
   powerLevels: PowerLevels,
   rooms: RoomsPlan,
+  sessions: SessionsPlan,
   steward: StewardPlan,
 });
 export type Plan = t.TypeOf<typeof Plan>;

@@ -1,5 +1,6 @@
 import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
+import { DateTime } from "luxon";
 import type {
   MatrixProfileInfo,
   PowerLevelsEventContent as PowerLevels,
@@ -16,25 +17,30 @@ import {
   RoomCreateOptions,
   StateEvent,
 } from "./matrix.js";
-import type { Plan, RoomPlan, RoomsPlan } from "./Plan.js";
+import { getSessions } from "./Osem.js";
+import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
 import { expect, info } from "./utilities.js";
 
 interface Room extends RoomPlan {
   id: string;
 }
 
-const listSpace = (space: Space): Promise<Children> => {
-  info("🏘️ List space: %j", { id: space.roomId });
-  return space.getChildEntities();
-};
+interface ListedSpace extends Space {
+  children: Children;
+}
 
 export default class Reconciler {
-  public constructor(private readonly matrix: Client, private readonly plan: Plan) {}
+  #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
+
+  public constructor(private readonly matrix: Client, private readonly plan: Plan) {
+    this.#sessionGroups = {};
+  }
 
   public async reconcile() {
     info("🔃 Starting reconciliation");
     await this.reconcileProfile(this.plan.steward);
     await this.reconcileRooms(this.plan.rooms);
+    await this.reconcileSessions(this.plan.sessions);
     info("🔃 Finished reconciliation");
   }
 
@@ -78,6 +84,11 @@ export default class Reconciler {
     };
   }
 
+  private async listSpace(space: Space): Promise<ListedSpace> {
+    info("🏘️ List space: %j", { id: space.roomId });
+    return Object.assign(space, { children: await space.getChildEntities() });
+  }
+
   private async reconcileAvatar(room: string, expected: Room["avatar"]) {
     await this.reconcileState(room, {
       type: "m.room.avatar",
@@ -85,15 +96,13 @@ export default class Reconciler {
     });
   }
 
-  private async reconcileChildren(space: Space, expected: Room[]) {
-    const actual = await listSpace(space);
-
-    for (const id of Object.keys(actual)) {
+  private async reconcileChildren(space: ListedSpace, expected: Room[]) {
+    for (const id of Object.keys(space.children)) {
       if (!expected.some((r) => r.id === id)) await this.removeFromSpace(space, id);
     }
 
     for (const { id, suggested = false } of expected) {
-      const child = actual[id];
+      const child = space.children[id];
 
       if (child) {
         if (child.suggested !== suggested) {
@@ -258,10 +267,14 @@ export default class Reconciler {
       info("🏘️ Get space: %j", { id });
       const space = await this.matrix.getSpace(id);
 
-      const privateParent = expected.private ? id : undefined;
-      const children = await this.reconcileRooms(expected.children, privateParent);
-
-      await this.reconcileChildren(space, children);
+      if (typeof expected.children === "string") {
+        this.#sessionGroups[expected.children] = await this.listSpace(space);
+      } else {
+        await this.reconcileChildren(
+          await this.listSpace(space),
+          await this.reconcileRooms(expected.children, expected.private ? id : undefined)
+        );
+      }
     }
 
     return { ...expected, id };
@@ -280,6 +293,36 @@ export default class Reconciler {
     }
 
     return rooms;
+  }
+
+  private async reconcileSessions({ conference }: SessionsPlan) {
+    info("📅 Get sessions: %j", { conference });
+    const sessions = await getSessions(conference);
+
+    const {
+      CURRENT_SESSIONS: current,
+      FUTURE_SESSIONS: future,
+      PAST_SESSIONS: past,
+    } = this.#sessionGroups;
+
+    for (const session of sessions) {
+      const local = `${this.plan.sessions.prefix}${session.id}`;
+      const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
+      const { id } = (await this.reconcileRoom(local, { name }))!;
+
+      const reconcileGroup = async (space: SpaceWithChildren, include: boolean) => {
+        if (!include && id in space.children) await this.removeFromSpace(space, id);
+        if (include && !(id in space.children)) await this.addToSpace(space, id);
+      };
+
+      const now = DateTime.now();
+      const [started, ended] = [session.beginning <= now, session.end <= now];
+      const [isFuture, isCurrent, isPast] = [!started, started && !ended, ended];
+
+      if (future) await reconcileGroup(future, isFuture);
+      if (current) await reconcileGroup(current, isCurrent);
+      if (past) await reconcileGroup(past, isPast);
+    }
   }
 
   private async reconcileState(room: string, expected: StateEvent) {
