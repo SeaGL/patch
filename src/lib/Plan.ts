@@ -56,6 +56,7 @@ const PowerLevels: t.Type<PowerLevels> = t.partial({
 const SessionsPlan = t.strict({
   conference: t.string,
   prefix: t.string,
+  beginEarly: t.number,
 });
 export type SessionsPlan = t.TypeOf<typeof SessionsPlan>;
 

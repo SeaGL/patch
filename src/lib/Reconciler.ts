@@ -1,6 +1,6 @@
 import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 import type {
   MatrixProfileInfo,
   PowerLevelsEventContent as PowerLevels,
@@ -315,11 +315,12 @@ export default class Reconciler {
     return rooms;
   }
 
-  private async reconcileSessions({ conference }: SessionsPlan) {
+  private async reconcileSessions({ conference, beginEarly }: SessionsPlan) {
     info("📅 Get sessions: %j", { conference });
     const sessions = await getSessions(conference);
     sessions.sort(compareSessions);
 
+    const early = Duration.fromObject({ minutes: beginEarly });
     const {
       CURRENT_SESSIONS: current,
       FUTURE_SESSIONS: future,
@@ -333,8 +334,8 @@ export default class Reconciler {
       const room = (await this.reconcileRoom(local, order, { name }))!;
 
       const now = DateTime.now();
-      const [started, ended] = [session.beginning <= now, session.end <= now];
-      const [isFuture, isCurrent, isPast] = [!started, started && !ended, ended];
+      const [began, ended] = [session.beginning.minus(early) <= now, session.end <= now];
+      const [isFuture, isCurrent, isPast] = [!began, began && !ended, ended];
 
       if (future) await this.reconcileChildhood(future, room, isFuture);
       if (current) await this.reconcileChildhood(current, room, isCurrent);
