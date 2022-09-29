@@ -5,7 +5,6 @@ import type {
   MatrixProfileInfo,
   PowerLevelsEventContent as PowerLevels,
   Space,
-  SpaceChildEntityOptions as ChildOptions,
   SpaceEntityMap as Children,
 } from "matrix-bot-sdk";
 import { assert, Equals } from "tsafe";
@@ -42,11 +41,6 @@ export default class Reconciler {
     await this.reconcileRooms(this.plan.rooms);
     await this.reconcileSessions(this.plan.sessions);
     info("🔃 Finished reconciliation");
-  }
-
-  private async addToSpace(space: Space, child: string, options?: ChildOptions) {
-    info("🏘️ Add to space: %j", { space: space.roomId, child });
-    await space.addChildRoom(child, { via: [this.plan.homeserver], ...options });
   }
 
   private getAccessOptions({
@@ -96,23 +90,38 @@ export default class Reconciler {
     });
   }
 
-  private async reconcileChildren(space: ListedSpace, expected: Room[]) {
-    for (const id of Object.keys(space.children)) {
-      if (!expected.some((r) => r.id === id)) await this.removeFromSpace(space, id);
-    }
+  private async reconcileChildhood(space: ListedSpace, room: Room, include = true) {
+    const { id, suggested = false } = room;
+    const actual = space.children[id]?.content;
+    if (!include) return actual && (await this.removeFromSpace(space, id));
 
-    for (const { id, suggested = false } of expected) {
-      const child = space.children[id];
+    const expected = { suggested };
 
-      if (child) {
-        if (child.suggested !== suggested) {
-          info("🏘️ Set suggested: %j", { space: space.roomId, child: id, suggested });
-          await space.addChildRoom(id, { ...child.content, suggested });
-        }
-      } else {
-        await this.addToSpace(space, id, { suggested });
+    if (actual) {
+      let changed = false;
+      mergeWith(actual, expected, (from, to, option) => {
+        if (typeof to === "object" || !(from || to) || from === to) return;
+
+        info("🏘️ Update childhood: %j", { space: space.roomId, id, option, from, to });
+        changed = true;
+      });
+
+      if (changed) {
+        info("🏘️ Set childhood: %j", { space: space.roomId, child: id });
+        await space.addChildRoom(id, actual);
       }
+    } else {
+      info("🏘️ Add to space: %j", { space: space.roomId, child: id });
+      await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
     }
+  }
+
+  private async reconcileChildren(space: ListedSpace, expected: Room[]) {
+    const actual = Object.keys(space.children);
+    const ids = new Set(expected.map((r) => r.id));
+
+    for (const a of actual) if (!ids.has(a)) await this.removeFromSpace(space, a);
+    for (const room of expected) await this.reconcileChildhood(space, room);
   }
 
   private async reconcileExistence(
@@ -308,20 +317,15 @@ export default class Reconciler {
     for (const session of sessions) {
       const local = `${this.plan.sessions.prefix}${session.id}`;
       const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
-      const { id } = (await this.reconcileRoom(local, { name }))!;
-
-      const reconcileGroup = async (space: SpaceWithChildren, include: boolean) => {
-        if (!include && id in space.children) await this.removeFromSpace(space, id);
-        if (include && !(id in space.children)) await this.addToSpace(space, id);
-      };
+      const room = (await this.reconcileRoom(local, { name }))!;
 
       const now = DateTime.now();
       const [started, ended] = [session.beginning <= now, session.end <= now];
       const [isFuture, isCurrent, isPast] = [!started, started && !ended, ended];
 
-      if (future) await reconcileGroup(future, isFuture);
-      if (current) await reconcileGroup(current, isCurrent);
-      if (past) await reconcileGroup(past, isPast);
+      if (future) await this.reconcileChildhood(future, room, isFuture);
+      if (current) await this.reconcileChildhood(current, room, isCurrent);
+      if (past) await this.reconcileChildhood(past, room, isPast);
     }
   }
 
