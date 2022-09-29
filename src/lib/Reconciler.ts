@@ -3,6 +3,9 @@ import mergeWith from "lodash.mergewith";
 import type {
   MatrixProfileInfo,
   PowerLevelsEventContent as PowerLevels,
+  Space,
+  SpaceChildEntityOptions as ChildOptions,
+  SpaceEntityMap as Children,
 } from "matrix-bot-sdk";
 import { assert, Equals } from "tsafe";
 import type Client from "./Client";
@@ -20,6 +23,11 @@ interface Room extends RoomPlan {
   id: string;
 }
 
+const listSpace = (space: Space): Promise<Children> => {
+  info("🏘️ List space: %j", { id: space.roomId });
+  return space.getChildEntities();
+};
+
 export default class Reconciler {
   public constructor(private readonly matrix: Client, private readonly plan: Plan) {}
 
@@ -28,6 +36,11 @@ export default class Reconciler {
     await this.reconcileProfile(this.plan.steward);
     await this.reconcileRooms(this.plan.rooms);
     info("🔃 Finished reconciliation");
+  }
+
+  private async addToSpace(space: Space, child: string, options?: ChildOptions) {
+    info("🏘️ Add to space: %j", { space: space.roomId, child });
+    await space.addChildRoom(child, { via: [this.plan.homeserver], ...options });
   }
 
   private getAccessOptions({
@@ -72,16 +85,11 @@ export default class Reconciler {
     });
   }
 
-  private async reconcileChildren(parent: string, expected: Room[]) {
-    info("🏘️ Get space: %j", { space: parent });
-    const space = await this.matrix.getSpace(parent);
-    const actual = await space.getChildEntities();
+  private async reconcileChildren(space: Space, expected: Room[]) {
+    const actual = await listSpace(space);
 
     for (const id of Object.keys(actual)) {
-      if (!expected.some((r) => r.id === id)) {
-        info("🏘️ Remove from space: %j", { space: space.roomId, child: id });
-        await space.removeChildRoom(id);
-      }
+      if (!expected.some((r) => r.id === id)) await this.removeFromSpace(space, id);
     }
 
     for (const { id, suggested = false } of expected) {
@@ -93,8 +101,7 @@ export default class Reconciler {
           await space.addChildRoom(id, { ...child.content, suggested });
         }
       } else {
-        info("🏘️ Add to space: %j", { space: space.roomId, child: id });
-        await space.addChildRoom(id, { suggested, via: [this.plan.homeserver] });
+        await this.addToSpace(space, id, { suggested });
       }
     }
   }
@@ -229,7 +236,14 @@ export default class Reconciler {
   ): Promise<Room | undefined> {
     const [id, created] = await this.reconcileExistence(local, expected, privateParent);
 
-    if (id && !created) {
+    if (!id) {
+      if (typeof expected.children === "object")
+        await this.reconcileRooms(expected.children);
+
+      return undefined;
+    }
+
+    if (!created) {
       const isPrivate = Boolean(expected.private);
       const isSpace = Boolean(expected.children);
 
@@ -241,13 +255,16 @@ export default class Reconciler {
     }
 
     if (expected.children) {
+      info("🏘️ Get space: %j", { id });
+      const space = await this.matrix.getSpace(id);
+
       const privateParent = expected.private ? id : undefined;
       const children = await this.reconcileRooms(expected.children, privateParent);
 
-      if (id) await this.reconcileChildren(id, children);
+      await this.reconcileChildren(space, children);
     }
 
-    return id ? { ...expected, id } : undefined;
+    return { ...expected, id };
   }
 
   private async reconcileRooms(
@@ -281,6 +298,11 @@ export default class Reconciler {
       type: "m.room.topic",
       content: expected && { topic: expected },
     });
+  }
+
+  private async removeFromSpace(space: Space, child: string) {
+    info("🏘️ Remove from space: %j", { space: space.roomId, child });
+    await space.removeChildRoom(child);
   }
 
   private resolveAvatar(name: string = "default"): string {
