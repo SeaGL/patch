@@ -13,7 +13,9 @@ export interface RoomCreateOptions extends RoomCreateFullOptions {
   preset?: Exclude<NonNullable<RoomCreateFullOptions["preset"]>, "trusted_private_chat">;
 }
 
-export type StateEvent = NonNullable<RoomCreateOptions["initial_state"]>[0];
+export type StateEvent = NonNullable<RoomCreateOptions["initial_state"]>[0] & {
+  content: unknown;
+};
 
 export const mergeMatrixState = (...stores: StateEvent[][]): StateEvent[] => {
   const events = new Map<string, StateEvent>();

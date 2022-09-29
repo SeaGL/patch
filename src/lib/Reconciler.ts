@@ -144,12 +144,12 @@ export default class Reconciler {
             room_version: this.plan.defaultRoomVersion,
             room_alias_name: local,
             name: expected.name,
-            topic: expected.topic,
             power_level_content_override: this.plan.powerLevels,
             initial_state: [
               { type: "m.room.avatar", content: { url: avatar } },
               { type: "m.room.canonical_alias", content: { alias } },
             ],
+            ...(expected.topic ? { topic: expected.topic } : {}),
             ...(isSpace ? { creation_content: { type: "m.space" } } : {}),
           },
           this.getAccessOptions({ isPrivate, isSpace, privateParent })
@@ -270,16 +270,16 @@ export default class Reconciler {
     info("🗄️ Get state: %j", { room, type, key });
     const from = await this.matrix.getRoomStateEvent(room, type, key).catch(orNone);
 
-    if (!isEqual(from, to)) {
+    if ((from || to) && !isEqual(from, to)) {
       info("🗄️ Set state: %j", { room, type, key, from, to });
       await this.matrix.sendStateEvent(room, type, key ?? "", to);
     }
   }
 
-  private async reconcileTopic(room: string, expected: string) {
+  private async reconcileTopic(room: string, expected: Room["topic"]) {
     await this.reconcileState(room, {
       type: "m.room.topic",
-      content: { topic: expected },
+      content: expected && { topic: expected },
     });
   }
 
