@@ -40,6 +40,7 @@ export default class Client extends MatrixClient {
     );
   }
 
+  // Pending turt2live/matrix-bot-sdk#18
   public override doRequest(
     ...args: Parameters<MatrixClient["doRequest"]>
   ): ReturnType<MatrixClient["doRequest"]> {

@@ -39,6 +39,7 @@ export const mergeWithMatrixState = <T, F>(to: T, from: F): T & F =>
       : undefined
   );
 
+// Workaround for turt2live/matrix-bot-sdk#197
 export const orNone = (error: MatrixError) => {
   if (error.errcode === "M_NOT_FOUND") return undefined;
 
