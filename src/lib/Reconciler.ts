@@ -16,17 +16,26 @@ import {
   RoomCreateOptions,
   StateEvent,
 } from "./matrix.js";
-import { getSessions } from "./Osem.js";
+import { getSessions, Session } from "./Osem.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
 import { expect, info } from "./utilities.js";
 
 interface Room extends RoomPlan {
   id: string;
+  order: string;
 }
 
 interface ListedSpace extends Space {
   children: Children;
 }
+
+const compareSessions = (a: Session, b: Session): number =>
+  a.beginning !== b.beginning
+    ? a.beginning.valueOf() - b.beginning.valueOf()
+    : a.end !== b.end
+    ? a.end.valueOf() - b.end.valueOf()
+    : a.title.localeCompare(b.title);
+const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class Reconciler {
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
@@ -91,11 +100,11 @@ export default class Reconciler {
   }
 
   private async reconcileChildhood(space: ListedSpace, room: Room, include = true) {
-    const { id, suggested = false } = room;
+    const { id, order, suggested = false } = room;
     const actual = space.children[id]?.content;
     if (!include) return actual && (await this.removeFromSpace(space, id));
 
-    const expected = { suggested };
+    const expected = { order, suggested };
 
     if (actual) {
       let changed = false;
@@ -249,6 +258,7 @@ export default class Reconciler {
 
   private async reconcileRoom(
     local: string,
+    order: string,
     expected: RoomPlan,
     privateParent?: string
   ): Promise<Room | undefined> {
@@ -286,7 +296,7 @@ export default class Reconciler {
       }
     }
 
-    return { ...expected, id };
+    return { ...expected, id, order };
   }
 
   private async reconcileRooms(
@@ -295,8 +305,9 @@ export default class Reconciler {
   ): Promise<Room[]> {
     const rooms = [];
 
-    for (const [local, plan] of Object.entries(expected)) {
-      const room = await this.reconcileRoom(local, plan, privateParent);
+    for (const [index, [local, plan]] of Object.entries(expected).entries()) {
+      const order = sortKey(index);
+      const room = await this.reconcileRoom(local, order, plan, privateParent);
 
       if (room) rooms.push(room);
     }
@@ -307,6 +318,7 @@ export default class Reconciler {
   private async reconcileSessions({ conference }: SessionsPlan) {
     info("📅 Get sessions: %j", { conference });
     const sessions = await getSessions(conference);
+    sessions.sort(compareSessions);
 
     const {
       CURRENT_SESSIONS: current,
@@ -314,10 +326,11 @@ export default class Reconciler {
       PAST_SESSIONS: past,
     } = this.#sessionGroups;
 
-    for (const session of sessions) {
+    for (const [index, session] of sessions.entries()) {
       const local = `${this.plan.sessions.prefix}${session.id}`;
+      const order = sortKey(index);
       const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
-      const room = (await this.reconcileRoom(local, { name }))!;
+      const room = (await this.reconcileRoom(local, order, { name }))!;
 
       const now = DateTime.now();
       const [started, ended] = [session.beginning <= now, session.end <= now];
