@@ -1,5 +1,6 @@
 import Bottleneck from "bottleneck";
 import { MatrixClient } from "matrix-bot-sdk";
+import { setTimeout } from "timers/promises";
 import type { StateEvent, Sync } from "./matrix.js";
 import { env, logger } from "./utilities.js";
 
@@ -38,7 +39,7 @@ export default class Client extends MatrixClient {
     // Workaround for matrix-org/synapse#8895
     this.#scheduleIssue8895 = limiter.wrap((async (...args) => {
       debug("⏳ Wait before non-retryable API call", { ms: issue8895Cooldown });
-      await new Promise((r) => setTimeout(r, issue8895Cooldown));
+      await setTimeout(issue8895Cooldown);
       return unlimited(...args);
     }) as MatrixClient["doRequest"]);
   }
