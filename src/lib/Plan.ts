@@ -53,11 +53,14 @@ const PowerLevels: t.Type<PowerLevels> = t.partial({
   notifications: t.partial({ room: t.number }),
 });
 
-const SessionsPlan = t.strict({
-  conference: t.string,
-  prefix: t.string,
-  beginEarly: t.number,
-});
+const SessionsPlan = t.intersection([
+  t.strict({
+    conference: t.string,
+    prefix: t.string,
+    beginEarly: t.number,
+  }),
+  t.partial({ demo: t.string }),
+]);
 export type SessionsPlan = t.TypeOf<typeof SessionsPlan>;
 
 const StewardPlan = t.intersection([
@@ -74,6 +77,7 @@ const Plan = t.strict({
   rooms: RoomsPlan,
   sessions: SessionsPlan,
   steward: StewardPlan,
+  timeZone: t.string,
 });
 export type Plan = t.TypeOf<typeof Plan>;
 

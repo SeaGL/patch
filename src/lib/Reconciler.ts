@@ -317,7 +317,9 @@ export default class Reconciler {
     return rooms;
   }
 
-  private async reconcileSessions({ conference, beginEarly }: SessionsPlan) {
+  private async reconcileSessions({ beginEarly, conference, demo }: SessionsPlan) {
+    const now = DateTime.local({ zone: this.plan.timeZone });
+
     debug("📅 Get sessions", { conference });
     const sessions = await getSessions(conference);
     sessions.sort(compareSessions);
@@ -328,6 +330,17 @@ export default class Reconciler {
       FUTURE_SESSIONS: future,
       PAST_SESSIONS: past,
     } = this.#sessionGroups;
+    if (demo) {
+      const dt = DateTime.fromISO(demo, { zone: this.plan.timeZone });
+      const offset = now.startOf("day").diff(dt, "days");
+      info("📅 Override conference date", { date: dt.toISODate() });
+      for (const session of sessions) {
+        const [from, to] = [session.beginning, session.beginning.plus(offset)];
+        debug("📅 Override session time", { from: from.toISO(), to: to.toISO() });
+        session.beginning = to;
+        session.end = session.end.plus(offset);
+      }
+    }
 
     for (const [index, session] of sessions.entries()) {
       const local = `${this.plan.sessions.prefix}${session.id}`;
@@ -335,7 +348,6 @@ export default class Reconciler {
       const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
       const room = (await this.reconcileRoom(local, order, { name }))!;
 
-      const now = DateTime.now();
       const [began, ended] = [session.beginning.minus(early) <= now, session.end <= now];
       const [isFuture, isCurrent, isPast] = [!began, began && !ended, ended];
 
