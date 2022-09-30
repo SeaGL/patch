@@ -1,7 +1,9 @@
 import Bottleneck from "bottleneck";
 import { MatrixClient } from "matrix-bot-sdk";
 import type { StateEvent, Sync } from "./matrix.js";
-import { env, info, warn } from "./utilities.js";
+import { env, logger } from "./utilities.js";
+
+const { debug, warn } = logger("Client");
 
 const issue8895Cooldown = 1000 * Number(env("ISSUE_8895_COOLDOWN"));
 const minTime = 1000 / Number(env("MATRIX_RATE_LIMIT"));
@@ -17,11 +19,11 @@ export default class Client extends MatrixClient {
 
     const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
 
-    limiter.on("failed", async (error, info) => {
-      if (info.retryCount < 3 && error.errcode === "M_LIMIT_EXCEEDED") {
+    limiter.on("failed", async (error, { retryCount }) => {
+      if (retryCount < 3 && error.errcode === "M_LIMIT_EXCEEDED") {
         const ms: number = error.retryAfterMs ?? 5000;
 
-        warn(`Rate limited for ${ms} ms`);
+        warn("Rate limited", { ms });
         return ms;
       }
 
@@ -35,7 +37,7 @@ export default class Client extends MatrixClient {
 
     // Workaround for matrix-org/synapse#8895
     this.#scheduleIssue8895 = limiter.wrap((async (...args) => {
-      info("⏳ Wait before non-retryable API call: %j", { ms: issue8895Cooldown });
+      debug("⏳ Wait before non-retryable API call", { ms: issue8895Cooldown });
       await new Promise((r) => setTimeout(r, issue8895Cooldown));
       return unlimited(...args);
     }) as MatrixClient["doRequest"]);

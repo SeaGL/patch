@@ -3,7 +3,9 @@ import { RoomEvent, SimpleFsStorageProvider } from "matrix-bot-sdk";
 import Client from "./Client.js";
 import type { Plan } from "./Plan.js";
 import Reconciler from "./Reconciler.js";
-import { info, warn } from "./utilities.js";
+import { logger } from "./utilities.js";
+
+const { debug, info, warn } = logger("Patch");
 
 interface Config {
   accessToken: string;
@@ -25,11 +27,12 @@ export default class Patch {
   }
 
   public async start() {
-    info("🪪 Authenticate: %j", { user: this.#plan.steward.id });
+    info("🪪 Authenticate", { user: this.#plan.steward.id });
     assert.equal(await this.#matrix.getUserId(), this.#plan.steward.id);
 
     info("📥 Sync");
     await this.#matrix.start();
+    debug("📥 Completed sync");
 
     await this.reconcile();
   }
@@ -37,7 +40,7 @@ export default class Patch {
   private handleLeave(roomId: string, event: RoomEvent) {
     if (event.sender === this.#plan.steward.id) return;
 
-    warn("👮 Got kicked: %j", { roomId, event });
+    warn("👮 Got kicked", { roomId, event });
   }
 
   private async reconcile() {

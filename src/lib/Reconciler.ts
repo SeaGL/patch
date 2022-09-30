@@ -18,7 +18,9 @@ import {
 } from "./matrix.js";
 import { getSessions, Session } from "./Osem.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
-import { expect, info } from "./utilities.js";
+import { expect, logger } from "./utilities.js";
+
+const { debug, info } = logger("Reconciler");
 
 interface Room extends RoomPlan {
   id: string;
@@ -45,11 +47,11 @@ export default class Reconciler {
   }
 
   public async reconcile() {
-    info("🔃 Start reconciliation");
+    info("🔃 Reconcile");
     await this.reconcileProfile(this.plan.steward);
     await this.reconcileRooms(this.plan.rooms);
     await this.reconcileSessions(this.plan.sessions);
-    info("🔃 Completed reconciliation");
+    debug("🔃 Completed reconciliation");
   }
 
   private getAccessOptions({
@@ -88,7 +90,7 @@ export default class Reconciler {
   }
 
   private async listSpace(space: Space): Promise<ListedSpace> {
-    info("🏘️ List space: %j", { id: space.roomId });
+    debug("🏘️ List space", { id: space.roomId });
     return Object.assign(space, { children: await space.getChildEntities() });
   }
 
@@ -111,16 +113,16 @@ export default class Reconciler {
       mergeWith(actual, expected, (from, to, option) => {
         if (typeof to === "object" || !(from || to) || from === to) return;
 
-        info("🏘️ Update childhood: %j", { space: space.roomId, id, option, from, to });
+        info("🏘️ Update childhood", { space: space.roomId, id, option, from, to });
         changed = true;
       });
 
       if (changed) {
-        info("🏘️ Set childhood: %j", { space: space.roomId, child: id });
+        debug("🏘️ Set childhood", { space: space.roomId, child: id });
         await space.addChildRoom(id, actual);
       }
     } else {
-      info("🏘️ Add to space: %j", { space: space.roomId, child: id });
+      info("🏘️ Add to space", { space: space.roomId, child: id });
       await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
     }
   }
@@ -140,12 +142,12 @@ export default class Reconciler {
   ): Promise<[string | undefined, boolean]> {
     const alias = `#${local}:${this.plan.homeserver}`;
 
-    info("🏷️ Resolve alias: %j", { alias });
+    debug("🏷️ Resolve alias", { alias });
     const existing = (await this.matrix.lookupRoomAlias(alias).catch(orNone))?.roomId;
 
     if (expected.destroy) {
       if (existing) {
-        info("🏷️ Delete alias: %j", { alias });
+        info("🏷️ Delete alias", { alias });
         await this.matrix.deleteRoomAlias(alias);
 
         const reason = "Decommissioning room";
@@ -153,14 +155,14 @@ export default class Reconciler {
         for (const user of members) {
           if (user === this.plan.steward.id) continue;
 
-          info("🚪 Kick user: %j", { room: existing, user, reason });
+          info("🚪 Kick user", { room: existing, user, reason });
           await this.matrix.kickUser(user, existing, reason);
         }
 
-        info("🚪 Leave room: %j", { room: existing });
+        info("🚪 Leave room", { room: existing });
         await this.matrix.leaveRoom(existing);
 
-        info("📇 Forget room: %j", { room: existing });
+        debug("📇 Forget room", { room: existing });
         await this.matrix.forgetRoom(existing);
       }
 
@@ -168,7 +170,7 @@ export default class Reconciler {
     } else {
       if (existing) return [existing, false];
 
-      info("🏠 Create room: %j", { alias });
+      info("🏠 Create room", { alias });
       const isPrivate = Boolean(expected.private);
       const isSpace = Boolean(expected.children);
       const avatar = this.resolveAvatar(expected.avatar);
@@ -201,7 +203,7 @@ export default class Reconciler {
   }
 
   private async reconcilePowerLevels(room: string, expected: PowerLevels) {
-    info("🛡️ Get power levels: %j", { room });
+    debug("🛡️ Get power levels", { room });
     const actual: PowerLevels = await this.matrix.getRoomStateEvent(
       room,
       "m.room.power_levels",
@@ -212,12 +214,12 @@ export default class Reconciler {
     mergeWith(actual, expected, (from, to, ability) => {
       if (typeof to === "object" || from === to) return;
 
-      info("🛡️ Update power level: %j", { room, ability, from, to });
+      info("🛡️ Update power level", { room, ability, from, to });
       changed = true;
     });
 
     if (changed) {
-      info("🛡️ Set power levels: %j", { room, content: actual });
+      debug("🛡️ Set power levels", { room, content: actual });
       await this.matrix.sendStateEvent(room, "m.room.power_levels", "", actual);
     }
   }
@@ -241,17 +243,17 @@ export default class Reconciler {
   private async reconcileProfile({ avatar, name }: Plan["steward"]) {
     const user = this.plan.steward.id;
 
-    info("👤 Get profile: %j", { user });
+    debug("👤 Get profile", { user });
     const actual: MatrixProfileInfo = await this.matrix.getUserProfile(user);
 
     if (!(actual.displayname === name)) {
-      info("👤 Set display name: %j", { user, from: actual.displayname, to: name });
+      info("👤 Set display name", { user, from: actual.displayname, to: name });
       await this.matrix.setDisplayName(name);
     }
 
     const url = this.resolveAvatar(avatar);
     if (!(actual.avatar_url === url)) {
-      info("👤 Set avatar: %j", { user, from: actual.avatar_url, to: url });
+      info("👤 Set avatar", { user, from: actual.avatar_url, to: url });
       await this.matrix.setAvatarUrl(url);
     }
   }
@@ -283,7 +285,7 @@ export default class Reconciler {
     }
 
     if (expected.children) {
-      info("🏘️ Get space: %j", { id });
+      debug("🏘️ Get space", { id });
       const space = await this.matrix.getSpace(id);
 
       if (typeof expected.children === "string") {
@@ -316,7 +318,7 @@ export default class Reconciler {
   }
 
   private async reconcileSessions({ conference, beginEarly }: SessionsPlan) {
-    info("📅 Get sessions: %j", { conference });
+    debug("📅 Get sessions", { conference });
     const sessions = await getSessions(conference);
     sessions.sort(compareSessions);
 
@@ -345,11 +347,11 @@ export default class Reconciler {
 
   private async reconcileState(room: string, expected: StateEventOptions) {
     const { type, state_key: key, content: to } = expected;
-    info("🗄️ Get state: %j", { room, type, key });
+    debug("🗄️ Get state", { room, type, key });
     const from = await this.matrix.getRoomStateEvent(room, type, key).catch(orNone);
 
     if ((from || to) && !isEqual(from, to)) {
-      info("🗄️ Set state: %j", { room, type, key, from, to });
+      info("🗄️ Set state", { room, type, key, from, to });
       await this.matrix.sendStateEvent(room, type, key ?? "", to);
     }
   }
@@ -362,7 +364,7 @@ export default class Reconciler {
   }
 
   private async removeFromSpace(space: Space, child: string) {
-    info("🏘️ Remove from space: %j", { space: space.roomId, child });
+    info("🏘️ Remove from space", { space: space.roomId, child });
     await space.removeChildRoom(child);
   }
 
