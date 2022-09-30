@@ -45,11 +45,11 @@ export default class Reconciler {
   }
 
   public async reconcile() {
-    info("🔃 Starting reconciliation");
+    info("🔃 Start reconciliation");
     await this.reconcileProfile(this.plan.steward);
     await this.reconcileRooms(this.plan.rooms);
     await this.reconcileSessions(this.plan.sessions);
-    info("🔃 Finished reconciliation");
+    info("🔃 Completed reconciliation");
   }
 
   private getAccessOptions({

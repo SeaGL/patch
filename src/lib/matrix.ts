@@ -25,6 +25,12 @@ export interface StateEvent extends Event {
 
 export type StateEventOptions = Optional<StateEvent, "state_key">;
 
+export interface Sync {
+  rooms?: {
+    join?: { [id: string]: { state: { events: StateEvent[] } } };
+  };
+}
+
 export const mergeMatrixState = (...stores: StateEvent[][]): StateEvent[] => {
   const events = new Map<string, StateEvent>();
   const insert = (event: StateEvent) => {

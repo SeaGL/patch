@@ -28,10 +28,10 @@ export default class Patch {
     info("🪪 Authenticate: %j", { user: this.#plan.steward.id });
     assert.equal(await this.#matrix.getUserId(), this.#plan.steward.id);
 
-    await this.reconcile();
-
-    info("🟢 Start");
+    info("📥 Sync");
     await this.#matrix.start();
+
+    await this.reconcile();
   }
 
   private handleLeave(roomId: string, event: RoomEvent) {
