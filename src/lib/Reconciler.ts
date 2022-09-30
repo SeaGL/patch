@@ -14,7 +14,7 @@ import {
   orNone,
   resolvePreset,
   RoomCreateOptions,
-  StateEvent,
+  StateEventOptions,
 } from "./matrix.js";
 import { getSessions, Session } from "./Osem.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
@@ -343,7 +343,7 @@ export default class Reconciler {
     }
   }
 
-  private async reconcileState(room: string, expected: StateEvent) {
+  private async reconcileState(room: string, expected: StateEventOptions) {
     const { type, state_key: key, content: to } = expected;
     info("🗄️ Get state: %j", { room, type, key });
     const from = await this.matrix.getRoomStateEvent(room, type, key).catch(orNone);

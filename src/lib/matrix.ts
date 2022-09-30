@@ -4,18 +4,26 @@ import type {
   MatrixError,
   RoomCreateOptions as RoomCreateFullOptions,
 } from "matrix-bot-sdk";
+import type { Optional } from "utility-types";
 
 const defaultState: Record<string, StateEvent["content"]> = {
   "m.room.guest_access/": { guest_access: "forbidden" },
 };
 
+export interface Event {
+  type: string;
+  content: unknown;
+}
+
 export interface RoomCreateOptions extends RoomCreateFullOptions {
   preset?: Exclude<NonNullable<RoomCreateFullOptions["preset"]>, "trusted_private_chat">;
 }
 
-export type StateEvent = NonNullable<RoomCreateOptions["initial_state"]>[0] & {
-  content: unknown;
-};
+export interface StateEvent extends Event {
+  state_key: string;
+}
+
+export type StateEventOptions = Optional<StateEvent, "state_key">;
 
 export const mergeMatrixState = (...stores: StateEvent[][]): StateEvent[] => {
   const events = new Map<string, StateEvent>();
