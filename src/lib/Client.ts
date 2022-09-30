@@ -1,8 +1,9 @@
 import Bottleneck from "bottleneck";
 import { MatrixClient } from "matrix-bot-sdk";
-import { info, warn } from "./utilities.js";
+import { env, info, warn } from "./utilities.js";
 
-const issue8895Cooldown = 10_000; /* ms */
+const issue8895Cooldown = 1000 * Number(env("ISSUE_8895_COOLDOWN"));
+const minTime = 1000 / Number(env("MATRIX_RATE_LIMIT"));
 
 export default class Client extends MatrixClient {
   readonly #scheduleDefault: MatrixClient["doRequest"];
@@ -12,7 +13,7 @@ export default class Client extends MatrixClient {
   public constructor(...args: ConstructorParameters<typeof MatrixClient>) {
     super(...args);
 
-    const limiter = new Bottleneck({ maxConcurrent: 1, minTime: 200 /* ms */ });
+    const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
 
     limiter.on("failed", async (error, info) => {
       if (info.retryCount < 3 && error.errcode === "M_LIMIT_EXCEEDED") {
