@@ -1,7 +1,10 @@
+import Bottleneck from "bottleneck";
 import { DateTime } from "luxon";
-import fetch from "node-fetch"; // Pending DefinitelyTyped/DefinitelyTyped#60924
+import unlimited from "node-fetch"; // Pending DefinitelyTyped/DefinitelyTyped#60924
+import { env } from "./utilities.js";
 
 const endpoint = "https://osem.seagl.org/api/v1";
+const minTime = 1000 / Number(env("OSEM_RATE_LIMIT"));
 
 // As at https://github.com/SeaGL/osem/blob/0068451/app/serializers/event_serializer.rb
 interface EventsResponse {
@@ -19,6 +22,9 @@ export interface Session {
   id: string;
   title: string;
 }
+
+const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
+const fetch = limiter.wrap(unlimited);
 
 export const getSessions = async (conference: string): Promise<Session[]> => {
   const url = `${endpoint}/conferences/${encodeURIComponent(conference)}/events`;
