@@ -32,19 +32,15 @@ export default class Client extends MatrixClient {
     this.#scheduleUnlimited = unlimited;
 
     // Workaround for matrix-org/synapse#8895
-    this.#scheduleIssue8895 = limiter.wrap(
-      async (...args: Parameters<MatrixClient["doRequest"]>) => {
-        info("⏳ Wait before non-retryable API call: %j", { ms: issue8895Cooldown });
-        await new Promise((r) => setTimeout(r, issue8895Cooldown));
-        return unlimited(...args);
-      }
-    );
+    this.#scheduleIssue8895 = limiter.wrap((async (...args) => {
+      info("⏳ Wait before non-retryable API call: %j", { ms: issue8895Cooldown });
+      await new Promise((r) => setTimeout(r, issue8895Cooldown));
+      return unlimited(...args);
+    }) as MatrixClient["doRequest"]);
   }
 
   // Pending turt2live/matrix-bot-sdk#18
-  public override doRequest(
-    ...args: Parameters<MatrixClient["doRequest"]>
-  ): ReturnType<MatrixClient["doRequest"]> {
+  public override doRequest: MatrixClient["doRequest"] = (...args) => {
     const [method, path] = args;
 
     const handler =
@@ -55,7 +51,7 @@ export default class Client extends MatrixClient {
         : this.#scheduleDefault;
 
     return handler(...args);
-  }
+  };
 
   // Pending turt2live/matrix-bot-sdk#262
   public forgetRoom(roomId: string) {
