@@ -16,12 +16,14 @@ interface Config {
 export default class Patch {
   readonly #matrix: Client;
   readonly #plan: Plan;
+  readonly #reconciler: Reconciler;
 
   public constructor({ accessToken, baseUrl, plan }: Config) {
     const storage = new SimpleFsStorageProvider("data/state.json");
 
     this.#matrix = new Client(baseUrl, accessToken, storage);
     this.#plan = plan;
+    this.#reconciler = new Reconciler(this.#matrix, this.#plan);
 
     this.#matrix.on("room.leave", this.handleLeave.bind(this));
   }
@@ -34,16 +36,12 @@ export default class Patch {
     await this.#matrix.start();
     debug("📥 Completed sync");
 
-    await this.reconcile();
+    await this.#reconciler.reconcile();
   }
 
   private handleLeave(roomId: string, event: RoomEvent) {
     if (event.sender === this.#plan.steward.id) return;
 
     warn("👮 Got kicked", { roomId, event });
-  }
-
-  private async reconcile() {
-    await new Reconciler(this.#matrix, this.#plan).reconcile();
   }
 }

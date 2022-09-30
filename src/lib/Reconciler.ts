@@ -1,6 +1,6 @@
 import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
-import { DateTime, Duration } from "luxon";
+import { DateTime } from "luxon";
 import type {
   MatrixProfileInfo,
   PowerLevelsEventContent as PowerLevels,
@@ -317,19 +317,12 @@ export default class Reconciler {
     return rooms;
   }
 
-  private async reconcileSessions({ beginEarly, conference, demo }: SessionsPlan) {
+  private async reconcileSessions({ conference, demo }: SessionsPlan) {
     const now = DateTime.local({ zone: this.plan.timeZone });
 
     debug("📅 Get sessions", { conference });
     const sessions = await getSessions(conference);
     sessions.sort(compareSessions);
-
-    const early = Duration.fromObject({ minutes: beginEarly });
-    const {
-      CURRENT_SESSIONS: current,
-      FUTURE_SESSIONS: future,
-      PAST_SESSIONS: past,
-    } = this.#sessionGroups;
     if (demo) {
       const dt = DateTime.fromISO(demo, { zone: this.plan.timeZone });
       const offset = now.startOf("day").diff(dt, "days");
@@ -348,13 +341,24 @@ export default class Reconciler {
       const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
       const room = (await this.reconcileRoom(local, order, { name }))!;
 
-      const [began, ended] = [session.beginning.minus(early) <= now, session.end <= now];
-      const [isFuture, isCurrent, isPast] = [!began, began && !ended, ended];
-
-      if (future) await this.reconcileChildhood(future, room, isFuture);
-      if (current) await this.reconcileChildhood(current, room, isCurrent);
-      if (past) await this.reconcileChildhood(past, room, isPast);
+      await this.reconcileSessionGroups(room, session, now);
     }
+  }
+
+  private async reconcileSessionGroups(room: Room, session: Session, now: DateTime) {
+    const {
+      CURRENT_SESSIONS: current,
+      FUTURE_SESSIONS: future,
+      PAST_SESSIONS: past,
+    } = this.#sessionGroups;
+
+    const beginning = session.beginning.minus({ minutes: this.plan.sessions.beginEarly });
+    const [began, ended] = [beginning <= now, session.end <= now];
+    const [isFuture, isCurrent, isPast] = [!began, began && !ended, ended];
+
+    if (future) await this.reconcileChildhood(future, room, isFuture);
+    if (current) await this.reconcileChildhood(current, room, isCurrent);
+    if (past) await this.reconcileChildhood(past, room, isPast);
   }
 
   private async reconcileState(room: string, expected: StateEventOptions) {
