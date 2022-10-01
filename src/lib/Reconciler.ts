@@ -24,11 +24,13 @@ const { debug, info } = logger("Reconciler");
 
 interface Room extends RoomPlan {
   id: string;
+  local: string;
   order: string;
 }
 
 interface ListedSpace extends Space {
   children: Children;
+  local: string;
 }
 
 const compareSessions = (a: Session, b: Session): number =>
@@ -87,16 +89,14 @@ export default class Reconciler {
     };
   }
 
-  private async listSpace(space: Space): Promise<ListedSpace> {
-    debug("🏘️ List space", { id: space.roomId });
-    return Object.assign(space, { children: await space.getChildEntities() });
+  private async listSpace(space: Space, local: string): Promise<ListedSpace> {
+    debug("🏘️ List space", { local });
+    return Object.assign(space, { children: await space.getChildEntities(), local });
   }
 
-  private async reconcileAvatar(room: string, expected: Room["avatar"]) {
-    await this.reconcileState(room, {
-      type: "m.room.avatar",
-      content: { url: this.resolveAvatar(expected) },
-    });
+  private async reconcileAvatar(room: Room) {
+    const content = { url: this.resolveAvatar(room.avatar) };
+    await this.reconcileState(room, { type: "m.room.avatar", content });
   }
 
   private async reconcile() {
@@ -108,9 +108,9 @@ export default class Reconciler {
   }
 
   private async reconcileChildhood(space: ListedSpace, room: Room, include = true) {
-    const { id, order, suggested = false } = room;
+    const { id, local: child, order, suggested = false } = room;
     const actual = space.children[id]?.content;
-    if (!include) return actual && (await this.removeFromSpace(space, id));
+    if (!include) return actual && (await this.removeFromSpace(space, id, child));
 
     const expected = { order, suggested };
 
@@ -119,16 +119,16 @@ export default class Reconciler {
       mergeWith(actual, expected, (from, to, option) => {
         if (typeof to === "object" || !(from || to) || from === to) return;
 
-        info("🏘️ Update childhood", { space: space.roomId, id, option, from, to });
+        info("🏘️ Update childhood", { space: space.local, child, option, from, to });
         changed = true;
       });
 
       if (changed) {
-        debug("🏘️ Set childhood", { space: space.roomId, child: id });
+        debug("🏘️ Set childhood", { space: space.local, child });
         await space.addChildRoom(id, actual);
       }
     } else {
-      info("🏘️ Add to space", { space: space.roomId, child: id });
+      info("🏘️ Add to space", { space: space.local, child });
       await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
     }
   }
@@ -176,7 +176,7 @@ export default class Reconciler {
     } else {
       if (existing) return [existing, false];
 
-      info("🏠 Create room", { alias });
+      info("🏠 Create room", { local });
       const isPrivate = Boolean(expected.private);
       const isSpace = Boolean(expected.children);
       const avatar = this.resolveAvatar(expected.avatar);
@@ -201,17 +201,15 @@ export default class Reconciler {
     }
   }
 
-  private async reconcileName(room: string, expected: string) {
-    await this.reconcileState(room, {
-      type: "m.room.name",
-      content: { name: expected },
-    });
+  private async reconcileName(room: Room) {
+    const content = { name: room.name };
+    await this.reconcileState(room, { type: "m.room.name", content });
   }
 
-  private async reconcilePowerLevels(room: string, expected: PowerLevels) {
+  private async reconcilePowerLevels({ id, local: room }: Room, expected: PowerLevels) {
     debug("🛡️ Get power levels", { room });
     const actual: PowerLevels = await this.matrix.getRoomStateEvent(
-      room,
+      id,
       "m.room.power_levels",
       ""
     );
@@ -226,18 +224,15 @@ export default class Reconciler {
 
     if (changed) {
       debug("🛡️ Set power levels", { room, content: actual });
-      await this.matrix.sendStateEvent(room, "m.room.power_levels", "", actual);
+      await this.matrix.sendStateEvent(id, "m.room.power_levels", "", actual);
     }
   }
 
-  private async reconcilePrivacy(
-    room: string,
-    isPrivate: boolean,
-    isSpace: boolean,
-    privateParent: string | undefined
-  ) {
+  private async reconcilePrivacy(room: Room, privateParent: string | undefined) {
     type ImplementedFor = "initial_state" | "preset";
 
+    const isPrivate = Boolean(room.private);
+    const isSpace = Boolean(room.children);
     const options = this.getAccessOptions({ isPrivate, isSpace, privateParent });
     const expected = mergeWithMatrixState(resolvePreset(options.preset), options);
     assert<Equals<typeof expected, Pick<RoomCreateOptions, ImplementedFor>>>();
@@ -279,32 +274,31 @@ export default class Reconciler {
       return undefined;
     }
 
-    if (!created) {
-      const isPrivate = Boolean(expected.private);
-      const isSpace = Boolean(expected.children);
+    const room = { ...expected, id, local, order };
 
-      await this.reconcilePowerLevels(id, this.plan.powerLevels);
-      await this.reconcilePrivacy(id, isPrivate, isSpace, privateParent);
-      await this.reconcileAvatar(id, expected.avatar);
-      await this.reconcileName(id, expected.name);
-      await this.reconcileTopic(id, expected.topic);
+    if (!created) {
+      await this.reconcilePowerLevels(room, this.plan.powerLevels);
+      await this.reconcilePrivacy(room, privateParent);
+      await this.reconcileAvatar(room);
+      await this.reconcileName(room);
+      await this.reconcileTopic(room);
     }
 
     if (expected.children) {
-      debug("🏘️ Get space", { id });
+      debug("🏘️ Get space", { local });
       const space = await this.matrix.getSpace(id);
 
       if (typeof expected.children === "string") {
-        this.#sessionGroups[expected.children] = await this.listSpace(space);
+        this.#sessionGroups[expected.children] = await this.listSpace(space, local);
       } else {
         await this.reconcileChildren(
-          await this.listSpace(space),
+          await this.listSpace(space, local),
           await this.reconcileRooms(expected.children, expected.private ? id : undefined)
         );
       }
     }
 
-    return { ...expected, id, order };
+    return room;
   }
 
   private async reconcileRooms(
@@ -332,10 +326,14 @@ export default class Reconciler {
     if (demo) {
       const dt = DateTime.fromISO(demo, { zone: this.plan.timeZone });
       const offset = now.startOf("day").diff(dt, "days");
-      info("📅 Override conference date", { date: dt.toISODate() });
+      info("📅 Override conference date", { from: dt.toISODate(), to: now.toISODate() });
       for (const session of sessions) {
         const [from, to] = [session.beginning, session.beginning.plus(offset)];
-        debug("📅 Override session time", { from: from.toISO(), to: to.toISO() });
+        debug("📅 Override session time", {
+          id: session.id,
+          from: from.toISO(),
+          to: to.toISO(),
+        });
         session.beginning = to;
         session.end = session.end.plus(offset);
       }
@@ -370,27 +368,25 @@ export default class Reconciler {
     if (isFuture) this.scheduleRegroup(room, session, beginning);
   }
 
-  private async reconcileState(room: string, expected: StateEventOptions) {
+  private async reconcileState({ id, local: room }: Room, expected: StateEventOptions) {
     const { type, state_key: key, content: to } = expected;
     debug("🗄️ Get state", { room, type, key });
-    const from = await this.matrix.getRoomStateEvent(room, type, key).catch(orNone);
+    const from = await this.matrix.getRoomStateEvent(id, type, key).catch(orNone);
 
     if ((from || to) && !isEqual(from, to)) {
       info("🗄️ Set state", { room, type, key, from, to });
-      await this.matrix.sendStateEvent(room, type, key ?? "", to);
+      await this.matrix.sendStateEvent(id, type, key ?? "", to);
     }
   }
 
-  private async reconcileTopic(room: string, expected: Room["topic"]) {
-    await this.reconcileState(room, {
-      type: "m.room.topic",
-      content: expected && { topic: expected },
-    });
+  private async reconcileTopic(room: Room) {
+    const content = room.topic && { topic: room.topic };
+    await this.reconcileState(room, { type: "m.room.topic", content });
   }
 
-  private async removeFromSpace(space: Space, child: string) {
-    info("🏘️ Remove from space", { space: space.roomId, child });
-    await space.removeChildRoom(child);
+  private async removeFromSpace(space: ListedSpace, id: string, local?: string) {
+    info("🏘️ Remove from space", { space: space.local, child: local ?? id });
+    await space.removeChildRoom(id);
   }
 
   private resolveAvatar(name: string = "default"): string {
@@ -403,15 +399,15 @@ export default class Reconciler {
 
     const existing = this.#scheduledRegroups.get(room.id);
     if (existing) {
-      debug("🕓 Unschedule regroup", { room: room.id });
+      debug("🕓 Unschedule regroup", { room: room.local });
       clearTimeout(existing);
     }
 
-    debug("🕓 Schedule regroup", { room: room.id, at: at.toISO() });
+    debug("🕓 Schedule regroup", { room: room.local, at: at.toISO() });
     const task = () => {
       this.#scheduledRegroups.delete(room.id);
 
-      debug("🕓 Regroup", { room: room.id, at: at.toISO() });
+      debug("🕓 Run scheduled regroup", { room: room.local, at: at.toISO() });
       this.reconcileSessionGroups(room, session, at);
     };
     this.#scheduledRegroups.set(room.id, setTimeout(task, delay));
