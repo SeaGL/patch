@@ -33,6 +33,11 @@ interface ListedSpace extends Space {
   local: string;
 }
 
+interface Scheduled {
+  at: DateTime;
+  timer: NodeJS.Timeout;
+}
+
 interface Session extends OsemEvent {
   open: DateTime;
 }
@@ -46,7 +51,7 @@ const compareSessions = (a: Session, b: Session): number =>
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class Reconciler {
-  #scheduledRegroups: Map<Room["id"], NodeJS.Timeout>;
+  #scheduledRegroups: Map<Room["id"], Scheduled>;
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
 
   public constructor(private readonly matrix: Client, private readonly plan: Plan) {
@@ -406,8 +411,9 @@ export default class Reconciler {
 
     const existing = this.#scheduledRegroups.get(room.id);
     if (existing) {
-      debug("🕓 Unschedule regroup", { room: room.local });
-      clearTimeout(existing);
+      debug("🕓 Unschedule regroup", { room: room.local, at: existing.at.toISO() });
+      clearTimeout(existing.timer);
+      this.#scheduledRegroups.delete(room.id);
     }
 
     debug("🕓 Schedule regroup", { room: room.local, at: at.toISO() });
@@ -417,6 +423,6 @@ export default class Reconciler {
       debug("🕓 Run scheduled regroup", { room: room.local, at: at.toISO() });
       this.reconcileSessionGroups(room, session, at);
     };
-    this.#scheduledRegroups.set(room.id, setTimeout(task, delay));
+    this.#scheduledRegroups.set(room.id, { at, timer: setTimeout(task, delay) });
   }
 }
