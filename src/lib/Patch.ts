@@ -36,7 +36,7 @@ export default class Patch {
     await this.#matrix.start();
     debug("📥 Completed sync");
 
-    await this.#reconciler.reconcile();
+    await this.#reconciler.start();
   }
 
   private handleLeave(roomId: string, event: RoomEvent) {

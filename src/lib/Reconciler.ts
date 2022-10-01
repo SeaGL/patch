@@ -18,7 +18,7 @@ import {
 } from "./matrix.js";
 import { getSessions, Session } from "./Osem.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
-import { expect, logger } from "./utilities.js";
+import { expect, logger, maxDelay } from "./utilities.js";
 
 const { debug, info } = logger("Reconciler");
 
@@ -40,18 +40,16 @@ const compareSessions = (a: Session, b: Session): number =>
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class Reconciler {
+  #scheduledRegroups: Map<Room["id"], NodeJS.Timeout>;
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
 
   public constructor(private readonly matrix: Client, private readonly plan: Plan) {
+    this.#scheduledRegroups = new Map();
     this.#sessionGroups = {};
   }
 
-  public async reconcile() {
-    info("🔃 Reconcile");
-    await this.reconcileProfile(this.plan.steward);
-    await this.reconcileRooms(this.plan.rooms);
-    await this.reconcileSessions(this.plan.sessions);
-    debug("🔃 Completed reconciliation");
+  public async start() {
+    await this.reconcile();
   }
 
   private getAccessOptions({
@@ -99,6 +97,14 @@ export default class Reconciler {
       type: "m.room.avatar",
       content: { url: this.resolveAvatar(expected) },
     });
+  }
+
+  private async reconcile() {
+    info("🔃 Reconcile");
+    await this.reconcileProfile(this.plan.steward);
+    await this.reconcileRooms(this.plan.rooms);
+    await this.reconcileSessions(this.plan.sessions);
+    debug("🔃 Completed reconciliation");
   }
 
   private async reconcileChildhood(space: ListedSpace, room: Room, include = true) {
@@ -359,6 +365,9 @@ export default class Reconciler {
     if (future) await this.reconcileChildhood(future, room, isFuture);
     if (current) await this.reconcileChildhood(current, room, isCurrent);
     if (past) await this.reconcileChildhood(past, room, isPast);
+
+    if (isCurrent) this.scheduleRegroup(room, session, session.end);
+    if (isFuture) this.scheduleRegroup(room, session, beginning);
   }
 
   private async reconcileState(room: string, expected: StateEventOptions) {
@@ -386,5 +395,25 @@ export default class Reconciler {
 
   private resolveAvatar(name: string = "default"): string {
     return expect(this.plan.avatars[name], `avatar ${name}`);
+  }
+
+  private scheduleRegroup(room: Room, session: Session, at: DateTime) {
+    const delay = at.diffNow("milliseconds").valueOf();
+    if (delay > maxDelay) throw new Error(`Not implemented for delay ${delay}`);
+
+    const existing = this.#scheduledRegroups.get(room.id);
+    if (existing) {
+      debug("🕓 Unschedule regroup", { room: room.id });
+      clearTimeout(existing);
+    }
+
+    debug("🕓 Schedule regroup", { room: room.id, at: at.toISO() });
+    const task = () => {
+      this.#scheduledRegroups.delete(room.id);
+
+      debug("🕓 Regroup", { room: room.id, at: at.toISO() });
+      this.reconcileSessionGroups(room, session, at);
+    };
+    this.#scheduledRegroups.set(room.id, setTimeout(task, delay));
   }
 }
