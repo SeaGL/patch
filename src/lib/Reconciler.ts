@@ -16,7 +16,7 @@ import {
   RoomCreateOptions,
   StateEventOptions,
 } from "./matrix.js";
-import { getSessions, Session } from "./Osem.js";
+import { getOsemEvents, OsemEvent } from "./Osem.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
 import { expect, logger, maxDelay } from "./utilities.js";
 
@@ -31,6 +31,10 @@ interface Room extends RoomPlan {
 interface ListedSpace extends Space {
   children: Children;
   local: string;
+}
+
+interface Session extends OsemEvent {
+  open: DateTime;
 }
 
 const compareSessions = (a: Session, b: Session): number =>
@@ -321,19 +325,23 @@ export default class Reconciler {
     const now = DateTime.local({ zone: this.plan.timeZone });
 
     debug("📅 Get sessions", { conference });
-    const sessions = await getSessions(conference);
+    const sessions = (await getOsemEvents(conference)).map((event) => ({
+      ...event,
+      open: event.beginning.minus({ minutes: this.plan.sessions.openEarly }),
+    }));
     sessions.sort(compareSessions);
     if (demo) {
       const dt = DateTime.fromISO(demo, { zone: this.plan.timeZone });
       const offset = now.startOf("day").diff(dt, "days");
       info("📅 Override conference date", { from: dt.toISODate(), to: now.toISODate() });
       for (const session of sessions) {
-        const [from, to] = [session.beginning, session.beginning.plus(offset)];
+        const to = session.beginning.plus(offset);
         debug("📅 Override session time", {
           id: session.id,
-          from: from.toISO(),
+          from: session.beginning.toISO(),
           to: to.toISO(),
         });
+        session.open = session.open.plus(offset);
         session.beginning = to;
         session.end = session.end.plus(offset);
       }
@@ -356,16 +364,15 @@ export default class Reconciler {
       PAST_SESSIONS: past,
     } = this.#sessionGroups;
 
-    const beginning = session.beginning.minus({ minutes: this.plan.sessions.beginEarly });
-    const [began, ended] = [beginning <= now, session.end <= now];
-    const [isFuture, isCurrent, isPast] = [!began, began && !ended, ended];
+    const [opened, ended] = [session.open <= now, session.end <= now];
+    const [isFuture, isCurrent, isPast] = [!opened, opened && !ended, ended];
 
     if (future) await this.reconcileChildhood(future, room, isFuture);
     if (current) await this.reconcileChildhood(current, room, isCurrent);
     if (past) await this.reconcileChildhood(past, room, isPast);
 
     if (isCurrent) this.scheduleRegroup(room, session, session.end);
-    if (isFuture) this.scheduleRegroup(room, session, beginning);
+    if (isFuture) this.scheduleRegroup(room, session, session.open);
   }
 
   private async reconcileState({ id, local: room }: Room, expected: StateEventOptions) {

@@ -57,7 +57,7 @@ const SessionsPlan = t.intersection([
   t.strict({
     conference: t.string,
     prefix: t.string,
-    beginEarly: t.number,
+    openEarly: t.number,
   }),
   t.partial({ demo: t.string }),
 ]);

@@ -16,7 +16,7 @@ interface EventsResponse {
   }[];
 }
 
-export interface Session {
+export interface OsemEvent {
   beginning: DateTime;
   end: DateTime;
   id: string;
@@ -26,7 +26,7 @@ export interface Session {
 const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
 const fetch = limiter.wrap(unlimited);
 
-export const getSessions = async (conference: string): Promise<Session[]> => {
+export const getOsemEvents = async (conference: string): Promise<OsemEvent[]> => {
   const url = `${endpoint}/conferences/${encodeURIComponent(conference)}/events`;
   const { events } = (await (await fetch(url)).json()) as EventsResponse;
 
