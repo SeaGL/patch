@@ -14,7 +14,7 @@ import {
   orNone,
   resolvePreset,
   RoomCreateOptions,
-  StateEventOptions,
+  StateEventInput,
 } from "./matrix.js";
 import { getOsemEvents, OsemEvent } from "./Osem.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
@@ -380,7 +380,7 @@ export default class Reconciler {
     if (isFuture) this.scheduleRegroup(room, session, session.open);
   }
 
-  private async reconcileState({ id, local: room }: Room, expected: StateEventOptions) {
+  private async reconcileState({ id, local: room }: Room, expected: StateEventInput) {
     const { type, state_key: key, content: to } = expected;
     debug("🗄️ Get state", { room, type, key });
     const from = await this.matrix.getRoomStateEvent(id, type, key).catch(orNone);

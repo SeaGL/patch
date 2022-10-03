@@ -4,13 +4,16 @@ import type {
   MatrixError,
   RoomCreateOptions as RoomCreateFullOptions,
 } from "matrix-bot-sdk";
-import type { Optional } from "utility-types";
 
 const defaultState: Record<string, StateEvent["content"]> = {
   "m.room.guest_access/": { guest_access: "forbidden" },
 };
 
-export interface Event {
+export interface Event extends EventInput {
+  event_id: string;
+}
+
+export interface EventInput {
   type: string;
   content: unknown;
 }
@@ -23,7 +26,9 @@ export interface StateEvent extends Event {
   state_key: string;
 }
 
-export type StateEventOptions = Optional<StateEvent, "state_key">;
+export interface StateEventInput extends EventInput {
+  state_key?: string;
+}
 
 export interface Sync {
   rooms?: {
