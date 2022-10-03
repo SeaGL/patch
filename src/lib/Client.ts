@@ -10,13 +10,16 @@ const issue8895Cooldown = 1000 * Number(env("ISSUE_8895_COOLDOWN"));
 const minTime = 1000 / Number(env("MATRIX_RATE_LIMIT"));
 
 export default class Client extends MatrixClient {
-  #cache?: Map<string, Map<string, StateEvent>>;
+  #cache: Map<string, Map<string, StateEvent>>;
+  #completedInitialSync?: boolean;
   readonly #scheduleDefault: MatrixClient["doRequest"];
   readonly #scheduleIssue8895: MatrixClient["doRequest"];
   readonly #scheduleUnlimited: MatrixClient["doRequest"];
 
   public constructor(...args: ConstructorParameters<typeof MatrixClient>) {
     super(...args);
+
+    this.#cache = new Map();
 
     const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
 
@@ -65,14 +68,27 @@ export default class Client extends MatrixClient {
   }
 
   public override getRoomState: MatrixClient["getRoomState"] = async (id) => [
-    ...(this.#cache?.get(id)?.values() ?? []),
+    ...(this.#cache.get(id)?.values() ?? []),
   ];
 
   public override getRoomStateEvent: MatrixClient["getRoomStateEvent"] = async (
     id,
     type,
     key = ""
-  ) => this.#cache?.get(id)?.get(`${type}/${key}`)?.content;
+  ) => this.#cache.get(id)?.get(`${type}/${key}`)?.content;
+
+  public override sendStateEvent: MatrixClient["sendStateEvent"] = async (
+    room,
+    type,
+    key,
+    content: unknown
+  ) => {
+    const id = await super.sendStateEvent(room, type, key, content);
+
+    this.setCache(room, { type, state_key: key, content, event_id: id });
+
+    return id;
+  };
 
   public override start: MatrixClient["start"] = async (...args) => {
     const result = await super.start(...args);
@@ -83,7 +99,7 @@ export default class Client extends MatrixClient {
   // Modified from https://github.com/turt2live/matrix-bot-sdk/blob/v0.6.2/src/MatrixClient.ts#L736
   protected override doSync(token: string): Promise<any> {
     const query = {
-      full_state: !this.#cache,
+      full_state: !this.#completedInitialSync,
       timeout: Math.max(0, this.syncingTimeout),
       ...(token ? { since: token } : undefined),
       ...(this["filterId"] ? { filter: this["filterId"] } : undefined),
@@ -96,19 +112,21 @@ export default class Client extends MatrixClient {
 
   // Pending turt2live/matrix-bot-sdk#215
   protected override processSync: MatrixClient["processSync"] = (sync: Sync, emit) => {
-    const isInitial = !this.#cache;
-    this.#cache ??= new Map();
+    Object.entries(sync.rooms?.join ?? {}).forEach(([room, { state }]) =>
+      state.events.forEach((e) => this.setCache(room, e))
+    );
 
-    if (sync.rooms?.join) {
-      for (const [id, { state }] of Object.entries(sync.rooms.join)) {
-        const room = this.#cache.get(id) ?? new Map();
-        for (const e of state.events) room.set(`${e.type}/${e.state_key}`, e);
-        this.#cache.set(id, room);
-      }
+    if (!this.#completedInitialSync) {
+      this.#completedInitialSync = true;
+      this.emit("initial-sync");
     }
-
-    if (isInitial) this.emit("initial-sync");
 
     return super.processSync(sync, emit);
   };
+
+  private setCache(room: string, event: StateEvent) {
+    const key = `${event.type}/${event.state_key}`;
+
+    this.#cache.set(room, (this.#cache.get(room) ?? new Map()).set(key, event));
+  }
 }

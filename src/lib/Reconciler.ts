@@ -1,6 +1,6 @@
 import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 import type {
   MatrixProfileInfo,
   PowerLevelsEventContent as PowerLevels,
@@ -42,6 +42,8 @@ interface Session extends OsemEvent {
   open: DateTime;
 }
 
+const reconcilePeriod = Duration.fromObject({ hours: 1 });
+
 const compareSessions = (a: Session, b: Session): number =>
   a.beginning !== b.beginning
     ? a.beginning.valueOf() - b.beginning.valueOf()
@@ -51,6 +53,7 @@ const compareSessions = (a: Session, b: Session): number =>
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class Reconciler {
+  #scheduledReconcile: Scheduled | undefined;
   #scheduledRegroups: Map<Room["id"], Scheduled>;
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
 
@@ -108,11 +111,13 @@ export default class Reconciler {
     await this.reconcileState(room, { type: "m.room.avatar", content });
   }
 
-  private async reconcile() {
+  private async reconcile(now = DateTime.local({ zone: this.plan.timeZone })) {
+    this.scheduleReconcile(now.plus(reconcilePeriod));
+
     info("🔃 Reconcile");
     await this.reconcileProfile(this.plan.steward);
     await this.reconcileRooms(this.plan.rooms);
-    await this.reconcileSessions(this.plan.sessions);
+    await this.reconcileSessions(this.plan.sessions, now);
     debug("🔃 Completed reconciliation");
   }
 
@@ -326,9 +331,7 @@ export default class Reconciler {
     return rooms;
   }
 
-  private async reconcileSessions({ conference, demo }: SessionsPlan) {
-    const now = DateTime.local({ zone: this.plan.timeZone });
-
+  private async reconcileSessions({ conference, demo }: SessionsPlan, now: DateTime) {
     debug("📅 Get sessions", { conference });
     const sessions = (await getOsemEvents(conference)).map((event) => ({
       ...event,
@@ -405,7 +408,30 @@ export default class Reconciler {
     return expect(this.plan.avatars[name], `avatar ${name}`);
   }
 
+  private scheduleReconcile(at: DateTime) {
+    const delay = at.diffNow("milliseconds").valueOf();
+    if (delay > maxDelay) throw new Error(`Not implemented for delay ${delay}`);
+
+    if (this.#scheduledReconcile) {
+      debug("🕓 Unschedule reconcile", { at: this.#scheduledReconcile.at.toISO() });
+      clearTimeout(this.#scheduledReconcile.timer);
+      this.#scheduledReconcile = undefined;
+    }
+
+    debug("🕓 Schedule reconcile", { at: at.toISO() });
+    const task = () => {
+      this.#scheduledReconcile = undefined;
+
+      debug("🕓 Run scheduled reconcile");
+      this.reconcile(at);
+    };
+    this.#scheduledReconcile = { at, timer: setTimeout(task, delay) };
+  }
+
   private scheduleRegroup(room: Room, session: Session, at: DateTime) {
+    if (!this.#scheduledReconcile) throw new Error("Next reconciliation time is unknown");
+    if (this.#scheduledReconcile.at <= at) return;
+
     const delay = at.diffNow("milliseconds").valueOf();
     if (delay > maxDelay) throw new Error(`Not implemented for delay ${delay}`);
 
