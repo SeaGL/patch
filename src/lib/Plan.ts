@@ -1,31 +1,9 @@
-// Pending samchon/typescript-json#153, gcanti/io-ts#322
-
-import { isLeft } from "fp-ts/lib/Either.js";
-import t from "io-ts";
-import { PathReporter } from "io-ts/lib/PathReporter.js";
 import { load } from "js-yaml";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
+import { assertEquals } from "typescript-json";
 
-const SessionGroupId = t.keyof({
-  CURRENT_SESSIONS: undefined,
-  FUTURE_SESSIONS: undefined,
-  PAST_SESSIONS: undefined,
-});
-export type SessionGroupId = t.TypeOf<typeof SessionGroupId>;
+export type SessionGroupId = "CURRENT_SESSIONS" | "FUTURE_SESSIONS" | "PAST_SESSIONS";
 
-const RoomPlan: t.Type<RoomPlan> = t.recursion("RoomPlan", () =>
-  t.intersection([
-    t.strict({ name: t.string }),
-    t.partial({
-      avatar: t.string,
-      children: t.union([RoomsPlan, SessionGroupId]),
-      destroy: t.boolean,
-      private: t.boolean,
-      suggested: t.boolean,
-      topic: t.string,
-    }),
-  ])
-);
 export interface RoomPlan {
   avatar?: string;
   children?: RoomsPlan | SessionGroupId;
@@ -36,55 +14,32 @@ export interface RoomPlan {
   topic?: string;
 }
 
-const RoomsPlan = t.record(t.string, RoomPlan);
 export type RoomsPlan = Record<string, RoomPlan>;
 
-const PowerLevels: t.Type<PowerLevels> = t.partial({
-  ban: t.number,
-  events: t.record(t.string, t.number),
-  events_default: t.number,
-  historical: t.number,
-  invite: t.number,
-  kick: t.number,
-  redact: t.number,
-  state_default: t.number,
-  users: t.record(t.string, t.number),
-  users_default: t.number,
-  notifications: t.partial({ room: t.number }),
-});
+export interface SessionsPlan {
+  conference: string;
+  demo?: string;
+  openEarly: number;
+  prefix: string;
+}
 
-const SessionsPlan = t.intersection([
-  t.strict({
-    conference: t.string,
-    prefix: t.string,
-    openEarly: t.number,
-  }),
-  t.partial({ demo: t.string }),
-]);
-export type SessionsPlan = t.TypeOf<typeof SessionsPlan>;
-
-const StewardPlan = t.intersection([
-  t.strict({ id: t.string, name: t.string }),
-  t.partial({ avatar: t.string }),
-]);
-export type StewardPlan = t.TypeOf<typeof StewardPlan>;
-
-const Plan = t.strict({
-  avatars: t.record(t.string, t.string),
-  defaultRoomVersion: t.string,
-  homeserver: t.string,
-  powerLevels: PowerLevels,
-  rooms: RoomsPlan,
-  sessions: SessionsPlan,
-  steward: StewardPlan,
-  timeZone: t.string,
-});
-export type Plan = t.TypeOf<typeof Plan>;
+export type Plan = {
+  avatars: Record<string, string>;
+  defaultRoomVersion: string;
+  homeserver: string;
+  powerLevels: PowerLevels;
+  rooms: RoomsPlan;
+  sessions: SessionsPlan;
+  steward: {
+    avatar?: string;
+    id: string;
+    name: string;
+  };
+  timeZone: string;
+};
 
 export const parsePlan = (yaml: string): Plan => {
-  const result = Plan.decode(load(yaml));
-  if (isLeft(result)) throw new Error(PathReporter.report(result).join("\n"));
-  const plan = result.right;
+  const plan = assertEquals<Plan>(load(yaml));
 
   const { users } = plan.powerLevels;
   if (!(users?.["steward"] === 100)) throw new Error("Insufficient steward power level");
