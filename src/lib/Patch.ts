@@ -1,6 +1,7 @@
 import assert from "assert/strict";
-import { RoomEvent, SimpleFsStorageProvider } from "matrix-bot-sdk";
+import { SimpleFsStorageProvider } from "matrix-bot-sdk";
 import Client from "./Client.js";
+import type { Event } from "./matrix.js";
 import type { Plan } from "./Plan.js";
 import Reconciler from "./Reconciler.js";
 import { logger } from "./utilities.js";
@@ -39,7 +40,7 @@ export default class Patch {
     await this.#reconciler.start();
   }
 
-  private handleLeave(roomId: string, event: RoomEvent) {
+  private handleLeave(roomId: string, event: Event & { type: "m.room.member" }) {
     if (event.sender === this.#plan.steward.id) return;
 
     warn("👮 Got kicked", { roomId, event });

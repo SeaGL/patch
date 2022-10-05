@@ -8,12 +8,12 @@ import type {
   SpaceEntityMap as Children,
 } from "matrix-bot-sdk";
 import { assert, Equals } from "tsafe";
-import type Client from "./Client";
+import type Client from "./Client.js";
+import type { RoomCreateOptions } from "./Client.js";
 import {
   mergeWithMatrixState,
   orNone,
   resolvePreset,
-  RoomCreateOptions,
   StateEventInput,
 } from "./matrix.js";
 import { getOsemEvents, OsemEvent } from "./Osem.js";
@@ -77,27 +77,26 @@ export default class Reconciler {
   }): Pick<RoomCreateOptions, "initial_state" | "preset"> {
     return {
       preset: isPrivate || privateParent ? "private_chat" : "public_chat",
-      initial_state:
-        isPrivate || privateParent
-          ? [
-              {
-                type: "m.room.join_rules",
-                content: isPrivate
-                  ? { type: "m.room.join_rules", content: { join_rule: "knock" } }
-                  : {
-                      join_rule: "knock_restricted",
-                      allow: [{ type: "m.room_membership", room_id: privateParent }],
-                    },
+      initial_state: isPrivate
+        ? [{ type: "m.room.join_rules", content: { join_rule: "knock" } }]
+        : privateParent
+        ? [
+            {
+              type: "m.room.join_rules",
+              content: {
+                join_rule: "knock_restricted",
+                allow: [{ type: "m.room_membership", room_id: privateParent }],
               },
-            ]
-          : isSpace
-          ? [
-              {
-                type: "m.room.history_visibility",
-                content: { history_visibility: "world_readable" },
-              },
-            ]
-          : [],
+            },
+          ]
+        : isSpace
+        ? [
+            {
+              type: "m.room.history_visibility",
+              content: { history_visibility: "world_readable" },
+            },
+          ]
+        : [],
     };
   }
 
@@ -388,7 +387,7 @@ export default class Reconciler {
     debug("🗄️ Get state", { room, type, key });
     const from = await this.matrix.getRoomStateEvent(id, type, key).catch(orNone);
 
-    if ((from || to) && !isEqual(from, to)) {
+    if (!isEqual(from, to)) {
       info("🗄️ Set state", { room, type, key, from, to });
       await this.matrix.sendStateEvent(id, type, key ?? "", to);
     }
@@ -396,7 +395,7 @@ export default class Reconciler {
 
   private async reconcileTopic(room: Room) {
     const content = room.topic && { topic: room.topic };
-    await this.reconcileState(room, { type: "m.room.topic", content });
+    if (content) await this.reconcileState(room, { type: "m.room.topic", content });
   }
 
   private async removeFromSpace(space: ListedSpace, id: string, local?: string) {

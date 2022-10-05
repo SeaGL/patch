@@ -1,10 +1,15 @@
 import Bottleneck from "bottleneck";
-import { MatrixClient } from "matrix-bot-sdk";
+import { MatrixClient, RoomCreateOptions as RoomCreateFullOptions } from "matrix-bot-sdk";
 import { setTimeout } from "timers/promises";
-import type { StateEvent, Sync } from "./matrix.js";
+import type { StateEvent, StateEventInput, Sync } from "./matrix.js";
 import { env, logger } from "./utilities.js";
 
 const { debug, warn } = logger("Client");
+
+export interface RoomCreateOptions extends RoomCreateFullOptions {
+  initial_state?: StateEventInput[];
+  preset?: Exclude<NonNullable<RoomCreateFullOptions["preset"]>, "trusted_private_chat">;
+}
 
 const issue8895Cooldown = 1000 * Number(env("ISSUE_8895_COOLDOWN"));
 const minTime = 1000 / Number(env("MATRIX_RATE_LIMIT"));
@@ -77,15 +82,17 @@ export default class Client extends MatrixClient {
     key = ""
   ) => this.#cache.get(id)?.get(`${type}/${key}`)?.content;
 
-  public override sendStateEvent: MatrixClient["sendStateEvent"] = async (
-    room,
-    type,
-    key,
-    content: unknown
+  public override sendStateEvent: MatrixClient["sendStateEvent"] = async <
+    E extends StateEvent
+  >(
+    room: string,
+    type: E["type"],
+    key: E["state_key"],
+    content: E["content"]
   ) => {
     const id = await super.sendStateEvent(room, type, key, content);
 
-    this.setCache(room, { type, state_key: key, content, event_id: id });
+    this.setCache(room, { type, state_key: key, content, event_id: id } as E);
 
     return id;
   };

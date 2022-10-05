@@ -1,40 +1,51 @@
 import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
-import type {
-  MatrixError,
-  RoomCreateOptions as RoomCreateFullOptions,
-} from "matrix-bot-sdk";
+import type { MatrixError } from "matrix-bot-sdk";
+import type { RoomCreateOptions } from "./Client.js";
 
-const defaultState: Record<string, StateEvent["content"]> = {
-  "m.room.guest_access/": { guest_access: "forbidden" },
-};
+//
+// Events
+//
 
-export interface Event extends EventInput {
+interface IEvent<T extends string, C> {
+  type: T;
   event_id: string;
+  sender: string;
+  content: C;
 }
 
-export interface EventInput {
-  type: string;
-  content: unknown;
-}
-
-export interface RoomCreateOptions extends RoomCreateFullOptions {
-  preset?: Exclude<NonNullable<RoomCreateFullOptions["preset"]>, "trusted_private_chat">;
-}
-
-export interface StateEvent extends Event {
+interface IStateEvent<T extends string, C> extends IEvent<T, C> {
   state_key: string;
 }
 
-export interface StateEventInput extends EventInput {
-  state_key?: string;
-}
+export type StateEvent<T = unknown> = (
+  | IStateEvent<"m.room.avatar", { url: string }>
+  | IStateEvent<"m.room.canonical_alias", { alias: string; alt_aliases?: string[] }>
+  | IStateEvent<"m.room.guest_access", { guest_access: "can_join" | "forbidden" }>
+  | IStateEvent<
+      "m.room.history_visibility",
+      { history_visibility: "invited" | "joined" | "shared" | "world_readable" }
+    >
+  | IStateEvent<
+      "m.room.join_rules",
+      | { join_rule: "invite" | "knock" | "private" | "public" }
+      | {
+          join_rule: "knock_restricted" | "restricted";
+          allow: { type: "m.room_membership"; room_id: string }[];
+        }
+    >
+  | IStateEvent<
+      "m.room.member",
+      { membership: "ban" | "invite" | "join" | "knock" | "leave" }
+    >
+  | IStateEvent<"m.room.name", { name: string }>
+  | IStateEvent<"m.room.topic", { topic: string }>
+) & { type: T };
 
-export interface Sync {
-  rooms?: {
-    join?: { [id: string]: { state: { events: StateEvent[] } } };
-  };
-}
+export type Event<T = unknown> = StateEvent<T>;
+
+export type StateEventInput = Omit<StateEvent, "event_id" | "sender" | "state_key"> &
+  Partial<Pick<StateEvent, "state_key">>;
 
 export const mergeMatrixState = (...stores: StateEvent[][]): StateEvent[] => {
   const events = new Map<string, StateEvent>();
@@ -58,11 +69,27 @@ export const mergeWithMatrixState = <T, F>(to: T, from: F): T & F =>
       : undefined
   );
 
+//
+// Client API
+//
+
+export interface Sync {
+  rooms?: { join?: { [id: string]: { state: { events: StateEvent[] } } } };
+}
+
 // Workaround for turt2live/matrix-bot-sdk#197
 export const orNone = (error: MatrixError) => {
   if (error.errcode === "M_NOT_FOUND") return undefined;
 
   throw error;
+};
+
+//
+// Server constants
+//
+
+const defaultState: Record<string, StateEvent["content"]> = {
+  "m.room.guest_access/": { guest_access: "forbidden" },
 };
 
 // As at https://github.com/matrix-org/synapse/blob/v1.67.0/synapse/handlers/room.py#L123
