@@ -18,6 +18,7 @@ import {
 } from "./matrix.js";
 import { getOsemEvents, OsemEvent } from "./Osem.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
+import type { Scheduled } from "./scheduling.js";
 import { expect, logger, maxDelay } from "./utilities.js";
 
 const { debug, info } = logger("Reconciler");
@@ -31,11 +32,6 @@ interface Room extends RoomPlan {
 interface ListedSpace extends Space {
   children: Children;
   local: string;
-}
-
-interface Scheduled {
-  at: DateTime;
-  timer: NodeJS.Timeout;
 }
 
 interface Session extends OsemEvent {
@@ -56,10 +52,16 @@ export default class Reconciler {
   #scheduledReconcile: Scheduled | undefined;
   #scheduledRegroups: Map<Room["id"], Scheduled>;
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
+  #spaceByChild: Map<string, string>;
 
   public constructor(private readonly matrix: Client, private readonly plan: Plan) {
     this.#scheduledRegroups = new Map();
     this.#sessionGroups = {};
+    this.#spaceByChild = new Map();
+  }
+
+  public getParent(child: string): string | undefined {
+    return this.#spaceByChild.get(child);
   }
 
   public async start() {
@@ -144,6 +146,7 @@ export default class Reconciler {
       info("🏘️ Add to space", { space: space.local, child });
       await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
     }
+    this.#spaceByChild.set(id, space.roomId);
   }
 
   private async reconcileChildren(space: ListedSpace, expected: Room[]) {
@@ -401,6 +404,7 @@ export default class Reconciler {
   private async removeFromSpace(space: ListedSpace, id: string, local?: string) {
     info("🏘️ Remove from space", { space: space.local, child: local ?? id });
     await space.removeChildRoom(id);
+    this.#spaceByChild.delete(id);
   }
 
   private resolveAvatar(name: string = "default"): string {

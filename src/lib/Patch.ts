@@ -1,6 +1,7 @@
 import assert from "assert/strict";
 import { SimpleFsStorageProvider } from "matrix-bot-sdk";
 import Client from "./Client.js";
+import Concierge from "./Concierge.js";
 import type { Event } from "./matrix.js";
 import type { Plan } from "./Plan.js";
 import Reconciler from "./Reconciler.js";
@@ -15,6 +16,7 @@ interface Config {
 }
 
 export default class Patch {
+  readonly #concierge: Concierge;
   readonly #matrix: Client;
   readonly #plan: Plan;
   readonly #reconciler: Reconciler;
@@ -25,6 +27,7 @@ export default class Patch {
     this.#matrix = new Client(baseUrl, accessToken, storage);
     this.#plan = plan;
     this.#reconciler = new Reconciler(this.#matrix, this.#plan);
+    this.#concierge = new Concierge(this.#matrix, this.#reconciler);
 
     this.#matrix.on("room.leave", this.handleLeave.bind(this));
   }
@@ -38,6 +41,7 @@ export default class Patch {
     debug("📥 Completed sync");
 
     await this.#reconciler.start();
+    await this.#concierge.start();
   }
 
   private handleLeave(roomId: string, event: Event & { type: "m.room.member" }) {
