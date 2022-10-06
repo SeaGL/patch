@@ -29,6 +29,7 @@ export default class Patch {
     this.#reconciler = new Reconciler(this.#matrix, this.#plan);
     this.#concierge = new Concierge(this.#matrix, this.#reconciler);
 
+    this.#matrix.on("room.event", this.handleRoomEvent.bind(this));
     this.#matrix.on("room.leave", this.handleLeave.bind(this));
   }
 
@@ -48,5 +49,12 @@ export default class Patch {
     if (event.sender === this.#plan.steward.id) return;
 
     warn("👮 Got kicked", { roomId, event });
+  }
+
+  private async handleRoomEvent(room: string, event: Event) {
+    if (event.sender === this.#plan.steward.id) return;
+
+    debug("🧾 Send read receipt", { room, event: event.event_id });
+    await this.#matrix.sendReadReceipt(room, event.event_id);
   }
 }
