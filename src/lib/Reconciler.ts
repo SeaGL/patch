@@ -84,7 +84,7 @@ export default class Reconciler {
             {
               type: "m.room.join_rules",
               content: {
-                join_rule: "knock_restricted",
+                join_rule: "restricted" /* knock_restricted pending room version 10 */,
                 allow: [{ type: "m.room_membership", room_id: privateParent }],
               },
             },
