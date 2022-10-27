@@ -358,7 +358,7 @@ export default class Reconciler {
     }
 
     for (const [index, session] of sessions.entries()) {
-      const local = `${this.plan.sessions.prefix}${session.id}`;
+      const local = `${this.plan.sessions.prefix}${session.guid}`;
       const order = sortKey(index);
       const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
       const room = (await this.reconcileRoom(local, order, { name }))!;
