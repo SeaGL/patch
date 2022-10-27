@@ -14,6 +14,7 @@ import {
   mergeWithMatrixState,
   orNone,
   resolvePreset,
+  StateEvent,
   StateEventInput,
 } from "./matrix.js";
 import { getOsemEvents, OsemEvent } from "./Osem.js";
@@ -224,10 +225,12 @@ export default class Reconciler {
 
   private async reconcilePowerLevels({ id, local: room }: Room, expected: PowerLevels) {
     debug("🛡️ Get power levels", { room });
-    const actual: PowerLevels = await this.matrix.getRoomStateEvent(
-      id,
-      "m.room.power_levels",
-      ""
+    const actual = expect(
+      await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
+        id,
+        "m.room.power_levels"
+      ),
+      "power levels"
     );
     let changed = false;
 

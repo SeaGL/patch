@@ -45,7 +45,7 @@ export default class Patch {
     await this.#concierge.start();
   }
 
-  private handleLeave(roomId: string, event: Event & { type: "m.room.member" }) {
+  private handleLeave(roomId: string, event: Event<"m.room.member">) {
     if (event.sender === this.#plan.steward.id) return;
 
     warn("👮 Got kicked", { roomId, event });

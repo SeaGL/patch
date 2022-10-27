@@ -76,11 +76,13 @@ export default class Client extends MatrixClient {
     ...(this.#cache.get(id)?.values() ?? []),
   ];
 
-  public override getRoomStateEvent: MatrixClient["getRoomStateEvent"] = async (
-    id,
-    type,
-    key = ""
-  ) => this.#cache.get(id)?.get(`${type}/${key}`)?.content;
+  // TODO: Can this automatically choose the StateEvent variant based on the `type` argument?
+  public override getRoomStateEvent = async <E extends StateEvent>(
+    room: string,
+    type: E["type"],
+    key: E["state_key"] = ""
+  ): Promise<E["content"] | undefined> =>
+    (this.#cache.get(room)?.get(`${type}/${key}`) as E | undefined)?.content;
 
   public override sendStateEvent: MatrixClient["sendStateEvent"] = async <
     E extends StateEvent
