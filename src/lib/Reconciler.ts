@@ -11,6 +11,7 @@ import { assert, Equals } from "tsafe";
 import type Client from "./Client.js";
 import type { RoomCreateOptions } from "./Client.js";
 import {
+  IStateEvent,
   mergeWithMatrixState,
   orNone,
   resolvePreset,
@@ -39,6 +40,8 @@ interface Session extends OsemEvent {
   open: DateTime;
 }
 
+export type TagEvent = IStateEvent<"org.seagl.patch.tag", { tag?: string }>;
+
 const reconcilePeriod = Duration.fromObject({ hours: 1 });
 
 const compareSessions = (a: Session, b: Session): number =>
@@ -50,12 +53,14 @@ const compareSessions = (a: Session, b: Session): number =>
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class Reconciler {
+  #roomByTag: Map<string, string>;
   #scheduledReconcile: Scheduled | undefined;
   #scheduledRegroups: Map<Room["id"], Scheduled>;
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
   #spaceByChild: Map<string, string>;
 
   public constructor(private readonly matrix: Client, private readonly plan: Plan) {
+    this.#roomByTag = new Map();
     this.#scheduledRegroups = new Map();
     this.#sessionGroups = {};
     this.#spaceByChild = new Map();
@@ -66,6 +71,11 @@ export default class Reconciler {
   }
 
   public async start() {
+    for (const room of await this.matrix.getJoinedRooms()) {
+      const tag = await this.getTag(room);
+      if (tag) this.#roomByTag.set(tag, room);
+    }
+
     await this.reconcile();
   }
 
@@ -103,9 +113,46 @@ export default class Reconciler {
     };
   }
 
+  private async getTag(room: string): Promise<string | undefined> {
+    const tag = (
+      await this.matrix
+        .getRoomStateEvent<TagEvent>(room, "org.seagl.patch.tag", "")
+        .catch(orNone)
+    )?.tag;
+
+    debug("🔖 Tag", { room, tag });
+    return tag;
+  }
+
   private async listSpace(space: Space, local: string): Promise<ListedSpace> {
     debug("🏘️ List space", { local });
     return Object.assign(space, { children: await space.getChildEntities(), local });
+  }
+
+  private async reconcileAlias({ id }: Room, local: string) {
+    const alias = `#${local}:${this.plan.homeserver}`;
+    const resolved = await this.resolveAlias(alias);
+
+    if (resolved && resolved !== id) {
+      info("🏷️ Reassign alias", { alias, from: resolved, to: id });
+      await this.matrix.deleteRoomAlias(alias);
+      await this.matrix.createRoomAlias(alias, id);
+    } else if (!resolved) {
+      info("🏷️ Create alias", { alias, room: id });
+      await this.matrix.createRoomAlias(alias, id);
+    }
+
+    const annotation = await this.matrix
+      .getRoomStateEvent<StateEvent<"m.room.canonical_alias">>(
+        id,
+        "m.room.canonical_alias"
+      )
+      .catch(orNone);
+    debug("🏷️ Aliases", {
+      room: id,
+      canonical: annotation?.alias,
+      alternatives: annotation?.alt_aliases,
+    });
   }
 
   private async reconcileAvatar(room: Room) {
@@ -165,8 +212,13 @@ export default class Reconciler {
   ): Promise<[string | undefined, boolean]> {
     const alias = `#${local}:${this.plan.homeserver}`;
 
-    debug("🏷️ Resolve alias", { alias });
-    const existing = (await this.matrix.lookupRoomAlias(alias).catch(orNone))?.roomId;
+    const existingByTag = expected.tag && this.resolveTag(expected.tag);
+    const existingByAlias = await this.resolveAlias(alias);
+    if (existingByTag && existingByAlias && existingByAlias !== existingByTag) {
+      info("🏷️ Delete alias", { alias });
+      await this.matrix.deleteRoomAlias(alias);
+    }
+    const existing = existingByTag ?? existingByAlias;
 
     if (expected.destroy) {
       if (existing) {
@@ -197,6 +249,10 @@ export default class Reconciler {
       const isPrivate = Boolean(expected.private);
       const isSpace = Boolean(expected.children);
       const avatar = this.resolveAvatar(expected.avatar);
+      const tagEvent = expected.tag && {
+        type: "org.seagl.patch.tag" as const,
+        content: { tag: expected.tag },
+      };
       const created = await this.matrix.createRoom(
         mergeWithMatrixState<RoomCreateOptions, Partial<RoomCreateOptions>>(
           {
@@ -207,6 +263,7 @@ export default class Reconciler {
             initial_state: [
               { type: "m.room.avatar", content: { url: avatar } },
               { type: "m.room.canonical_alias", content: { alias } },
+              ...(tagEvent ? [tagEvent] : []),
             ],
             ...(expected.topic ? { topic: expected.topic } : {}),
             ...(isSpace ? { creation_content: { type: "m.space" } } : {}),
@@ -214,6 +271,7 @@ export default class Reconciler {
           this.getAccessOptions({ isPrivate, isSpace, privateParent })
         )
       );
+      if (expected.tag) this.#roomByTag.set(expected.tag, created);
       return [created, true];
     }
   }
@@ -296,6 +354,8 @@ export default class Reconciler {
     const room = { ...expected, id, local, order };
 
     if (!created) {
+      await this.reconcileTag(room);
+      await this.reconcileAlias(room, local);
       await this.reconcilePowerLevels(room, this.plan.powerLevels);
       await this.reconcilePrivacy(room, privateParent);
       await this.reconcileAvatar(room);
@@ -388,15 +448,32 @@ export default class Reconciler {
     if (isFuture) this.scheduleRegroup(room, session, session.open);
   }
 
-  private async reconcileState({ id, local: room }: Room, expected: StateEventInput) {
+  private async reconcileState(
+    { id, local: room }: Room,
+    expected: StateEventInput
+  ): Promise<boolean> {
     const { type, state_key: key, content: to } = expected;
     debug("🗄️ Get state", { room, type, key });
     const from = await this.matrix.getRoomStateEvent(id, type, key).catch(orNone);
 
-    if (!isEqual(from, to)) {
+    if (
+      (Object.keys(from ?? {}).length > 0 || Object.keys(to).length > 0) &&
+      !isEqual(from, to)
+    ) {
       info("🗄️ Set state", { room, type, key, from, to });
       await this.matrix.sendStateEvent(id, type, key ?? "", to);
+      return true;
     }
+
+    return false;
+  }
+
+  private async reconcileTag(room: Room) {
+    const changed = await this.reconcileState(room, {
+      type: "org.seagl.patch.tag",
+      content: room.tag ? { tag: room.tag } : {},
+    });
+    if (changed && room.tag) this.#roomByTag.set(room.tag, room.id);
   }
 
   private async reconcileTopic(room: Room) {
@@ -410,8 +487,18 @@ export default class Reconciler {
     this.#spaceByChild.delete(id);
   }
 
+  private async resolveAlias(alias: string): Promise<string | undefined> {
+    debug("🏷️ Resolve alias", { alias });
+    return (await this.matrix.lookupRoomAlias(alias).catch(orNone))?.roomId;
+  }
+
   private resolveAvatar(name: string = "default"): string {
     return expect(this.plan.avatars[name], `avatar ${name}`);
+  }
+
+  private resolveTag(tag: string): string | undefined {
+    debug("🔖 Resolve tag", { tag });
+    return this.#roomByTag.get(tag);
   }
 
   private scheduleReconcile(at: DateTime) {

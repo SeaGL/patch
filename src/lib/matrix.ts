@@ -2,6 +2,7 @@ import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
 import type { MatrixError, PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import type { RoomCreateOptions } from "./Client.js";
+import type { TagEvent } from "./Reconciler";
 
 //
 // Events
@@ -14,7 +15,7 @@ interface IEvent<T extends string, C> {
   content: C;
 }
 
-interface IStateEvent<T extends string, C> extends IEvent<T, C> {
+export interface IStateEvent<T extends string, C> extends IEvent<T, C> {
   state_key: string;
 }
 
@@ -41,6 +42,7 @@ export type StateEvent<T = unknown> = (
   | IStateEvent<"m.room.name", { name: string }>
   | IStateEvent<"m.room.power_levels", PowerLevels>
   | IStateEvent<"m.room.topic", { topic: string }>
+  | TagEvent
 ) & { type: T };
 
 export type Event<T = unknown> = StateEvent<T>;

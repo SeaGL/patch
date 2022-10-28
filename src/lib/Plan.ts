@@ -11,6 +11,7 @@ export interface RoomPlan {
   name: string;
   private?: boolean;
   suggested?: boolean;
+  tag?: string;
   topic?: string;
 }
 
