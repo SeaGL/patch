@@ -424,7 +424,8 @@ export default class Reconciler {
     }
 
     for (const [index, session] of sessions.entries()) {
-      const local = `${this.plan.sessions.prefix}session-${session.id}`;
+      const suffix = this.plan.sessions.suffixes?.[session.id] ?? `session-${session.id}`;
+      const local = `${this.plan.sessions.prefix}${suffix}`;
       const order = sortKey(index);
       const tag = `osem-event-${session.id}`;
       const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;

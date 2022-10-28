@@ -23,6 +23,7 @@ export interface SessionsPlan {
   ignore?: string[];
   openEarly: number;
   prefix: string;
+  suffixes?: Record<string, string>;
 }
 
 export type Plan = {
