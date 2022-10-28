@@ -429,7 +429,8 @@ export default class Reconciler {
       const order = sortKey(index);
       const tag = `osem-event-${session.id}`;
       const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
-      const room = await this.reconcileRoom(local, order, { name, tag });
+      const topic = `Details: ${session.url}`;
+      const room = await this.reconcileRoom(local, order, { name, tag, topic });
 
       if (room) await this.reconcileSessionGroups(room, session, now);
     }

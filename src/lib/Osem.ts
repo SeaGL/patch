@@ -21,6 +21,7 @@ export interface OsemEvent {
   end: DateTime;
   id: string;
   title: string;
+  url: string;
 }
 
 const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
@@ -36,6 +37,6 @@ export const getOsemEvents = async (conference: string): Promise<OsemEvent[]> =>
     const beginning = DateTime.fromISO(scheduled_date);
     const id = url.match(/\/proposals\/(\d+)/)![1]!;
 
-    return [{ beginning, end: beginning.plus({ minutes }), id, title }];
+    return [{ beginning, end: beginning.plus({ minutes }), id, title, url }];
   });
 };
