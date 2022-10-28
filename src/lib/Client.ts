@@ -92,9 +92,7 @@ export default class Client extends MatrixClient {
   ): Promise<E["content"] | undefined> =>
     (this.#cache.get(room)?.get(`${type}/${key}`) as E | undefined)?.content;
 
-  public override sendStateEvent: MatrixClient["sendStateEvent"] = async <
-    E extends StateEvent
-  >(
+  public override sendStateEvent = async <E extends StateEvent>(
     room: string,
     type: E["type"],
     key: E["state_key"],
