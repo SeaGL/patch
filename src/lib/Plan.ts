@@ -20,6 +20,7 @@ export type RoomsPlan = Record<string, RoomPlan>;
 export interface SessionsPlan {
   conference: string;
   demo?: string;
+  ignore?: string[];
   openEarly: number;
   prefix: string;
 }

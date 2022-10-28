@@ -397,11 +397,14 @@ export default class Reconciler {
   }
 
   private async reconcileSessions({ conference, demo }: SessionsPlan, now: DateTime) {
+    const ignore = new Set(this.plan.sessions.ignore ?? []);
     debug("📅 Get sessions", { conference });
-    const sessions = (await getOsemEvents(conference)).map((event) => ({
-      ...event,
-      open: event.beginning.minus({ minutes: this.plan.sessions.openEarly }),
-    }));
+    const sessions = (await getOsemEvents(conference))
+      .filter((e) => !ignore.has(e.id))
+      .map((event) => ({
+        ...event,
+        open: event.beginning.minus({ minutes: this.plan.sessions.openEarly }),
+      }));
     sessions.sort(compareSessions);
     if (demo) {
       const dt = DateTime.fromISO(demo, { zone: this.plan.timeZone });
