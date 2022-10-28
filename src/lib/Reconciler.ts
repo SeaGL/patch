@@ -129,8 +129,11 @@ export default class Reconciler {
     return Object.assign(space, { children: await space.getChildEntities(), local });
   }
 
-  private async reconcileAlias({ id }: Room, local: string) {
-    const alias = `#${local}:${this.plan.homeserver}`;
+  private localToAlias(local: string): string {
+    return `#${local}:${this.plan.homeserver}`;
+  }
+
+  private async reconcileAlias({ id }: Room, alias: string) {
     const resolved = await this.resolveAlias(alias);
 
     if (resolved && resolved !== id) {
@@ -210,7 +213,7 @@ export default class Reconciler {
     expected: RoomPlan,
     privateParent?: string
   ): Promise<[string | undefined, boolean]> {
-    const alias = `#${local}:${this.plan.homeserver}`;
+    const alias = this.localToAlias(local);
 
     const existingByTag = expected.tag && this.resolveTag(expected.tag);
     const existingByAlias = await this.resolveAlias(alias);
@@ -355,7 +358,7 @@ export default class Reconciler {
 
     if (!created) {
       await this.reconcileTag(room);
-      await this.reconcileAlias(room, local);
+      await this.reconcileAlias(room, this.localToAlias(local));
       await this.reconcilePowerLevels(room, this.plan.powerLevels);
       await this.reconcilePrivacy(room, privateParent);
       await this.reconcileAvatar(room);
