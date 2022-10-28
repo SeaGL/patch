@@ -10,6 +10,7 @@ export interface RoomPlan {
   destroy?: boolean;
   name: string;
   private?: boolean;
+  readOnly?: boolean;
   suggested?: boolean;
   tag?: string;
   topic?: string;

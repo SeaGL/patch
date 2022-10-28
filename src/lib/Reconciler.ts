@@ -113,6 +113,13 @@ export default class Reconciler {
     };
   }
 
+  private getPowerLevels({ readOnly }: RoomPlan): PowerLevels {
+    return {
+      ...this.plan.powerLevels,
+      events_default: readOnly ? 50 : 0,
+    };
+  }
+
   private async getTag(room: string): Promise<string | undefined> {
     const tag = (
       await this.matrix
@@ -262,7 +269,7 @@ export default class Reconciler {
             room_version: this.plan.defaultRoomVersion,
             room_alias_name: local,
             name: expected.name,
-            power_level_content_override: this.plan.powerLevels,
+            power_level_content_override: this.getPowerLevels(expected),
             initial_state: [
               { type: "m.room.avatar", content: { url: avatar } },
               { type: "m.room.canonical_alias", content: { alias } },
@@ -284,11 +291,13 @@ export default class Reconciler {
     await this.reconcileState(room, { type: "m.room.name", content });
   }
 
-  private async reconcilePowerLevels({ id, local: room }: Room, expected: PowerLevels) {
-    debug("🛡️ Get power levels", { room });
+  private async reconcilePowerLevels(room: Room) {
+    const expected = this.getPowerLevels(room);
+
+    debug("🛡️ Get power levels", { room: room.local });
     const actual = expect(
       await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
-        id,
+        room.id,
         "m.room.power_levels"
       ),
       "power levels"
@@ -298,13 +307,13 @@ export default class Reconciler {
     mergeWith(actual, expected, (from, to, ability) => {
       if (typeof to === "object" || from === to) return;
 
-      info("🛡️ Update power level", { room, ability, from, to });
+      info("🛡️ Update power level", { room: room.local, ability, from, to });
       changed = true;
     });
 
     if (changed) {
-      debug("🛡️ Set power levels", { room, content: actual });
-      await this.matrix.sendStateEvent(id, "m.room.power_levels", "", actual);
+      debug("🛡️ Set power levels", { room: room.local, content: actual });
+      await this.matrix.sendStateEvent(room.id, "m.room.power_levels", "", actual);
     }
   }
 
@@ -359,7 +368,7 @@ export default class Reconciler {
     if (!created) {
       await this.reconcileTag(room);
       await this.reconcileAlias(room, this.localToAlias(local));
-      await this.reconcilePowerLevels(room, this.plan.powerLevels);
+      await this.reconcilePowerLevels(room);
       await this.reconcilePrivacy(room, privateParent);
       await this.reconcileAvatar(room);
       await this.reconcileName(room);
