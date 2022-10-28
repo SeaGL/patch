@@ -52,6 +52,14 @@ export default class Client extends MatrixClient {
     }) as MatrixClient["doRequest"]);
   }
 
+  public override createRoom: MatrixClient["createRoom"] = async (...args) => {
+    const result = await super.createRoom(...args);
+
+    await new Promise((r) => this.once("sync", r));
+
+    return result;
+  };
+
   // Pending turt2live/matrix-bot-sdk#18
   public override doRequest: MatrixClient["doRequest"] = (...args) => {
     const [method, path] = args;
@@ -120,7 +128,10 @@ export default class Client extends MatrixClient {
   }
 
   // Pending turt2live/matrix-bot-sdk#215
-  protected override processSync: MatrixClient["processSync"] = (sync: Sync, emit) => {
+  protected override processSync: MatrixClient["processSync"] = async (
+    sync: Sync,
+    emit
+  ) => {
     Object.entries(sync.rooms?.join ?? {}).forEach(([room, { state }]) =>
       state.events.forEach((e) => this.setCache(room, e))
     );
@@ -130,7 +141,9 @@ export default class Client extends MatrixClient {
       this.emit("initial-sync");
     }
 
-    return super.processSync(sync, emit);
+    const result = await super.processSync(sync, emit);
+    this.emit("sync");
+    return result;
   };
 
   private setCache(room: string, event: StateEvent) {
