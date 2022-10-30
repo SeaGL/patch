@@ -85,7 +85,14 @@ export const mergeWithMatrixState = <T, F>(to: T, from: F): T & F =>
 //
 
 export interface Sync {
-  rooms?: { join?: { [id: string]: { state: { events: StateEvent[] } } } };
+  rooms?: {
+    join?: {
+      [id: string]: {
+        state: { events: StateEvent[] };
+        timeline: { events: Event[] };
+      };
+    };
+  };
 }
 
 // Workaround for turt2live/matrix-bot-sdk#197
