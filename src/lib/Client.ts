@@ -108,7 +108,7 @@ export default class Client extends MatrixClient {
   public override start: MatrixClient["start"] = async (...args) => {
     const result = await super.start(...args);
 
-    return new Promise((r) => this.once("initial-sync", () => r(result)));
+    return new Promise((r) => this.once("sync.initial", () => r(result)));
   };
 
   // Modified from https://github.com/turt2live/matrix-bot-sdk/blob/v0.6.2/src/MatrixClient.ts#L736
@@ -130,17 +130,16 @@ export default class Client extends MatrixClient {
     sync: Sync,
     emit
   ) => {
-    Object.entries(sync.rooms?.join ?? {}).forEach(([room, { state }]) =>
-      state.events.forEach((e) => this.setCache(room, e))
-    );
+    const emissions: Parameters<typeof this.emit>[] = [];
+
 
     if (!this.#completedInitialSync) {
       this.#completedInitialSync = true;
-      this.emit("initial-sync");
+      emissions.push(["sync.initial"]);
     }
 
     const result = await super.processSync(sync, emit);
-    this.emit("sync");
+    [emissions, ["sync"]].forEach((args) => this.emit(...args));
     return result;
   };
 
