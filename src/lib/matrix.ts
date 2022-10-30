@@ -2,7 +2,7 @@ import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
 import type { MatrixError, PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import type { RoomCreateOptions } from "./Client.js";
-import type { TagEvent } from "./Reconciler";
+import type { RedirectEvent, TagEvent } from "./Reconciler";
 
 //
 // Events
@@ -42,10 +42,18 @@ export type StateEvent<T = unknown> = (
   | IStateEvent<"m.room.name", { name: string }>
   | IStateEvent<"m.room.power_levels", PowerLevels>
   | IStateEvent<"m.room.topic", { topic: string }>
+  | RedirectEvent
   | TagEvent
 ) & { type: T };
 
-export type Event<T = unknown> = StateEvent<T>;
+export type Event<T = unknown> =
+  | StateEvent<T>
+  | IEvent<
+      "m.room.message",
+      { body: string; "m.relates_to"?: { rel_type: "m.replace"; event_id: string } } & ({
+        msgtype: "m.notice" | "m.text";
+      } & ({} | { format: "org.matrix.custom.html"; formatted_body: string }))
+    >;
 
 export type StateEventInput = Omit<StateEvent, "event_id" | "sender" | "state_key"> &
   Partial<Pick<StateEvent, "state_key">>;

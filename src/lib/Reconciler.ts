@@ -11,6 +11,7 @@ import { assert, Equals } from "tsafe";
 import type Client from "./Client.js";
 import type { RoomCreateOptions } from "./Client.js";
 import {
+  Event,
   IStateEvent,
   mergeWithMatrixState,
   orNone,
@@ -39,6 +40,8 @@ interface ListedSpace extends Space {
 interface Session extends OsemEvent {
   open: DateTime;
 }
+
+export type RedirectEvent = IStateEvent<"org.seagl.patch.redirect", { message?: string }>;
 
 export type TagEvent = IStateEvent<"org.seagl.patch.tag", { tag?: string }>;
 
@@ -113,11 +116,31 @@ export default class Reconciler {
     };
   }
 
-  private getPowerLevels({ readOnly }: RoomPlan): PowerLevels {
+  private async getNotice(
+    room: string,
+    id: string
+  ): Promise<Event<"m.room.message"> | undefined> {
+    debug("🪧 Get notice", { room, id });
+    return await this.matrix.getEvent(room, id).catch(orNone);
+  }
+
+  private getPowerLevels({ readOnly, redirect }: RoomPlan): PowerLevels {
     return {
       ...this.plan.powerLevels,
-      events_default: readOnly ? 50 : 0,
+      events_default: readOnly || redirect ? 50 : 0,
     };
+  }
+
+  private async getRootMessage(room: string, id: string): Promise<string> {
+    debug("💬 Get message", { room, id });
+    const message: Event<"m.room.message"> | undefined = await this.matrix
+      .getEvent(room, id)
+      .catch(orNone);
+
+    const relation = message?.content["m.relates_to"];
+    const next = relation?.rel_type === "m.replace" && relation.event_id;
+
+    return next ? this.getRootMessage(room, next) : id;
   }
 
   private async getTag(room: string): Promise<string | undefined> {
@@ -291,6 +314,28 @@ export default class Reconciler {
     await this.reconcileState(room, { type: "m.room.name", content });
   }
 
+  private async reconcileNotice(
+    { id: room }: Room,
+    id: string | undefined,
+    expected: string | undefined,
+    redactionReason: string
+  ): Promise<string | undefined> {
+    if (!expected) {
+      if (id) await this.redactNotice(room, id, redactionReason);
+      return;
+    }
+
+    const actual = id && (await this.getNotice(room, id))?.content.body;
+    if (actual === expected) return id;
+
+    if (actual) {
+      return await this.replaceNotice(room, id, expected);
+    } else {
+      info("🪧 Notice", { room, body: expected });
+      return await this.matrix.sendNotice(room, expected);
+    }
+  }
+
   private async reconcilePowerLevels(room: Room) {
     const expected = this.getPowerLevels(room);
 
@@ -348,6 +393,20 @@ export default class Reconciler {
     }
   }
 
+  private async reconcileRedirect(room: Room) {
+    const alias = room.redirect && this.localToAlias(room.redirect);
+    const body = alias && `This event takes place in ${alias}.`;
+    const redactReason = "Removed redirect";
+
+    const type = "org.seagl.patch.redirect";
+    const event = await this.matrix
+      .getRoomStateEvent<RedirectEvent>(room.id, type)
+      .catch(orNone);
+    const message = await this.reconcileNotice(room, event?.message, body, redactReason);
+
+    await this.reconcileState(room, { type, content: message ? { message } : {} });
+  }
+
   private async reconcileRoom(
     local: string,
     order: string,
@@ -374,6 +433,8 @@ export default class Reconciler {
       await this.reconcileName(room);
       await this.reconcileTopic(room);
     }
+
+    await this.reconcileRedirect(room);
 
     if (expected.children) {
       debug("🏘️ Get space", { local });
@@ -442,7 +503,10 @@ export default class Reconciler {
       const tag = `osem-event-${session.id}`;
       const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
       const topic = `Details: ${session.url}`;
-      const room = await this.reconcileRoom(local, order, { name, tag, topic });
+      const redirect = this.plan.sessions.redirects?.[session.id];
+
+      const plan = { name, tag, topic, ...(redirect ? { redirect } : {}) };
+      const room = await this.reconcileRoom(local, order, plan);
 
       if (room) await this.reconcileSessionGroups(room, session, now);
     }
@@ -499,10 +563,33 @@ export default class Reconciler {
     if (content) await this.reconcileState(room, { type: "m.room.topic", content });
   }
 
+  private async redactNotice(room: string, id: string, reason: string): Promise<string> {
+    const root = await this.getRootMessage(room, id);
+
+    info("🪧 Redact notice", { room, id, root, reason });
+    return await this.matrix.redactEvent(room, root, reason);
+  }
+
   private async removeFromSpace(space: ListedSpace, id: string, local?: string) {
     info("🏘️ Remove from space", { space: space.local, child: local ?? id });
     await space.removeChildRoom(id);
     this.#spaceByChild.delete(id);
+  }
+
+  private async replaceNotice(
+    room: string,
+    id: string,
+    body: Event<"m.room.message">["content"]["body"]
+  ): Promise<string> {
+    const root = await this.getRootMessage(room, id);
+
+    info("🪧 Replace notice", { room, id, root, body });
+    const content = { msgtype: "m.notice", body };
+    return await this.matrix.sendMessage(room, {
+      ...content,
+      "m.relates_to": { rel_type: "m.replace", event_id: root },
+      "m.new_content": content,
+    });
   }
 
   private async resolveAlias(alias: string): Promise<string | undefined> {

@@ -11,6 +11,7 @@ export interface RoomPlan {
   name: string;
   private?: boolean;
   readOnly?: boolean;
+  redirect?: string;
   suggested?: boolean;
   tag?: string;
   topic?: string;
@@ -24,6 +25,7 @@ export interface SessionsPlan {
   ignore?: string[];
   openEarly: number;
   prefix: string;
+  redirects?: Record<string, string>;
   suffixes?: Record<string, string>;
 }
 
