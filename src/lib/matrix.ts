@@ -19,7 +19,7 @@ export interface IStateEvent<T extends string, C> extends IEvent<T, C> {
   state_key: string;
 }
 
-export type WidgetContent = {
+type WidgetContent = {
   creatorUserId: string;
   name: string;
   avatar_url?: string;

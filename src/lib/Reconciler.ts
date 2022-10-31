@@ -22,7 +22,7 @@ import {
 import { getOsemEvents, OsemEvent } from "./Osem.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
 import type { Scheduled } from "./scheduling.js";
-import { expect, logger, maxDelay } from "./utilities.js";
+import { expect, logger, maxDelay, unimplemented } from "./utilities.js";
 
 const { debug, info } = logger("Reconciler");
 
@@ -586,7 +586,16 @@ export default class Reconciler {
     await this.reconcileState(room, {
       type: "im.vector.modular.widgets",
       state_key: "org.seagl.patch",
-      content: room.widget ? this.resolveWidget(room) : {},
+      content: room.widget
+        ? {
+            avatar_url: this.resolveAvatar(room.widget.avatar),
+            creatorUserId: this.plan.steward.id,
+            name: room.widget.name ?? room.name,
+            ...("custom" in room.widget
+              ? { type: "customwidget", url: room.widget.custom }
+              : unimplemented(room.widget)),
+          }
+        : {},
     });
 
     await this.reconcileState(room, {
@@ -636,13 +645,6 @@ export default class Reconciler {
   private resolveTag(tag: string): string | undefined {
     debug("🔖 Resolve tag", { tag });
     return this.#roomByTag.get(tag);
-  }
-
-  private resolveWidget(room: Room): StateEvent<"im.vector.modular.widgets">["content"] {
-    if (!room.widget) return {};
-
-    const { avatar, name = room.name, ...content } = room.widget;
-    return { ...content, avatar_url: this.resolveAvatar(avatar), name };
   }
 
   private scheduleReconcile(at: DateTime) {

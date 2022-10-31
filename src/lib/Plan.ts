@@ -1,7 +1,6 @@
 import { load } from "js-yaml";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import { assertEquals } from "typescript-json";
-import type { WidgetContent } from "./matrix";
 
 export type SessionGroupId = "CURRENT_SESSIONS" | "FUTURE_SESSIONS" | "PAST_SESSIONS";
 
@@ -47,10 +46,7 @@ export type Plan = {
   timeZone: string;
 };
 
-export type WidgetPlan = Omit<WidgetContent, "avatar_url" | "creatorUserId" | "name"> & {
-  avatar?: string;
-  name?: WidgetContent["name"];
-};
+export type WidgetPlan = { avatar?: string; name?: string } & { custom: string };
 
 export const parsePlan = (yaml: string): Plan => {
   const plan = assertEquals<Plan>(load(yaml));

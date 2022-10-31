@@ -21,3 +21,7 @@ export const maxDelay = 2147483647; // Approximately 25 days
 
 export const optional = <V>(value: V | null | undefined): V[] =>
   value === null || value === undefined ? [] : [value];
+
+export const unimplemented = (subject: unknown): never => {
+  throw new Error(`Not implemented for ${JSON.stringify(subject)}`);
+};
