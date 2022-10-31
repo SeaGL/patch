@@ -46,7 +46,6 @@ export type RedirectEvent = IStateEvent<"org.seagl.patch.redirect", { message?: 
 
 export type TagEvent = IStateEvent<"org.seagl.patch.tag", { tag?: string }>;
 
-const jitsiDomain = "meet.jit.si";
 const jitsiUrl =
   "https://app.element.io/jitsi.html?confId=$conferenceId#conferenceDomain=$domain&conferenceId=$conferenceId&displayName=$matrix_display_name&avatarUrl=$matrix_avatar_url&userId=$matrix_user_id&roomId=$matrix_room_id&theme=$theme&roomName=$roomName";
 const reconcilePeriod = Duration.fromObject({ hours: 1 });
@@ -601,7 +600,7 @@ export default class Reconciler {
                   type: "jitsi",
                   url: jitsiUrl,
                   data: {
-                    domain: jitsiDomain,
+                    domain: this.plan.jitsiDomain,
                     conferenceId: room.widget.jitsi.id,
                     roomName: room.widget.jitsi.name,
                   },

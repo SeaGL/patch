@@ -35,6 +35,7 @@ export type Plan = {
   avatars: Record<string, string>;
   defaultRoomVersion: string;
   homeserver: string;
+  jitsiDomain: string;
   powerLevels: PowerLevels;
   rooms: RoomsPlan;
   sessions: SessionsPlan;
