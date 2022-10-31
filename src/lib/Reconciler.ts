@@ -471,6 +471,7 @@ export default class Reconciler {
 
   private async reconcileSessions({ conference, demo }: SessionsPlan, now: DateTime) {
     const ignore = new Set(this.plan.sessions.ignore ?? []);
+
     debug("📅 Get sessions", { conference });
     const sessions = (await getOsemEvents(conference))
       .filter((e) => !ignore.has(e.id))
@@ -498,14 +499,16 @@ export default class Reconciler {
 
     for (const [index, session] of sessions.entries()) {
       const suffix = this.plan.sessions.suffixes?.[session.id] ?? `session-${session.id}`;
-      const local = `${this.plan.sessions.prefix}${suffix}`;
-      const order = sortKey(index);
-      const tag = `osem-event-${session.id}`;
-      const name = `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`;
-      const topic = `Details: ${session.url}`;
       const redirect = this.plan.sessions.redirects?.[session.id];
 
-      const plan = { name, tag, topic, ...(redirect ? { redirect } : {}) };
+      const local = `${this.plan.sessions.prefix}${suffix}`;
+      const order = sortKey(index);
+      const plan = {
+        name: `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`,
+        tag: `osem-event-${session.id}`,
+        topic: `Details: ${session.url}`,
+        ...(redirect ? { redirect } : {}),
+      };
       const room = await this.reconcileRoom(local, order, plan);
 
       if (room) await this.reconcileSessionGroups(room, session, now);
