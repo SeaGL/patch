@@ -23,7 +23,14 @@ type WidgetContent = {
   creatorUserId: string;
   name: string;
   avatar_url?: string;
-} & { type: "customwidget"; url: string };
+} & (
+  | { type: "customwidget"; url: string }
+  | {
+      type: "jitsi";
+      url: string;
+      data: { domain: string; conferenceId: string; roomName: string };
+    }
+);
 
 export type StateEvent<T = unknown> = (
   | IStateEvent<"im.vector.modular.widgets", {} | WidgetContent>

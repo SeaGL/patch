@@ -46,7 +46,10 @@ export type Plan = {
   timeZone: string;
 };
 
-export type WidgetPlan = { avatar?: string; name?: string } & { custom: string };
+export type WidgetPlan = { avatar?: string; name?: string } & (
+  | { custom: string }
+  | { jitsi: { id: string; name: string } }
+);
 
 export const parsePlan = (yaml: string): Plan => {
   const plan = assertEquals<Plan>(load(yaml));

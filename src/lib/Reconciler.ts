@@ -46,6 +46,9 @@ export type RedirectEvent = IStateEvent<"org.seagl.patch.redirect", { message?: 
 
 export type TagEvent = IStateEvent<"org.seagl.patch.tag", { tag?: string }>;
 
+const jitsiDomain = "meet.jit.si";
+const jitsiUrl =
+  "https://app.element.io/jitsi.html?confId=$conferenceId#conferenceDomain=$domain&conferenceId=$conferenceId&displayName=$matrix_display_name&avatarUrl=$matrix_avatar_url&userId=$matrix_user_id&roomId=$matrix_room_id&theme=$theme&roomName=$roomName";
 const reconcilePeriod = Duration.fromObject({ hours: 1 });
 const widgetLayout = {
   widgets: { "org.seagl.patch": { container: "top", height: 25, width: 100, index: 0 } },
@@ -593,6 +596,16 @@ export default class Reconciler {
             name: room.widget.name ?? room.name,
             ...("custom" in room.widget
               ? { type: "customwidget", url: room.widget.custom }
+              : "jitsi" in room.widget
+              ? {
+                  type: "jitsi",
+                  url: jitsiUrl,
+                  data: {
+                    domain: jitsiDomain,
+                    conferenceId: room.widget.jitsi.id,
+                    roomName: room.widget.jitsi.name,
+                  },
+                }
               : unimplemented(room.widget)),
           }
         : {},
