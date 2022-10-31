@@ -137,7 +137,7 @@ export default class Reconciler {
           ? { "im.vector.modular.widgets": 99, "io.element.widgets.layout": 99 }
           : {}),
       },
-      events_default: readOnly || redirect ? 50 : 0,
+      ...(readOnly || redirect ? { events_default: 50 } : {}),
     };
   }
 
