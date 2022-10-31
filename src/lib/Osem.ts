@@ -10,6 +10,7 @@ const minTime = 1000 / Number(env("OSEM_RATE_LIMIT"));
 interface EventsResponse {
   events: {
     length: number;
+    room: string;
     scheduled_date: string | null;
     title: string;
     url: string;
@@ -20,6 +21,7 @@ export interface OsemEvent {
   beginning: DateTime;
   end: DateTime;
   id: string;
+  room: string;
   title: string;
   url: string;
 }
@@ -31,12 +33,12 @@ export const getOsemEvents = async (conference: string): Promise<OsemEvent[]> =>
   const url = `${endpoint}/conferences/${encodeURIComponent(conference)}/events`;
   const { events } = (await (await fetch(url)).json()) as EventsResponse;
 
-  return events.flatMap(({ length: minutes, scheduled_date, title, url }) => {
+  return events.flatMap(({ length: minutes, scheduled_date, room, title, url }) => {
     if (!scheduled_date) return [];
 
     const beginning = DateTime.fromISO(scheduled_date);
     const id = url.match(/\/proposals\/(\d+)/)![1]!;
 
-    return [{ beginning, end: beginning.plus({ minutes }), id, title, url }];
+    return [{ beginning, end: beginning.plus({ minutes }), id, room, title, url }];
   });
 };

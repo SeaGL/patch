@@ -19,7 +19,23 @@ export interface IStateEvent<T extends string, C> extends IEvent<T, C> {
   state_key: string;
 }
 
+export type WidgetContent = {
+  creatorUserId: string;
+  name: string;
+  avatar_url?: string;
+} & { type: "customwidget"; url: string };
+
 export type StateEvent<T = unknown> = (
+  | IStateEvent<"im.vector.modular.widgets", {} | WidgetContent>
+  | IStateEvent<
+      "io.element.widgets.layout",
+      {
+        widgets: Record<
+          string,
+          { index: number; container: "top"; height: number; width: number }
+        >;
+      }
+    >
   | IStateEvent<"m.room.avatar", { url: string }>
   | IStateEvent<"m.room.canonical_alias", { alias: string; alt_aliases?: string[] }>
   | IStateEvent<"m.room.guest_access", { guest_access: "can_join" | "forbidden" }>

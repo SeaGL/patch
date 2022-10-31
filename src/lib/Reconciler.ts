@@ -38,6 +38,7 @@ interface ListedSpace extends Space {
 }
 
 interface Session extends OsemEvent {
+  day: number;
   open: DateTime;
 }
 
@@ -46,6 +47,9 @@ export type RedirectEvent = IStateEvent<"org.seagl.patch.redirect", { message?: 
 export type TagEvent = IStateEvent<"org.seagl.patch.tag", { tag?: string }>;
 
 const reconcilePeriod = Duration.fromObject({ hours: 1 });
+const widgetLayout = {
+  widgets: { "org.seagl.patch": { container: "top", height: 25, width: 100, index: 0 } },
+};
 
 const compareSessions = (a: Session, b: Session): number =>
   a.beginning !== b.beginning
@@ -434,6 +438,7 @@ export default class Reconciler {
       await this.reconcileTopic(room);
     }
 
+    await this.reconcileWidget(room);
     await this.reconcileRedirect(room);
 
     if (expected.children) {
@@ -473,10 +478,13 @@ export default class Reconciler {
     const ignore = new Set(this.plan.sessions.ignore ?? []);
 
     debug("📅 Get sessions", { conference });
-    const sessions = (await getOsemEvents(conference))
+    const osemEvents = await getOsemEvents(conference);
+    const startOfDay = DateTime.min(...osemEvents.map((e) => e.beginning)).startOf("day");
+    const sessions = osemEvents
       .filter((e) => !ignore.has(e.id))
       .map((event) => ({
         ...event,
+        day: event.beginning.startOf("day").diff(startOfDay, "days").days,
         open: event.beginning.minus({ minutes: this.plan.sessions.openEarly }),
       }));
     sessions.sort(compareSessions);
@@ -500,6 +508,7 @@ export default class Reconciler {
     for (const [index, session] of sessions.entries()) {
       const suffix = this.plan.sessions.suffixes?.[session.id] ?? `session-${session.id}`;
       const redirect = this.plan.sessions.redirects?.[session.id];
+      const widget = this.plan.sessions.widgets?.[session.room]?.[session.day];
 
       const local = `${this.plan.sessions.prefix}${suffix}`;
       const order = sortKey(index);
@@ -508,6 +517,7 @@ export default class Reconciler {
         tag: `osem-event-${session.id}`,
         topic: `Details: ${session.url}`,
         ...(redirect ? { redirect } : {}),
+        ...(widget ? { widget } : {}),
       };
       const room = await this.reconcileRoom(local, order, plan);
 
@@ -566,6 +576,19 @@ export default class Reconciler {
     if (content) await this.reconcileState(room, { type: "m.room.topic", content });
   }
 
+  private async reconcileWidget(room: Room) {
+    await this.reconcileState(room, {
+      type: "im.vector.modular.widgets",
+      state_key: "org.seagl.patch",
+      content: room.widget ? this.resolveWidget(room) : {},
+    });
+
+    await this.reconcileState(room, {
+      type: "io.element.widgets.layout",
+      content: room.widget ? widgetLayout : {},
+    });
+  }
+
   private async redactNotice(room: string, id: string, reason: string): Promise<string> {
     const root = await this.getRootMessage(room, id);
 
@@ -607,6 +630,13 @@ export default class Reconciler {
   private resolveTag(tag: string): string | undefined {
     debug("🔖 Resolve tag", { tag });
     return this.#roomByTag.get(tag);
+  }
+
+  private resolveWidget(room: Room): StateEvent<"im.vector.modular.widgets">["content"] {
+    if (!room.widget) return {};
+
+    const { avatar, name = room.name, ...content } = room.widget;
+    return { ...content, avatar_url: this.resolveAvatar(avatar), name };
   }
 
   private scheduleReconcile(at: DateTime) {

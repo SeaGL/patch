@@ -1,6 +1,7 @@
 import { load } from "js-yaml";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import { assertEquals } from "typescript-json";
+import type { WidgetContent } from "./matrix";
 
 export type SessionGroupId = "CURRENT_SESSIONS" | "FUTURE_SESSIONS" | "PAST_SESSIONS";
 
@@ -15,6 +16,7 @@ export interface RoomPlan {
   suggested?: boolean;
   tag?: string;
   topic?: string;
+  widget?: WidgetPlan;
 }
 
 export type RoomsPlan = Record<string, RoomPlan>;
@@ -27,6 +29,7 @@ export interface SessionsPlan {
   prefix: string;
   redirects?: Record<string, string>;
   suffixes?: Record<string, string>;
+  widgets?: Record<string, { [day: number]: WidgetPlan }>;
 }
 
 export type Plan = {
@@ -42,6 +45,11 @@ export type Plan = {
     name: string;
   };
   timeZone: string;
+};
+
+export type WidgetPlan = Omit<WidgetContent, "avatar_url" | "creatorUserId" | "name"> & {
+  avatar?: string;
+  name?: WidgetContent["name"];
 };
 
 export const parsePlan = (yaml: string): Plan => {
