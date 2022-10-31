@@ -128,9 +128,15 @@ export default class Reconciler {
     return await this.matrix.getEvent(room, id).catch(orNone);
   }
 
-  private getPowerLevels({ readOnly, redirect }: RoomPlan): PowerLevels {
+  private getPowerLevels({ readOnly, redirect, widget }: RoomPlan): PowerLevels {
     return {
       ...this.plan.powerLevels,
+      events: {
+        ...this.plan.powerLevels.events,
+        ...(widget
+          ? { "im.vector.modular.widgets": 99, "io.element.widgets.layout": 99 }
+          : {}),
+      },
       events_default: readOnly || redirect ? 50 : 0,
     };
   }
