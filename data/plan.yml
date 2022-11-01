@@ -26,7 +26,7 @@ powerLevels:
     "@salt:sal.td": 99
     "@sntxrr:seattlematrix.org": 99
 steward:
-  id: "@patch:seattlematrix.org"
+  id: "@seagl-bot:seattlematrix.org"
   name: Patch
   avatar: patch
 rooms:
