@@ -26,14 +26,14 @@ steward:
   name: Patch
   avatar: patch
 rooms:
-  SeaGL-2022:
+  SeaGL2022:
     name: SeaGL 2022
     topic: >-
       SeaGL, the Seattle GNU/Linux Conference
       · November 4th & 5th, 2022
       · #SeaGL2022
     children:
-      SeaGL-2022-welcome:
+      SeaGL2022-welcome:
         name: Welcome
         topic: >-
           Introductions and orientation
@@ -43,7 +43,7 @@ rooms:
         widget:
           name: Welcome to SeaGL 2022
           custom: https://attend.seagl.org/widgets/welcome.html
-      SeaGL-2022-announcements:
+      SeaGL2022-announcements:
         name: Announcements
         topic: >-
           Timely conference updates and announcements
@@ -51,27 +51,27 @@ rooms:
           · #SeaGL2022
         readOnly: true
         suggested: true
-      SeaGL-2022-current-sessions:
+      SeaGL2022-current-sessions:
         name: Current Sessions
         topic: >-
           Sessions that are currently taking place
           · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
         suggested: true
         children: CURRENT_SESSIONS
-      SeaGL-2022-hallway:
+      SeaGL2022-hallway:
         name: Hallway
         topic: >-
           Off-Topic, Social, and Sponsor conversations (the "hallway track")
           · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
         suggested: true
         children:
-          SeaGL-2022-lobby:
+          SeaGL2022-lobby:
             name: Lobby
             topic: >-
               Mingle and chat with other attendees between session
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
             suggested: true
-          SeaGL-2022-social:
+          SeaGL2022-social:
             name: Social
             topic: >-
               Socialize and chat with other attendees about whatever
@@ -82,7 +82,7 @@ rooms:
             widget:
               name: Video Conference
               jitsi: { id: SeaGL2022_Social, name: SeaGL 2022 Social }
-          SeaGL-2022-sponsors:
+          SeaGL2022-sponsors:
             name: Sponsors
             topic: >-
               Meet the wonderful folks who make this conference possible
@@ -91,63 +91,63 @@ rooms:
             widget:
               name: SeaGL 2022 Sponsors
               custom: https://attend.seagl.org/widgets/sponsors.html
-      SeaGL-2022-information:
+      SeaGL2022-information:
         name: Information
         topic: >-
           The rooms with all of the answers to your questions! Info rooms for speakers, sponsers, attendees, etc.
           · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
         suggested: true
         children:
-          SeaGL-2022-info-booth:
+          SeaGL2022-info-booth:
             name: Info Booth
             topic: >-
               Have a question? Not sure where to look? We'll point you in the right direction!
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
             suggested: true
-          SeaGL-2022-bot-help:
+          SeaGL2022-bot-help:
             name: Bot Help
             topic: >-
               Information about and help for Patch, the SeaGL seagull bot
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
-          SeaGL-2022-speaker-help:
+          SeaGL2022-speaker-help:
             name: Speaker Help
             topic: >-
               Need help with your talk? Have a question about your session? We're here to help!
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
-          SeaGL-2022-sponsor-help:
+          SeaGL2022-sponsor-help:
             name: Sponsor Help
             topic: >-
               Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
-          SeaGL-2022-volunteering:
+          SeaGL2022-volunteering:
             name: Volunteering
             topic: >-
               Do you want to help out SeaGL today (or in the future)? Let us know!
               · More info on the SeaGL site: https://seagl.org/get_involved.html or by sending a quick email to participate@seagl.org
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
-      SeaGL-2022-restricted:
+      SeaGL2022-restricted:
         name: Restricted
         topic: >-
           Rooms that are only available to SeaGL 2022 staff and volunteers
           · Inviting someone to this space will allow them to join some of the rooms within.
         private: true
         children:
-          SeaGL-2022-orchestration:
+          SeaGL2022-orchestration:
             name: Orchestration
             topic: >-
               Ready your batons! The SeaGL 2022 control-center.
-          SeaGL-2022-volunteers:
+          SeaGL2022-volunteers:
             name: Volunteers
             topic: >-
               Operational room for all SeaGL 2022 volunteers
               · Please join this room if you are volunteering with SeaGL 2022.
-      SeaGL-2022-upcoming-sessions:
+      SeaGL2022-upcoming-sessions:
         name: Upcoming Sessions
         topic: >-
           Sessions which have not yet happened—join ahead of time and chat with other interested attendees!
           · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
         children: FUTURE_SESSIONS
-      SeaGL-2022-completed-sessions:
+      SeaGL2022-completed-sessions:
         name: Completed Sessions
         topic: >-
           Sessions that have been wrapped up!
@@ -158,11 +158,11 @@ sessions:
   conference: seagl2022
   openEarly: 10 # minutes
   redirects:
-    "923": SeaGL-2022-social # Afternoon TeaGL
-    "924": SeaGL-2022-social # Afternoon Trivia
-    "925": SeaGL-2022-social # Evening *tails
-    "926": SeaGL-2022-social # No-Cook Lunch Hour
-  prefix: SeaGL-2022-
+    "923": SeaGL2022-social # Afternoon TeaGL
+    "924": SeaGL2022-social # Afternoon Trivia
+    "925": SeaGL2022-social # Evening *tails
+    "926": SeaGL2022-social # No-Cook Lunch Hour
+  prefix: SeaGL2022-
   suffixes:
     "880": FediverseAtYourLibrary
     "881": SelfHostingSimpleWebApps
