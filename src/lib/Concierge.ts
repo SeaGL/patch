@@ -27,6 +27,13 @@ export default class Concierge {
     this.matrix.on("room.event", this.handleRoomEvent.bind(this));
   }
 
+  private async getMembership(room: string, user: string): Promise<string | undefined> {
+    debug("🚪 Get memberships", { room });
+    const memberships = await this.matrix.getRoomMembers(room);
+
+    return memberships.find((m) => m.membershipFor === user)?.membership;
+  }
+
   private handleMembership(
     room: string,
     { state_key: user, content: { membership } }: StateEvent<"m.room.member">
@@ -34,23 +41,17 @@ export default class Concierge {
     debug("🚪 Membership", { room, user, membership });
 
     if (membership === "join" || membership === "leave") {
-      const space = this.reconciler.getParent(room);
-      if (!space) return;
+      const parent = this.reconciler.getParent(room);
 
-      if (membership === "join") this.scheduleNudge(user, space, room);
-      else this.unscheduleNudge(user, space, room);
+      if (parent) {
+        if (membership === "join") this.scheduleNudge(user, parent, room);
+        else this.unscheduleNudge(user, parent, room);
+      }
     }
   }
 
   private handleRoomEvent(room: string, event: Event) {
     if (event.type === "m.room.member") this.handleMembership(room, event);
-  }
-
-  private async getMembership(room: string, user: string): Promise<string | undefined> {
-    debug("🚪 Get memberships", { room });
-    const memberships = await this.matrix.getRoomMembers(room);
-
-    return memberships.find((m) => m.membershipFor === user)?.membership;
   }
 
   private scheduleNudge(user: string, space: string, child: string) {
