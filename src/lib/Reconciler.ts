@@ -62,6 +62,7 @@ const compareSessions = (a: Session, b: Session): number =>
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class Reconciler {
+  #privateChildrenByParent: Map<string, Set<string>>;
   #roomByTag: Map<string, string>;
   #scheduledReconcile: Scheduled | undefined;
   #scheduledRegroups: Map<Room["id"], Scheduled>;
@@ -69,6 +70,7 @@ export default class Reconciler {
   #spaceByChild: Map<string, string>;
 
   public constructor(private readonly matrix: Client, private readonly plan: Plan) {
+    this.#privateChildrenByParent = new Map();
     this.#roomByTag = new Map();
     this.#scheduledRegroups = new Map();
     this.#sessionGroups = {};
@@ -77,6 +79,10 @@ export default class Reconciler {
 
   public getParent(child: string): string | undefined {
     return this.#spaceByChild.get(child);
+  }
+
+  public getPrivateChildren(parent: string): string[] {
+    return [...(this.#privateChildrenByParent.get(parent) ?? [])];
   }
 
   public async start() {
@@ -240,6 +246,9 @@ export default class Reconciler {
       await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
     }
     this.#spaceByChild.set(id, space.roomId);
+    const privateChildren = this.#privateChildrenByParent.get(space.roomId) ?? new Set();
+    privateChildren[room.private ? "add" : "delete"](id);
+    this.#privateChildrenByParent.set(space.roomId, privateChildren);
   }
 
   private async reconcileChildren(space: ListedSpace, expected: Room[]) {
@@ -627,6 +636,10 @@ export default class Reconciler {
     info("🏘️ Remove from space", { space: space.local, child: local ?? id });
     await space.removeChildRoom(id);
     this.#spaceByChild.delete(id);
+    const privateChildren = this.#privateChildrenByParent.get(space.roomId);
+    if (privateChildren)
+      if (privateChildren.delete(id))
+        this.#privateChildrenByParent.set(space.roomId, privateChildren);
   }
 
   private async replaceNotice(
