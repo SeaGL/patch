@@ -145,6 +145,10 @@ rooms:
             topic: >-
               Operational room for all SeaGL 2022 volunteers
               · Please join this room if you are volunteering with SeaGL 2022.
+          SeaGL2022-mjolnir:
+            name: Mjolnir control
+            topic: Control room for the Mjolnir moderation bot
+            private: true
       SeaGL2022-upcoming-sessions:
         name: Upcoming Sessions
         topic: >-
