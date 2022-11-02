@@ -103,7 +103,7 @@ export default class Reconciler {
       dump({
         protectedRooms: [...this.#protectedRooms]
           .sort(compareAliases)
-          .map((a) => Permalinks.forRoom(a)),
+          .map((local) => Permalinks.forRoom(this.localToAlias(local))),
       })
     );
   }
@@ -450,7 +450,7 @@ export default class Reconciler {
   ): Promise<Room | undefined> {
     const [id, created] = await this.reconcileExistence(local, expected, privateParent);
 
-    this.#protectedRooms[id ? "add" : "delete"](this.localToAlias(local));
+    this.#protectedRooms[id && !expected.private ? "add" : "delete"](local);
 
     if (!id) {
       if (typeof expected.children === "object")
