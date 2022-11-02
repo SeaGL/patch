@@ -217,7 +217,7 @@ export default class Reconciler {
     info("🔃 Reconcile");
     await this.reconcileProfile(this.plan.steward);
     await this.reconcileRooms(this.plan.rooms);
-    await this.reconcileSessions(this.plan.sessions, now);
+    if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
     debug("🔃 Completed reconciliation");
   }
 
@@ -491,22 +491,22 @@ export default class Reconciler {
     return rooms;
   }
 
-  private async reconcileSessions({ conference, demo }: SessionsPlan, now: DateTime) {
-    const ignore = new Set(this.plan.sessions.ignore ?? []);
+  private async reconcileSessions(plan: SessionsPlan, now: DateTime) {
+    const ignore = new Set(plan.ignore ?? []);
 
-    debug("📅 Get sessions", { conference });
-    const osemEvents = await getOsemEvents(conference);
+    debug("📅 Get sessions", { conference: plan.conference });
+    const osemEvents = await getOsemEvents(plan.conference);
     const startOfDay = DateTime.min(...osemEvents.map((e) => e.beginning)).startOf("day");
     const sessions = osemEvents
       .filter((e) => !ignore.has(e.id))
       .map((event) => ({
         ...event,
         day: event.beginning.startOf("day").diff(startOfDay, "days").days,
-        open: event.beginning.minus({ minutes: this.plan.sessions.openEarly }),
+        open: event.beginning.minus({ minutes: plan.openEarly }),
       }));
     sessions.sort(compareSessions);
-    if (demo) {
-      const dt = DateTime.fromISO(demo, { zone: this.plan.timeZone });
+    if (plan.demo) {
+      const dt = DateTime.fromISO(plan.demo, { zone: this.plan.timeZone });
       const offset = now.startOf("day").diff(dt, "days");
       info("📅 Override conference date", { from: dt.toISODate(), to: now.toISODate() });
       for (const session of sessions) {
@@ -523,20 +523,17 @@ export default class Reconciler {
     }
 
     for (const [index, session] of sessions.entries()) {
-      const suffix = this.plan.sessions.suffixes?.[session.id] ?? `session-${session.id}`;
-      const redirect = this.plan.sessions.redirects?.[session.id];
-      const widget = this.plan.sessions.widgets?.[session.room]?.[session.day];
+      const suffix = plan.suffixes?.[session.id] ?? `session-${session.id}`;
+      const redirect = plan.redirects?.[session.id];
+      const widget = plan.widgets?.[session.room]?.[session.day];
 
-      const local = `${this.plan.sessions.prefix}${suffix}`;
-      const order = sortKey(index);
-      const plan = {
+      const room = await this.reconcileRoom(`${plan.prefix}${suffix}`, sortKey(index), {
         name: `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`,
         tag: `osem-event-${session.id}`,
         topic: `Details: ${session.url}`,
         ...(redirect ? { redirect } : {}),
         ...(widget ? { widget } : {}),
-      };
-      const room = await this.reconcileRoom(local, order, plan);
+      });
 
       if (room) await this.reconcileSessionGroups(room, session, now);
     }
