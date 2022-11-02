@@ -98,7 +98,7 @@ rooms:
       SeaGL2022-information:
         name: Information
         topic: >-
-          The rooms with all of the answers to your questions! Info rooms for speakers, sponsers, attendees, etc.
+          The rooms with all of the answers to your questions! Info rooms for speakers, sponsors, attendees, etc.
           · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
         suggested: true
         children:
