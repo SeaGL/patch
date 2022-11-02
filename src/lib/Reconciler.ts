@@ -1,8 +1,10 @@
+import { dump } from "js-yaml";
 import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
 import { DateTime, Duration } from "luxon";
-import type {
+import {
   MatrixProfileInfo,
+  Permalinks,
   PowerLevelsEventContent as PowerLevels,
   Space,
   SpaceEntityMap as Children,
@@ -53,6 +55,8 @@ const widgetLayout = {
   widgets: { "org.seagl.patch": { container: "top", height: 25, width: 100, index: 0 } },
 };
 
+const compareAliases = (a: string, b: string): number =>
+  a.localeCompare(b, undefined, { sensitivity: "base" });
 const compareSessions = (a: Session, b: Session): number =>
   a.beginning !== b.beginning
     ? a.beginning.valueOf() - b.beginning.valueOf()
@@ -63,6 +67,7 @@ const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, 
 
 export default class Reconciler {
   #privateChildrenByParent: Map<string, Set<string>>;
+  #protectedRooms: Set<string>;
   #roomByTag: Map<string, string>;
   #scheduledReconcile: Scheduled | undefined;
   #scheduledRegroups: Map<Room["id"], Scheduled>;
@@ -71,6 +76,7 @@ export default class Reconciler {
 
   public constructor(private readonly matrix: Client, private readonly plan: Plan) {
     this.#privateChildrenByParent = new Map();
+    this.#protectedRooms = new Set();
     this.#roomByTag = new Map();
     this.#scheduledRegroups = new Map();
     this.#sessionGroups = {};
@@ -92,6 +98,14 @@ export default class Reconciler {
     }
 
     await this.reconcile();
+
+    console.log(
+      dump({
+        protectedRooms: [...this.#protectedRooms]
+          .sort(compareAliases)
+          .map((a) => Permalinks.forRoom(a)),
+      })
+    );
   }
 
   private getAccessOptions({
@@ -435,6 +449,8 @@ export default class Reconciler {
     privateParent?: string
   ): Promise<Room | undefined> {
     const [id, created] = await this.reconcileExistence(local, expected, privateParent);
+
+    this.#protectedRooms[id ? "add" : "delete"](this.localToAlias(local));
 
     if (!id) {
       if (typeof expected.children === "object")
