@@ -1,5 +1,5 @@
 # Application
-/data/state.json
+/state/
 
 # TypeScript
 /dist

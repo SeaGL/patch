@@ -24,7 +24,7 @@ export default class Patch {
   readonly #reconciler: Reconciler;
 
   public constructor({ accessToken, baseUrl, plan }: Config) {
-    const storage = new SimpleFsStorageProvider("data/state.json");
+    const storage = new SimpleFsStorageProvider("state/state.json");
 
     this.#matrix = new Client(baseUrl, accessToken, storage);
     this.#plan = plan;
