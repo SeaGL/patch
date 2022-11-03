@@ -58,7 +58,7 @@ export default class Patch {
   private async handleRoomEvent(room: string, event: Event) {
     if (event.sender === this.#plan.steward.id) return;
 
-    debug("🧾 Send read receipt", { room, event: event.event_id });
+    debug("🧾 Send read receipt", { room, event: event.event_id, sender: event.sender });
     await this.#matrix.sendReadReceipt(room, event.event_id);
   }
 }
