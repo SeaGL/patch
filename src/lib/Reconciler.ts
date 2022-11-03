@@ -235,32 +235,40 @@ export default class Reconciler {
   }
 
   private localToAlias(local: string): string {
-    return `#${local}:${this.plan.homeserver}`;
+    return local.startsWith("SeaGL2022")
+      ? `#${local.replace(/^SeaGL/, "")}:seagl.org`
+      : `#${local}:${this.plan.homeserver}`;
   }
 
-  private async reconcileAlias({ id }: Room, alias: string) {
-    const resolved = await this.resolveAlias(alias);
+  private async reconcileAlias(room: Room, expected: string) {
+    if (expected.endsWith(this.plan.homeserver)) {
+      const resolved = await this.resolveAlias(expected);
 
-    if (resolved && resolved !== id) {
-      info("🏷️ Reassign alias", { alias, from: resolved, to: id });
-      await this.matrix.deleteRoomAlias(alias);
-      await this.matrix.createRoomAlias(alias, id);
-    } else if (!resolved) {
-      info("🏷️ Create alias", { alias, room: id });
-      await this.matrix.createRoomAlias(alias, id);
+      if (resolved && resolved !== room.id) {
+        info("🏷️ Reassign alias", { alias: expected, from: resolved, to: room.id });
+        await this.matrix.deleteRoomAlias(expected);
+        await this.matrix.createRoomAlias(expected, room.id);
+      } else if (!resolved) {
+        info("🏷️ Create alias", { alias: expected, room: room.local });
+        await this.matrix.createRoomAlias(expected, room.id);
+      }
     }
 
-    const annotation = await this.matrix
+    const content = await this.matrix
       .getRoomStateEvent<StateEvent<"m.room.canonical_alias">>(
-        id,
+        room.id,
         "m.room.canonical_alias"
       )
       .catch(orNone);
-    debug("🏷️ Aliases", {
-      room: id,
-      canonical: annotation?.alias,
-      alternatives: annotation?.alt_aliases,
-    });
+    const actual = content?.alias;
+
+    if (actual !== expected) {
+      info("🏷️ Update canonical alias", { room: room.local, from: actual, to: expected });
+      this.reconcileState(room, {
+        type: "m.room.canonical_alias",
+        content: { ...content, alias: expected },
+      });
+    }
   }
 
   private async reconcile(now = DateTime.local({ zone: this.plan.timeZone })) {
