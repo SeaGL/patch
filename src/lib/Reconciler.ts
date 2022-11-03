@@ -220,11 +220,6 @@ export default class Reconciler {
     });
   }
 
-  private async reconcileAvatar(room: Room) {
-    const content = { url: this.resolveAvatar(room.avatar) };
-    await this.reconcileState(room, { type: "m.room.avatar", content });
-  }
-
   private async reconcile(now = DateTime.local({ zone: this.plan.timeZone })) {
     this.scheduleReconcile(now.plus(reconcilePeriod));
 
@@ -233,6 +228,11 @@ export default class Reconciler {
     await this.reconcileRooms(this.plan.rooms);
     if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
     debug("🔃 Completed reconciliation");
+  }
+
+  private async reconcileAvatar(room: Room) {
+    const content = { url: this.resolveAvatar(room.avatar) };
+    await this.reconcileState(room, { type: "m.room.avatar", content });
   }
 
   private async reconcileChildhood(space: ListedSpace, room: Room, include = true) {
