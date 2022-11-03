@@ -27,7 +27,7 @@ import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./
 import type { Scheduled } from "./scheduling.js";
 import { expect, logger, maxDelay, unimplemented } from "./utilities.js";
 
-const { debug, info } = logger("Reconciler");
+const { debug, error, info } = logger("Reconciler");
 
 interface Room extends RoomPlan {
   id: string;
@@ -88,10 +88,6 @@ export default class Reconciler {
     return this.#spaceByChild.get(child);
   }
 
-  public getPrivateChildren(parent: string): string[] {
-    return [...(this.#privateChildrenByParent.get(parent) ?? [])];
-  }
-
   public async start() {
     for (const room of await this.matrix.getJoinedRooms()) {
       const tag = await this.getTag(room);
@@ -99,6 +95,8 @@ export default class Reconciler {
     }
 
     await this.reconcile();
+
+    this.matrix.on("room.event", this.handleRoomEvent.bind(this));
 
     console.log(
       dump({
@@ -143,6 +141,20 @@ export default class Reconciler {
     };
   }
 
+  private async getModerators(room: string): Promise<string[]> {
+    const powerLevels = expect(
+      await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
+        room,
+        "m.room.power_levels"
+      ),
+      "power levels"
+    );
+
+    return Object.entries(powerLevels.users ?? {})
+      .filter(([_user, level]) => level >= moderatorLevel)
+      .map(([user]) => user);
+  }
+
   private async getNotice(
     room: string,
     id: string
@@ -185,6 +197,36 @@ export default class Reconciler {
 
     debug("🔖 Tag", { room, tag });
     return tag;
+  }
+
+  private async handleMembership(
+    room: string,
+    { state_key: user, content: { membership } }: StateEvent<"m.room.member">
+  ) {
+    debug("🚪 Membership", { room, user, membership });
+
+    if (
+      membership === "join" &&
+      this.#privateChildrenByParent.has(room) &&
+      (await this.getModerators(room)).includes(user)
+    ) {
+      for (const child of this.#privateChildrenByParent.get(room) ?? []) {
+        const memberships = await this.matrix.getRoomMembers(child);
+
+        if (!memberships.some((m) => m.membershipFor === user)) {
+          info("🔑 Invite space moderator to private room", {
+            space: room,
+            moderator: user,
+            room: child,
+          });
+          await this.tryInvite(child, user);
+        }
+      }
+    }
+  }
+
+  private handleRoomEvent(room: string, event: Event) {
+    if (event.type === "m.room.member") this.handleMembership(room, event);
   }
 
   private async listSpace(space: Space, local: string): Promise<ListedSpace> {
@@ -345,6 +387,48 @@ export default class Reconciler {
     }
   }
 
+  private async reconcileInvitations(child: Room, parent?: Room) {
+    if (!(parent && child.private)) return;
+
+    debug("🛡️ List moderators", { space: parent.local });
+    const moderators = await this.getModerators(parent.id);
+
+    debug("🚪 Get memberships", { space: parent.local });
+    const parentMemberships = await this.matrix.getRoomMembers(parent.id);
+
+    debug("🚪 Get memberships", { room: child.local });
+    const childMemberships = await this.matrix.getRoomMembers(child.id);
+
+    for (const { membership, membershipFor: recipient, sender } of childMemberships) {
+      if (
+        membership === "invite" &&
+        sender === this.plan.steward.id &&
+        !moderators.includes(recipient)
+      ) {
+        info("🔑 Withdraw invitation", { room: child.local, recipient });
+        await this.matrix.sendStateEvent(child.id, "m.room.member", recipient, {
+          membership: "leave",
+        });
+      }
+    }
+
+    for (const moderator of moderators) {
+      if (
+        parentMemberships.some(
+          (m) => m.membershipFor === moderator && m.membership === "join"
+        ) &&
+        !childMemberships.some((m) => m.membershipFor === moderator)
+      ) {
+        info("🔑 Invite space moderator to private room", {
+          space: parent.local,
+          moderator,
+          room: child.local,
+        });
+        await this.tryInvite(child.id, moderator);
+      }
+    }
+  }
+
   private async reconcileName(room: Room) {
     const content = { name: room.name };
     await this.reconcileState(room, { type: "m.room.name", content });
@@ -488,6 +572,8 @@ export default class Reconciler {
         );
       }
     }
+
+    await this.reconcileInvitations(room, parent);
 
     return room;
   }
@@ -725,5 +811,13 @@ export default class Reconciler {
       this.reconcileSessionGroups(room, session, at);
     };
     this.#scheduledRegroups.set(room.id, { at, timer: setTimeout(task, delay) });
+  }
+
+  private async tryInvite(room: string, user: string) {
+    try {
+      await this.matrix.inviteUser(user, room);
+    } catch (response) {
+      error("🔑 Failed to send invitation", { room, user, response });
+    }
   }
 }

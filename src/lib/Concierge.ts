@@ -1,10 +1,10 @@
 import { DateTime, Duration } from "luxon";
 import type { MembershipEvent } from "matrix-bot-sdk";
 import type Client from "./Client.js";
-import { Event, moderatorLevel, StateEvent } from "./matrix.js";
+import type { Event, StateEvent } from "./matrix.js";
 import type Reconciler from "./Reconciler.js";
 import type { Scheduled } from "./scheduling.js";
-import { expect, logger } from "./utilities.js";
+import { logger } from "./utilities.js";
 
 const { debug, info } = logger("Concierge");
 
@@ -28,12 +28,6 @@ export default class Concierge {
     this.matrix.on("room.event", this.handleRoomEvent.bind(this));
   }
 
-  private async canInvite(room: string, user: string): Promise<boolean> {
-    const membership = await this.getMembership(room, user);
-
-    return !(membership && ["ban", "invite", "join"].includes(membership));
-  }
-
   private async getMembership(
     room: string,
     user: string
@@ -44,36 +38,11 @@ export default class Concierge {
     return memberships.find((m) => m.membershipFor === user)?.membership;
   }
 
-  private async getPowerLevel(room: string, user: string): Promise<number> {
-    const powerLevels = expect(
-      await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
-        room,
-        "m.room.power_levels"
-      ),
-      "power levels"
-    );
-
-    return powerLevels.users?.[user] ?? powerLevels.users_default ?? 0;
-  }
-
   private async handleMembership(
     room: string,
     { state_key: user, content: { membership } }: StateEvent<"m.room.member">
   ) {
     debug("🚪 Membership", { room, user, membership });
-
-    if (membership === "join" && (await this.isModerator(room, user))) {
-      for (const child of this.reconciler.getPrivateChildren(room)) {
-        if (await this.canInvite(child, user)) {
-          info("🔑 Invite space moderator to private room", {
-            space: room,
-            moderator: user,
-            room: child,
-          });
-          await this.matrix.inviteUser(user, child);
-        }
-      }
-    }
 
     if (membership === "join" || membership === "leave") {
       const parent = this.reconciler.getParent(room);
@@ -87,10 +56,6 @@ export default class Concierge {
 
   private handleRoomEvent(room: string, event: Event) {
     if (event.type === "m.room.member") this.handleMembership(room, event);
-  }
-
-  private async isModerator(room: string, user: string): Promise<boolean> {
-    return (await this.getPowerLevel(room, user)) >= moderatorLevel;
   }
 
   private scheduleNudge(user: string, space: string, child: string) {
