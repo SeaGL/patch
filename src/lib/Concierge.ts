@@ -1,7 +1,7 @@
 import { DateTime, Duration } from "luxon";
 import type { MembershipEvent } from "matrix-bot-sdk";
 import type Client from "./Client.js";
-import type { Event, StateEvent } from "./matrix.js";
+import { Event, moderatorLevel, StateEvent } from "./matrix.js";
 import type Reconciler from "./Reconciler.js";
 import type { Scheduled } from "./scheduling.js";
 import { expect, logger } from "./utilities.js";
@@ -90,7 +90,7 @@ export default class Concierge {
   }
 
   private async isModerator(room: string, user: string): Promise<boolean> {
-    return (await this.getPowerLevel(room, user)) >= 50;
+    return (await this.getPowerLevel(room, user)) >= moderatorLevel;
   }
 
   private scheduleNudge(user: string, space: string, child: string) {

@@ -16,6 +16,7 @@ import {
   Event,
   IStateEvent,
   mergeWithMatrixState,
+  moderatorLevel,
   orNone,
   resolvePreset,
   StateEvent,
@@ -159,7 +160,7 @@ export default class Reconciler {
           ? { "im.vector.modular.widgets": 99, "io.element.widgets.layout": 99 }
           : {}),
       },
-      ...(readOnly || redirect ? { events_default: 50 } : {}),
+      ...(readOnly || redirect ? { events_default: moderatorLevel } : {}),
     };
   }
 

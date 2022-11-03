@@ -133,6 +133,8 @@ const defaultState: Record<string, StateEvent["content"]> = {
   "m.room.guest_access/": { guest_access: "forbidden" },
 };
 
+export const moderatorLevel = 50;
+
 // As at https://github.com/matrix-org/synapse/blob/v1.67.0/synapse/handlers/room.py#L123
 export const resolvePreset = (
   preset: RoomCreateOptions["preset"]
