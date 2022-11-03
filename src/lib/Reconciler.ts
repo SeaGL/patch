@@ -111,23 +111,23 @@ export default class Reconciler {
   private getAccessOptions({
     isPrivate,
     isSpace,
-    privateParent,
+    parent,
   }: {
     isPrivate: boolean;
     isSpace: boolean;
-    privateParent: string | undefined;
+    parent: Room | undefined;
   }): Pick<RoomCreateOptions, "initial_state" | "preset"> {
     return {
-      preset: isPrivate || privateParent ? "private_chat" : "public_chat",
+      preset: isPrivate || parent?.private ? "private_chat" : "public_chat",
       initial_state: isPrivate
         ? [{ type: "m.room.join_rules", content: { join_rule: "knock" } }]
-        : privateParent
+        : parent?.private
         ? [
             {
               type: "m.room.join_rules",
               content: {
                 join_rule: "restricted" /* knock_restricted pending room version 10 */,
-                allow: [{ type: "m.room_membership", room_id: privateParent }],
+                allow: [{ type: "m.room_membership", room_id: parent.id }],
               },
             },
           ]
@@ -276,7 +276,7 @@ export default class Reconciler {
   private async reconcileExistence(
     local: string,
     expected: RoomPlan,
-    privateParent?: string
+    parent?: Room
   ): Promise<[string | undefined, boolean]> {
     const alias = this.localToAlias(local);
 
@@ -336,7 +336,7 @@ export default class Reconciler {
             ...(expected.topic ? { topic: expected.topic } : {}),
             ...(isSpace ? { creation_content: { type: "m.space" } } : {}),
           },
-          this.getAccessOptions({ isPrivate, isSpace, privateParent })
+          this.getAccessOptions({ isPrivate, isSpace, parent })
         )
       );
       if (expected.tag) this.#roomByTag.set(expected.tag, created);
@@ -397,12 +397,12 @@ export default class Reconciler {
     }
   }
 
-  private async reconcilePrivacy(room: Room, privateParent: string | undefined) {
+  private async reconcilePrivacy(room: Room, parent: Room | undefined) {
     type ImplementedFor = "initial_state" | "preset";
 
     const isPrivate = Boolean(room.private);
     const isSpace = Boolean(room.children);
-    const options = this.getAccessOptions({ isPrivate, isSpace, privateParent });
+    const options = this.getAccessOptions({ isPrivate, isSpace, parent });
     const expected = mergeWithMatrixState(resolvePreset(options.preset), options);
     assert<Equals<typeof expected, Pick<RoomCreateOptions, ImplementedFor>>>();
 
@@ -446,9 +446,9 @@ export default class Reconciler {
     local: string,
     order: string,
     expected: RoomPlan,
-    privateParent?: string
+    parent?: Room
   ): Promise<Room | undefined> {
-    const [id, created] = await this.reconcileExistence(local, expected, privateParent);
+    const [id, created] = await this.reconcileExistence(local, expected, parent);
 
     this.#protectedRooms[id && !expected.private ? "add" : "delete"](local);
 
@@ -465,7 +465,7 @@ export default class Reconciler {
       await this.reconcileTag(room);
       await this.reconcileAlias(room, this.localToAlias(local));
       await this.reconcilePowerLevels(room);
-      await this.reconcilePrivacy(room, privateParent);
+      await this.reconcilePrivacy(room, parent);
       await this.reconcileAvatar(room);
       await this.reconcileName(room);
       await this.reconcileTopic(room);
@@ -483,7 +483,7 @@ export default class Reconciler {
       } else {
         await this.reconcileChildren(
           await this.listSpace(space, local),
-          await this.reconcileRooms(expected.children, expected.private ? id : undefined)
+          await this.reconcileRooms(expected.children, room)
         );
       }
     }
@@ -491,15 +491,12 @@ export default class Reconciler {
     return room;
   }
 
-  private async reconcileRooms(
-    expected: RoomsPlan,
-    privateParent?: string
-  ): Promise<Room[]> {
+  private async reconcileRooms(expected: RoomsPlan, parent?: Room): Promise<Room[]> {
     const rooms = [];
 
     for (const [index, [local, plan]] of Object.entries(expected).entries()) {
       const order = sortKey(index);
-      const room = await this.reconcileRoom(local, order, plan, privateParent);
+      const room = await this.reconcileRoom(local, order, plan, parent);
 
       if (room) rooms.push(room);
     }
