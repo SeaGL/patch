@@ -32,6 +32,7 @@ steward:
   avatar: patch
 rooms:
   SeaGL2022:
+    tag: seagl2022
     name: SeaGL 2022
     topic: >-
       SeaGL, the Seattle GNU/Linux Conference
@@ -39,6 +40,7 @@ rooms:
       · #SeaGL2022
     children:
       SeaGL2022-welcome:
+        tag: seagl2022-welcome
         name: Welcome
         topic: >-
           Introductions and orientation
@@ -49,6 +51,7 @@ rooms:
           name: Welcome to SeaGL 2022
           custom: https://attend.seagl.org/widgets/welcome.html
       SeaGL2022-announcements:
+        tag: seagl2022-announcements
         name: Announcements
         topic: >-
           Timely conference updates and announcements
@@ -57,6 +60,7 @@ rooms:
         readOnly: true
         suggested: true
       SeaGL2022-current-sessions:
+        tag: seagl2022-current-sessions
         name: Current Sessions
         topic: >-
           Sessions that are currently taking place
@@ -64,6 +68,7 @@ rooms:
         suggested: true
         children: CURRENT_SESSIONS
       SeaGL2022-hallway:
+        tag: seagl2022-hallway
         name: Hallway
         topic: >-
           Off-Topic, Social, and Sponsor conversations (the "hallway track")
@@ -71,12 +76,14 @@ rooms:
         suggested: true
         children:
           SeaGL2022-lobby:
+            tag: seagl2022-lobby
             name: Lobby
             topic: >-
               Mingle and chat with other attendees between session
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
             suggested: true
           SeaGL2022-social:
+            tag: seagl2022-social
             name: Social
             topic: >-
               Socialize and chat with other attendees about whatever
@@ -88,6 +95,7 @@ rooms:
               name: Video Conference
               jitsi: { id: SeaGL2022_Social, name: SeaGL 2022 Social }
           SeaGL2022-sponsors:
+            tag: seagl2022-sponsors
             name: Sponsors
             topic: >-
               Meet the wonderful folks who make this conference possible
@@ -97,6 +105,7 @@ rooms:
               name: SeaGL 2022 Sponsors
               custom: https://attend.seagl.org/widgets/sponsors.html
       SeaGL2022-information:
+        tag: seagl2022-information
         name: Information
         topic: >-
           The rooms with all of the answers to your questions! Info rooms for speakers, sponsors, attendees, etc.
@@ -104,33 +113,39 @@ rooms:
         suggested: true
         children:
           SeaGL2022-info-booth:
+            tag: seagl2022-info-booth
             name: Info Booth
             topic: >-
               Have a question? Not sure where to look? We'll point you in the right direction!
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
             suggested: true
           SeaGL2022-bot-help:
+            tag: seagl2022-bot-help
             name: Bot Help
             topic: >-
               Information about and help for Patch, the SeaGL seagull bot
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
           SeaGL2022-speaker-help:
+            tag: seagl2022-speaker-help
             name: Speaker Help
             topic: >-
               Need help with your talk? Have a question about your session? We're here to help!
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
           SeaGL2022-sponsor-help:
+            tag: seagl2022-sponsor-help
             name: Sponsor Help
             topic: >-
               Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
           SeaGL2022-volunteering:
+            tag: seagl2022-volunteering
             name: Volunteering
             topic: >-
               Do you want to help out SeaGL today (or in the future)? Let us know!
               · More info on the SeaGL site: https://seagl.org/get_involved.html or by sending a quick email to participate@seagl.org
               · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
       SeaGL2022-restricted:
+        tag: seagl2022-restricted
         name: Restricted
         topic: >-
           Rooms that are only available to SeaGL 2022 staff and volunteers
@@ -138,25 +153,30 @@ rooms:
         private: true
         children:
           SeaGL2022-orchestration:
+            tag: seagl2022-orchestration
             name: Orchestration
             topic: >-
               Ready your batons! The SeaGL 2022 control-center.
           SeaGL2022-volunteers:
+            tag: seagl2022-volunteers
             name: Volunteers
             topic: >-
               Operational room for all SeaGL 2022 volunteers
               · Please join this room if you are volunteering with SeaGL 2022.
           SeaGL2022-mjolnir:
+            tag: seagl2022-mjolnir
             name: Mjolnir control
             topic: Control room for the Mjolnir moderation bot
             private: true
       SeaGL2022-upcoming-sessions:
+        tag: seagl2022-upcoming-sessions
         name: Upcoming Sessions
         topic: >-
           Sessions which have not yet happened—join ahead of time and chat with other interested attendees!
           · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
         children: FUTURE_SESSIONS
       SeaGL2022-completed-sessions:
+        tag: seagl2022-completed-sessions
         name: Completed Sessions
         topic: >-
           Sessions that have been wrapped up!
