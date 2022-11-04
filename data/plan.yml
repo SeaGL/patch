@@ -45,7 +45,15 @@ rooms:
         topic: >-
           Introductions and orientation
           · Join sessions you are interested in attending and #SeaGL2022-lobby for general discussion.
-          · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        intro: |
+          # Welcome
+
+          This the place for introductions and orientation.
+          
+          Consider joining some of the sessions you are interested in attending and #SeaGL2022-lobby for general discussion.
+          
+          Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.
         suggested: true
         widget:
           name: Welcome to SeaGL 2022
@@ -57,6 +65,10 @@ rooms:
           Timely conference updates and announcements
           · SeaGL (the Seattle GNU/Linux Conference) November 4th & 5th, 2022
           · #SeaGL2022
+        intro: |
+          # Announcements
+          
+          This the place for timely conference updates and announcements.
         readOnly: true
         suggested: true
       SeaGL2022-current-sessions:
@@ -64,7 +76,7 @@ rooms:
         name: Current Sessions
         topic: >-
           Sessions that are currently taking place
-          · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         suggested: true
         children: CURRENT_SESSIONS
       SeaGL2022-hallway:
@@ -72,7 +84,13 @@ rooms:
         name: Hallway
         topic: >-
           Off-Topic, Social, and Sponsor conversations (the "hallway track")
-          · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        intro: |
+          # Hallway
+          
+          This the place for off-topic, social, and sponsor conversations (the "hallway track").
+          
+          Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.
         suggested: true
         children:
           SeaGL2022-lobby:
@@ -80,7 +98,13 @@ rooms:
             name: Lobby
             topic: >-
               Mingle and chat with other attendees between session
-              · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Lobby
+              
+              This the place to mingle and chat with other attendees between sessions.
+              
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.
             suggested: true
           SeaGL2022-social:
             tag: seagl2022-social
@@ -88,8 +112,17 @@ rooms:
             topic: >-
               Socialize and chat with other attendees about whatever
               · Social events such as TeaGL and the evening parties will take place here.
-              · Video meeting: https://meet.jit.si/SeaGL2022_Social
-              · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Social
+              
+              This the place to socialize and chat with other attendees about whatever.
+              
+              Social events such as TeaGL and the evening parties will take place here.
+              
+              Here's a link if you want to join the video meeting outside of the attend portal: https://meet.seagl.org/SeaGL2022_Social
+              
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.
             suggested: true
             widget:
               name: Video Conference
@@ -99,7 +132,13 @@ rooms:
             name: Sponsors
             topic: >-
               Meet the wonderful folks who make this conference possible
-              · Please note, the SeaGL Code of Conduct is in effect and can be found here: https:seagl.org/coc
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Sponsors
+              
+              This the place to meet the wonderful folks who make this conference possible.
+              
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.
             suggested: true
             widget:
               name: SeaGL 2022 Sponsors
@@ -109,7 +148,7 @@ rooms:
         name: Information
         topic: >-
           The rooms with all of the answers to your questions! Info rooms for speakers, sponsors, attendees, etc.
-          · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         suggested: true
         children:
           SeaGL2022-info-booth:
@@ -117,33 +156,64 @@ rooms:
             name: Info Booth
             topic: >-
               Have a question? Not sure where to look? We'll point you in the right direction!
-              · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Info Booth
+              
+              Have a question? Not sure where to look? We'll point you in the right direction!
+              
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.
             suggested: true
           SeaGL2022-bot-help:
             tag: seagl2022-bot-help
             name: Bot Help
             topic: >-
               Information about and help for Patch, the SeaGL seagull bot
-              · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Bot Help
+              
+              This the place for information about and help with Patch, the SeaGL seagull bot.
+              
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.              
           SeaGL2022-speaker-help:
             tag: seagl2022-speaker-help
             name: Speaker Help
             topic: >-
               Need help with your talk? Have a question about your session? We're here to help!
-              · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Speaker Help
+              
+              Need help with your talk? Have a question about your session? We're here to help!
+              
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.              
           SeaGL2022-sponsor-help:
             tag: seagl2022-sponsor-help
             name: Sponsor Help
             topic: >-
               Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
-              · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Sponsor Help
+              
+              Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
+              
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.              
           SeaGL2022-volunteering:
             tag: seagl2022-volunteering
             name: Volunteering
             topic: >-
               Do you want to help out SeaGL today (or in the future)? Let us know!
-              · More info on the SeaGL site: https://seagl.org/get_involved.html or by sending a quick email to participate@seagl.org
-              · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+          intro: |
+            # Volunteering
+            
+            Do you want to help out SeaGL today (or in the future)? Let us know!
+            
+            More info on the SeaGL site: https://seagl.org/get_involved.html or by sending a quick email to participate@seagl.org
+            
+            Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
       SeaGL2022-restricted:
         tag: seagl2022-restricted
         name: Restricted
@@ -173,15 +243,15 @@ rooms:
         name: Upcoming Sessions
         topic: >-
           Sessions which have not yet happened—join ahead of time and chat with other interested attendees!
-          · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         children: FUTURE_SESSIONS
       SeaGL2022-completed-sessions:
         tag: seagl2022-completed-sessions
         name: Completed Sessions
         topic: >-
           Sessions that have been wrapped up!
-          · Recordings, from this year and past, will be available on https://seagl.org/archive after the event.
-          · Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/coc
+          · Recordings, from this year and past, will be available on the SeaGL website after the event.
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         children: PAST_SESSIONS
 sessions:
   conference: seagl2022
