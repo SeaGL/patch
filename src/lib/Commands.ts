@@ -7,6 +7,7 @@ import { setTimeout } from "timers/promises";
 import { assertEquals } from "typescript-json";
 import type Client from "./Client.js";
 import { Event, isUserId, permalinkPattern } from "./matrix.js";
+import type Patch from "./Patch.js";
 import type { Plan } from "./Plan.js";
 import { expect, logger, sample } from "./utilities.js";
 
@@ -26,7 +27,11 @@ const toasts = assertEquals<string[]>(
 export default class Commands {
   #limiter: Bottleneck.Group;
 
-  public constructor(private readonly matrix: Client, private readonly plan: Plan) {
+  public constructor(
+    private readonly patch: Patch,
+    private readonly matrix: Client,
+    private readonly plan: Plan
+  ) {
     this.#limiter = new Bottleneck.Group({ maxConcurrent: 1, minTime: 1000 });
   }
 
@@ -44,10 +49,12 @@ export default class Commands {
     if (!input) return;
     debug("🛎️ Command", { input });
 
-    switch (input.command) {
-      case "tea":
-        this.#limiter.key(room).schedule(() => this.tea(room, event, input));
-        break;
+    if (this.patch.controlRoom && room === this.patch.controlRoom) {
+    } else {
+      switch (input.command) {
+        case "tea":
+          return this.run(room, () => this.tea(room, event, input));
+      }
     }
   }
 
@@ -63,6 +70,10 @@ export default class Commands {
           : undefined,
       text,
     };
+  }
+
+  private run(room: string, task: () => Promise<void>) {
+    this.#limiter.key(room).schedule(task);
   }
 
   // Adapted from https://github.com/treedavies/seagl-bot-2021/tree/58a07cb/plugins/tea

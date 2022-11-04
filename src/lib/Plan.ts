@@ -7,6 +7,7 @@ export type SessionGroupId = "CURRENT_SESSIONS" | "FUTURE_SESSIONS" | "PAST_SESS
 export interface RoomPlan {
   avatar?: string;
   children?: RoomsPlan | SessionGroupId;
+  control?: boolean;
   destroy?: boolean;
   intro?: string;
   name: string;

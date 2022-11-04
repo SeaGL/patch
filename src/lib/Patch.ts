@@ -22,15 +22,16 @@ export default class Patch {
   readonly #matrix: Client;
   readonly #plan: Plan;
   readonly #reconciler: Reconciler;
+  public controlRoom: string | undefined;
 
   public constructor({ accessToken, baseUrl, plan }: Config) {
     const storage = new SimpleFsStorageProvider("state/state.json");
 
     this.#matrix = new Client(baseUrl, accessToken, storage);
     this.#plan = plan;
-    this.#reconciler = new Reconciler(this.#matrix, this.#plan);
+    this.#reconciler = new Reconciler(this, this.#matrix, this.#plan);
     this.#concierge = new Concierge(this.#matrix, this.#reconciler);
-    this.#commands = new Commands(this.#matrix, this.#plan);
+    this.#commands = new Commands(this, this.#matrix, this.#plan);
 
     this.#matrix.on("room.event", this.handleRoomEvent.bind(this));
     this.#matrix.on("room.leave", this.handleLeave.bind(this));

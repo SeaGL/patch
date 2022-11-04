@@ -22,6 +22,7 @@ import {
   StateEventInput,
 } from "./matrix.js";
 import { getOsemEvents, OsemEvent } from "./Osem.js";
+import type Patch from "./Patch.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
 import type { Scheduled } from "./scheduling.js";
 import { expect, logger, maxDelay, unimplemented } from "./utilities.js";
@@ -74,7 +75,11 @@ export default class Reconciler {
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
   #spaceByChild: Map<string, string>;
 
-  public constructor(private readonly matrix: Client, private readonly plan: Plan) {
+  public constructor(
+    private readonly patch: Patch,
+    private readonly matrix: Client,
+    private readonly plan: Plan
+  ) {
     this.#privateChildrenByParent = new Map();
     this.#roomByTag = new Map();
     this.#scheduledRegroups = new Map();
@@ -312,6 +317,16 @@ export default class Reconciler {
 
     for (const a of actual) if (!ids.has(a)) await this.removeFromSpace(space, a);
     for (const room of expected) await this.reconcileChildhood(space, room);
+  }
+
+  private async reconcileControlRoom(room: Room) {
+    if (this.patch.controlRoom === room.id && !room.control) {
+      info("🚦 Update control room", { from: this.patch.controlRoom, to: undefined });
+      this.patch.controlRoom = undefined;
+    } else if (room.control && this.patch.controlRoom !== room.id) {
+      info("🚦 Update control room", { from: this.patch.controlRoom, to: room.id });
+      this.patch.controlRoom = room.id;
+    }
   }
 
   private async reconcileExistence(
@@ -605,6 +620,7 @@ export default class Reconciler {
       }
     }
 
+    await this.reconcileControlRoom(room);
     await this.reconcileInvitations(room, parent);
 
     return room;

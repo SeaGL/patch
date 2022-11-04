@@ -233,6 +233,12 @@ rooms:
             topic: >-
               Operational room for all SeaGL 2022 volunteers
               · Please join this room if you are volunteering with SeaGL 2022.
+          SeaGL2022-bot-control:
+            tag: seagl2022-bot-control
+            name: Bot administration
+            topic: Control room for Patch
+            private: true
+            control: true
           SeaGL2022-mjolnir:
             tag: seagl2022-mjolnir
             name: Mjolnir control
