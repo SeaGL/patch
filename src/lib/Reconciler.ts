@@ -337,7 +337,12 @@ export default class Reconciler {
 
     const existingByTag = expected.tag && this.resolveTag(expected.tag);
     const existingByAlias = await this.resolveAlias(alias);
-    if (existingByTag && existingByAlias && existingByAlias !== existingByTag) {
+    if (
+      existingByTag &&
+      existingByAlias &&
+      existingByAlias !== existingByTag &&
+      alias.endsWith(this.plan.homeserver)
+    ) {
       info("🏷️ Delete alias", { alias });
       await this.matrix.deleteRoomAlias(alias);
     }
