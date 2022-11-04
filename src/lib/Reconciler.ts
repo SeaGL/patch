@@ -445,7 +445,7 @@ export default class Reconciler {
   private async reconcileNotice(
     { id: room }: Room,
     id: string | undefined,
-    expected: string | undefined,
+    expected: { html?: string; text: string } | undefined,
     redactionReason: string
   ): Promise<string | undefined> {
     if (!expected) {
@@ -454,13 +454,27 @@ export default class Reconciler {
     }
 
     const actual = id && (await this.getNotice(room, id))?.content.body;
-    if (actual === expected) return id;
+    if (actual === expected.text) return id;
 
     if (actual) {
       return await this.replaceNotice(room, id, expected);
     } else {
       info("🪧 Notice", { room, body: expected });
-      return await this.matrix.sendNotice(room, expected);
+      let content: Event<"m.room.message">["content"];
+      if (expected.html) {
+        content = {
+          msgtype: "m.notice",
+          body: expected.text,
+          format: "org.matrix.custom.html",
+          formatted_body: expected.html,
+        };
+      } else {
+        content = {
+          msgtype: "m.notice",
+          body: expected.text,
+        };
+      }
+      return await this.matrix.sendMessage(room, content);
     }
   }
 
@@ -523,7 +537,7 @@ export default class Reconciler {
 
   private async reconcileRedirect(room: Room) {
     const alias = room.redirect && this.localToAlias(room.redirect);
-    const body = alias && `This event takes place in ${alias}.`;
+    const body = alias ? { text: `This event takes place in ${alias}.` } : undefined;
     const redactReason = "Removed redirect";
 
     const type = "org.seagl.patch.redirect";
@@ -750,12 +764,25 @@ export default class Reconciler {
   private async replaceNotice(
     room: string,
     id: string,
-    body: Event<"m.room.message">["content"]["body"]
+    body: { html?: string; text: string }
   ): Promise<string> {
     const root = await this.getRootMessage(room, id);
 
     info("🪧 Replace notice", { room, id, root, body });
-    const content = { msgtype: "m.notice", body };
+    let content: Event<"m.room.message">["content"];
+    if (body.html) {
+      content = {
+        msgtype: "m.notice",
+        body: body.text,
+        format: "org.matrix.custom.html",
+        formatted_body: body.html,
+      };
+    } else {
+      content = {
+        msgtype: "m.notice",
+        body: body.text,
+      };
+    }
     return await this.matrix.sendMessage(room, {
       ...content,
       "m.relates_to": { rel_type: "m.replace", event_id: root },
