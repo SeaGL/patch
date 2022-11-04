@@ -1,5 +1,5 @@
 import assert from "assert/strict";
-import { SimpleFsStorageProvider } from "matrix-bot-sdk";
+import { Permalinks, SimpleFsStorageProvider } from "matrix-bot-sdk";
 import Client from "./Client.js";
 import Commands from "./Commands.js";
 import Concierge from "./Concierge.js";
@@ -15,6 +15,8 @@ interface Config {
   baseUrl: string;
   plan: Plan;
 }
+
+const badBot = /\bbad bot\b/i;
 
 export default class Patch {
   readonly #commands: Commands;
@@ -35,6 +37,7 @@ export default class Patch {
 
     this.#matrix.on("room.event", this.handleRoomEvent.bind(this));
     this.#matrix.on("room.leave", this.handleLeave.bind(this));
+    this.#matrix.on("room.message", this.handleMessage.bind(this));
   }
 
   public async start() {
@@ -50,10 +53,25 @@ export default class Patch {
     await this.#commands.start();
   }
 
+  private async handleBadBot(room: string, event: Event<"m.room.message">) {
+    warn("🤖 Bad bot", { room, sender: event.sender, message: event.content.body });
+
+    if (this.controlRoom) {
+      const pill = Permalinks.forEvent(room, event.event_id);
+      await this.#matrix.sendHtmlNotice(this.controlRoom, `Negative feedback: ${pill}`);
+    }
+  }
+
   private handleLeave(roomId: string, event: Event<"m.room.member">) {
     if (event.sender === this.#plan.steward.id) return;
 
     warn("👮 Got kicked", { roomId, event });
+  }
+
+  private async handleMessage(room: string, event: Event<"m.room.message">) {
+    if (event.sender === this.#plan.steward.id) return;
+
+    if (badBot.test(event.content.body)) await this.handleBadBot(room, event);
   }
 
   private async handleRoomEvent(room: string, event: Event) {
