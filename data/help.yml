@@ -1,0 +1,7 @@
+commands:
+  announce: |
+    Usage:
+
+    ```
+    !announce #a:example.com, #b:example.com: This is an announcement.
+    ```

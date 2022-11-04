@@ -11,8 +11,12 @@ import type Patch from "./Patch.js";
 import type { Plan } from "./Plan.js";
 import { expect, logger, sample } from "./utilities.js";
 
-const { debug } = logger("Commands");
+const { debug, error, info } = logger("Commands");
 const md = new MarkdownIt();
+
+interface Help {
+  commands: Record<string, string>;
+}
 
 interface Input {
   command: string;
@@ -21,6 +25,12 @@ interface Input {
 }
 
 type Message = Event<"m.room.message">;
+
+const help: Help = assertEquals<Help>(
+  load(readFileSync("./data/help.yml", { encoding: "utf-8" }))
+);
+for (const command in help.commands)
+  help.commands[command] = md.render(help.commands[command]!);
 
 const toasts = assertEquals<string[]>(
   load(readFileSync("./data/toasts.yml", { encoding: "utf-8" }))
@@ -41,6 +51,53 @@ export default class Commands {
     this.matrix.on("room.message", this.handleRoomMessage.bind(this));
   }
 
+  private async announce(room: string, event: Message, input: Input) {
+    const [targetsInput, html] = input.html?.split(/\s*:\s+/, 2) ?? [];
+    const queriesHtml = targetsInput?.split(/\s*,\s*/) ?? [];
+
+    if (!(html && queriesHtml.length > 0)) {
+      await this.matrix.replyHtmlNotice(room, event, help.commands["announce"]!);
+      return;
+    }
+
+    const targets: string[] = [];
+    for (const queryHtml of queriesHtml) {
+      const query = queryHtml.match(permalinkPattern)?.[1];
+      const id = query && (await this.matrix.resolveRoom(query));
+
+      if (!id) {
+        await this.matrix.replyNotice(
+          room,
+          event,
+          `Unable to resolve room “${queryHtml}”`
+        );
+        return;
+      }
+
+      const space = await this.matrix.getSpace(id).catch(() => undefined);
+      if (space) {
+        for (const child of Object.keys(await space.getChildEntities())) {
+          targets.push(child);
+        }
+      } else {
+        targets.push(id);
+      }
+    }
+
+    await this.matrix.replyNotice(room, event, `Announcing to ${targets.length} rooms`);
+    await this.matrix.setTyping(room, true);
+    for (const target of targets) {
+      try {
+        info("💬 Send message", { room: target, html });
+        await this.matrix.sendHtmlNotice(target, html);
+      } catch (result) {
+        error("💬 Failed to send message", { room: target, result });
+        await this.matrix.replyNotice(room, event, `Failed to send in ${target}`);
+      }
+    }
+    await this.matrix.setTyping(room, false);
+  }
+
   private async handleRoomMessage(room: string, event: Message) {
     if (event.sender === this.plan.steward.id) return;
     if (event.content.msgtype !== "m.text") return;
@@ -52,6 +109,10 @@ export default class Commands {
     debug("🛎️ Command", { room, sender: event.sender, input });
 
     if (this.patch.controlRoom && room === this.patch.controlRoom) {
+      switch (input.command) {
+        case "announce":
+          return this.run(room, () => this.announce(room, event, input));
+      }
     } else {
       switch (input.command) {
         case "tea":
