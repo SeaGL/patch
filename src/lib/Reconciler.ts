@@ -673,13 +673,16 @@ export default class Reconciler {
     for (const [index, session] of sessions.entries()) {
       const suffix = plan.suffixes?.[session.id] ?? `session-${session.id}`;
       const redirect = plan.redirects?.[session.id];
+      const topic = plan.topic;
+      const intro = plan.intro?.replace(/\$URL\b/, session.url);
       const widget = plan.widgets?.[session.room]?.[session.day];
 
       const room = await this.reconcileRoom(`${plan.prefix}${suffix}`, sortKey(index), {
         name: `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`,
         tag: `osem-event-${session.id}`,
-        topic: `Details: ${session.url}`,
+        ...(intro ? { intro } : {}),
         ...(redirect ? { redirect } : {}),
+        ...(topic ? { topic } : {}),
         ...(widget ? { widget } : {}),
       });
 

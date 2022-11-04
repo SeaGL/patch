@@ -25,10 +25,12 @@ export interface SessionsPlan {
   conference: string;
   demo?: string;
   ignore?: string[];
+  intro?: string;
   openEarly: number;
   prefix: string;
   redirects?: Record<string, string>;
   suffixes?: Record<string, string>;
+  topic?: string;
   widgets?: Record<string, { [day: number]: WidgetPlan }>;
 }
 

@@ -297,6 +297,15 @@ sessions:
     "924": Trivia
     "925": EveningSocial
     "926": NoCookLunchHour
+  topic: >-
+    A link to session details can be found as the first post of the channel.
+    · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+  intro: |
+    # Session Details
+
+    $URL
+
+    Please note, the SeaGL [Code of Conduct](https://seagl.org/coc) is in effect here and all conference spaces.
   widgets:
     COCas0SL-oiCnYBMjEgWoA: # Keynotes
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-track-1.html }
