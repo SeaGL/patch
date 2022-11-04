@@ -179,7 +179,7 @@ export default class Commands {
     }
 
     await minDelay;
-    await this.matrix.setTyping(room, false);
     await this.matrix.replyHtmlNotice(room, event, html);
+    await this.matrix.setTyping(room, false);
   }
 }
