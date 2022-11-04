@@ -176,4 +176,4 @@ export const resolvePreset = (
 
 export const isUserId = (text: string): boolean => /^@[-.\w]+:[-.\w]+$/.test(text);
 
-export const permalinkPattern = /https:\/\/matrix\.to\/#\/(@[-.\w]+:[-.\w]+)/;
+export const permalinkPattern = /https:\/\/matrix\.to\/#\/([#@][-.\w]+:[-.\w]+)/;
