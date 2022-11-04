@@ -20,6 +20,8 @@ interface Input {
   text: string | undefined;
 }
 
+type Message = Event<"m.room.message">;
+
 const toasts = assertEquals<string[]>(
   load(readFileSync("./data/toasts.yml", { encoding: "utf-8" }))
 ).map((markdown) => md.renderInline(markdown));
@@ -39,7 +41,7 @@ export default class Commands {
     this.matrix.on("room.message", this.handleRoomMessage.bind(this));
   }
 
-  private async handleRoomMessage(room: string, event: Event<"m.room.message">) {
+  private async handleRoomMessage(room: string, event: Message) {
     if (event.sender === this.plan.steward.id) return;
     if (event.content.msgtype !== "m.text") return;
     if (event.content["m.relates_to"]?.rel_type === "m.replace") return;
@@ -47,7 +49,7 @@ export default class Commands {
 
     const input = this.parseCommand(event.content);
     if (!input) return;
-    debug("🛎️ Command", { input });
+    debug("🛎️ Command", { room, sender: event.sender, input });
 
     if (this.patch.controlRoom && room === this.patch.controlRoom) {
     } else {
@@ -58,7 +60,7 @@ export default class Commands {
     }
   }
 
-  private parseCommand(content: Event<"m.room.message">["content"]): Input | undefined {
+  private parseCommand(content: Message["content"]): Input | undefined {
     const [command, text] = content.body.slice(1).split(" ", 2);
     if (!command) return;
 
@@ -77,7 +79,7 @@ export default class Commands {
   }
 
   // Adapted from https://github.com/treedavies/seagl-bot-2021/tree/58a07cb/plugins/tea
-  private async tea(room: string, event: Event<"m.room.message">, input: Input) {
+  private async tea(room: string, event: Message, input: Input) {
     await this.matrix.setTyping(room, true);
     const minDelay = setTimeout(1000);
 
