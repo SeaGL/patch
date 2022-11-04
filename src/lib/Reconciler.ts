@@ -239,7 +239,7 @@ export default class Reconciler {
   }
 
   private localToAlias(local: string): string {
-    return local.startsWith("SeaGL2022")
+    return local.startsWith("SeaGL2022") && local.endsWith("seattlematrix.org")
       ? `#${local.replace(/^SeaGL/, "")}:seagl.org`
       : `#${local}:${this.plan.homeserver}`;
   }
