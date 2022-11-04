@@ -9,6 +9,7 @@ import {
   Space,
   SpaceEntityMap as Children,
 } from "matrix-bot-sdk";
+import MarkdownIt from "markdown-it";
 import { assert, Equals } from "tsafe";
 import type Client from "./Client.js";
 import type { RoomCreateOptions } from "./Client.js";
@@ -28,6 +29,7 @@ import type { Scheduled } from "./scheduling.js";
 import { expect, logger, maxDelay, unimplemented } from "./utilities.js";
 
 const { debug, error, info } = logger("Reconciler");
+const md = new MarkdownIt();
 
 interface Room extends RoomPlan {
   id: string;
@@ -44,6 +46,8 @@ interface Session extends OsemEvent {
   day: number;
   open: DateTime;
 }
+
+export type IntroEvent = IStateEvent<"org.seagl.patch.intro", { message?: string }>;
 
 export type RedirectEvent = IStateEvent<"org.seagl.patch.redirect", { message?: string }>;
 
@@ -395,6 +399,22 @@ export default class Reconciler {
     }
   }
 
+  private async reconcileIntro(room: Room) {
+    const redactReason = "Removed introduction";
+
+    const body = room.intro
+      ? { html: md.render(room.intro), text: room.intro }
+      : undefined;
+
+    const type = "org.seagl.patch.intro";
+    const event = await this.matrix
+      .getRoomStateEvent<IntroEvent>(room.id, type)
+      .catch(orNone);
+    const message = await this.reconcileNotice(room, event?.message, body, redactReason);
+
+    await this.reconcileState(room, { type, content: message ? { message } : {} });
+  }
+
   private async reconcileInvitations(child: Room, parent?: Room) {
     if (!(parent && child.private)) return;
 
@@ -580,6 +600,7 @@ export default class Reconciler {
 
     await this.reconcileWidget(room);
     await this.reconcileRedirect(room);
+    await this.reconcileIntro(room);
 
     if (expected.children) {
       debug("🏘️ Get space", { local });

@@ -8,6 +8,7 @@ export interface RoomPlan {
   avatar?: string;
   children?: RoomsPlan | SessionGroupId;
   destroy?: boolean;
+  intro?: string;
   name: string;
   private?: boolean;
   readOnly?: boolean;
