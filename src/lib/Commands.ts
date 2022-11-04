@@ -15,7 +15,9 @@ const { debug, error, info } = logger("Commands");
 const md = new MarkdownIt();
 
 interface Help {
+  brief: string;
   commands: Record<string, string>;
+  controlBrief: string;
 }
 
 interface Input {
@@ -29,6 +31,8 @@ type Message = Event<"m.room.message">;
 const help: Help = assertEquals<Help>(
   load(readFileSync("./data/help.yml", { encoding: "utf-8" }))
 );
+help.brief = md.render(help.brief);
+help.controlBrief = md.render(help.controlBrief);
 for (const command in help.commands)
   help.commands[command] = md.render(help.commands[command]!);
 
@@ -112,13 +116,25 @@ export default class Commands {
       switch (input.command) {
         case "announce":
           return this.run(room, () => this.announce(room, event, input));
+        case "help":
+          return this.run(room, () => this.helpControl(room, event));
       }
     } else {
       switch (input.command) {
+        case "help":
+          return this.run(room, () => this.help(room, event));
         case "tea":
           return this.run(room, () => this.tea(room, event, input));
       }
     }
+  }
+
+  private async help(room: string, event: Message) {
+    await this.matrix.replyHtmlNotice(room, event, help.brief);
+  }
+
+  private async helpControl(room: string, event: Message) {
+    await this.matrix.replyHtmlNotice(room, event, help.controlBrief);
   }
 
   private parseCommand(content: Message["content"]): Input | undefined {

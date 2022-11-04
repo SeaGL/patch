@@ -1,3 +1,13 @@
+brief: |
+  Commands:
+
+    - `!tea <recipient>`: Toast a friend
+
+controlBrief: |
+  Commands:
+
+    - `!announce <pill>, <pill>…: Message`: Broadcast a message to multiple rooms/spaces
+
 commands:
   announce: |
     Usage:
