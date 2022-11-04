@@ -40,6 +40,9 @@ const toasts = assertEquals<string[]>(
   load(readFileSync("./data/toasts.yml", { encoding: "utf-8" }))
 ).map((markdown) => md.renderInline(markdown));
 
+const announcePattern = /^\s*(?<queries>.+?)\s*:\s+(?<announcement>.*?)\s*$/;
+const commandPattern = /^!(?<command>[a-z]+)(?:\s+(?<input>.*?))?\s*$/;
+
 export default class Commands {
   #limiter: Bottleneck.Group;
 
@@ -55,48 +58,40 @@ export default class Commands {
     this.matrix.on("room.message", this.handleRoomMessage.bind(this));
   }
 
-  private async announce(room: string, event: Message, input: Input) {
-    const [targetsInput, html] = input.html?.split(/\s*:\s+/, 2) ?? [];
-    const queriesHtml = targetsInput?.split(/\s*,\s*/) ?? [];
+  private async announce(room: string, event: Message, input: Input): Promise<void> {
+    const reply = this.matrix.replyHtmlNotice.bind(this.matrix);
+    const parse = (body: string) => {
+      const gs = body.match(announcePattern)?.groups;
+      return gs && { announcement: gs["announcement"]!, queries: gs["queries"]! };
+    };
 
-    if (!(html && queriesHtml.length > 0)) {
-      await this.matrix.replyHtmlNotice(room, event, help.commands["announce"]!);
-      return;
-    }
+    const targets = new Set<string>();
+    const add = async (id: string) => {
+      const s = await this.matrix.getSpace(id).catch(() => undefined);
+      if (s) for (const c of Object.keys(await s.getChildEntities())) await add(c);
+      else targets.add(id);
+    };
 
-    const targets: string[] = [];
-    for (const queryHtml of queriesHtml) {
+    const asHtml = input.html && parse(input.html);
+    if (!asHtml) return void (await reply(room, event, help.commands["announce"]!));
+
+    for (const queryHtml of asHtml.queries.split(/\s*,\s*/) ?? []) {
       const query = queryHtml.match(permalinkPattern)?.[1];
-      const id = query && (await this.matrix.resolveRoom(query));
+      const id = query && (await this.matrix.resolveRoom(query).catch(() => undefined));
+      if (!id) return void (await reply(room, event, `Unknown room “${query}”`));
 
-      if (!id) {
-        await this.matrix.replyNotice(
-          room,
-          event,
-          `Unable to resolve room “${queryHtml}”`
-        );
-        return;
-      }
-
-      const space = await this.matrix.getSpace(id).catch(() => undefined);
-      if (space) {
-        for (const child of Object.keys(await space.getChildEntities())) {
-          targets.push(child);
-        }
-      } else {
-        targets.push(id);
-      }
+      await add(id);
     }
 
-    await this.matrix.replyNotice(room, event, `Announcing to ${targets.length} rooms`);
+    await reply(room, event, `Announcing to ${targets.size} rooms`);
     await this.matrix.setTyping(room, true);
     for (const target of targets) {
       try {
-        info("💬 Send message", { room: target, html });
-        await this.matrix.sendHtmlNotice(target, html);
+        info("💬 Send message", { room: target, html: asHtml.announcement });
+        await this.matrix.sendHtmlNotice(target, asHtml.announcement);
       } catch (result) {
         error("💬 Failed to send message", { room: target, result });
-        await this.matrix.replyNotice(room, event, `Failed to send in ${target}`);
+        await reply(room, event, `Failed to announce in ${target}`);
       }
     }
     await this.matrix.setTyping(room, false);
@@ -138,17 +133,26 @@ export default class Commands {
   }
 
   private parseCommand(content: Message["content"]): Input | undefined {
-    const [command, text] = content.body.slice(1).split(" ", 2);
+    const parse = (body: string) => {
+      const groups = body.match(commandPattern)?.groups;
+      return { command: groups?.["command"], input: groups?.["input"] };
+    };
+
+    const asText = parse(content.body);
+    const asHtml =
+      "format" in content && content.format === "org.matrix.custom.html"
+        ? parse(content.formatted_body)
+        : undefined;
+
+    const command = asText.command ?? asHtml?.command;
     if (!command) return;
 
-    return {
-      command,
-      html:
-        "format" in content && content.format === "org.matrix.custom.html"
-          ? content.formatted_body.slice(1 + command.length + 1)
-          : undefined,
-      text,
-    };
+    if (asText.command && asHtml?.command && asText.command !== asHtml.command) {
+      error("🛎️ Conflicting text and HTML commands", { content });
+      return;
+    }
+
+    return { command, html: asHtml?.input, text: asText.input };
   }
 
   private run(room: string, task: () => Promise<void>) {
@@ -160,20 +164,20 @@ export default class Commands {
     await this.matrix.setTyping(room, true);
     const minDelay = setTimeout(1000);
 
-    let html;
-    if (input.text) {
-      const recipient = isUserId(input.text)
-        ? input.text
-        : input.html?.match(permalinkPattern)?.[1];
+    let recipient;
+    if (input.html) {
+      recipient = input.html?.match(permalinkPattern)?.[1];
+    } else if (input.text) {
+      const first = input.text.split(/\s+/, 1)[0];
+      if (first && isUserId(first)) recipient = first;
+    }
 
-      if (recipient) {
-        const to = await MentionPill.forUser(recipient, room, this.matrix);
-        const from = await MentionPill.forUser(event.sender, room, this.matrix);
-        const toast = expect(sample(toasts), "toast");
-        html = `${to.html}: ${from.html} is toasting you! ${toast}`;
-      } else {
-        html = "Sorry, I don’t know who that is.";
-      }
+    let html;
+    if (recipient) {
+      const to = await MentionPill.forUser(recipient, room, this.matrix);
+      const from = await MentionPill.forUser(event.sender, room, this.matrix);
+      const toast = expect(sample(toasts), "toast");
+      html = `${to.html}: ${from.html} is toasting you! ${toast}`;
     } else {
       html = expect(sample(toasts), "toast");
     }

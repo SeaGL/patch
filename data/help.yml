@@ -13,5 +13,5 @@ commands:
     Usage:
 
     ```
-    !announce #a:example.com, #b:example.com: This is an announcement.
+    !announce <pill>, <pill>…: Message
     ```
