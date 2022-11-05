@@ -17,6 +17,7 @@ interface Config {
 }
 
 const badBot = /\bbad bot\b/i;
+const goodBot = /\bgood bot\b/i;
 
 export default class Patch {
   readonly #commands: Commands;
@@ -62,6 +63,14 @@ export default class Patch {
     }
   }
 
+  private async handleGoodBot(room: string, event: Event<"m.room.message">) {
+    info("🤖 Good bot", { room, sender: event.sender, message: event.content.body });
+
+    await this.#matrix.sendEvent(room, "m.reaction", {
+      "m.relates_to": { rel_type: "m.annotation", key: "🤖", event_id: event.event_id },
+    });
+  }
+
   private handleLeave(roomId: string, event: Event<"m.room.member">) {
     if (event.sender === this.#plan.steward.id) return;
 
@@ -72,6 +81,7 @@ export default class Patch {
     if (event.sender === this.#plan.steward.id) return;
 
     if (badBot.test(event.content.body)) await this.handleBadBot(room, event);
+    if (goodBot.test(event.content.body)) await this.handleGoodBot(room, event);
   }
 
   private async handleRoomEvent(room: string, event: Event) {
