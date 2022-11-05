@@ -1,7 +1,7 @@
 import Bottleneck from "bottleneck";
 import { MatrixClient, RoomCreateOptions as RoomCreateFullOptions } from "matrix-bot-sdk";
 import { setTimeout } from "timers/promises";
-import type { StateEvent, StateEventInput, Sync } from "./matrix.js";
+import type { Event, StateEvent, StateEventInput, Sync } from "./matrix.js";
 import { env, logger } from "./utilities.js";
 
 const { debug, warn } = logger("Client");
@@ -83,6 +83,18 @@ export default class Client extends MatrixClient {
     key: E["state_key"] = ""
   ): Promise<E["content"] | undefined> =>
     (this.#cache.get(room)?.get(`${type}/${key}`) as E | undefined)?.content;
+
+  public async replaceMessage(
+    room: string,
+    eventId: string,
+    content: Event<"m.room.message">["content"]
+  ) {
+    return await this.sendMessage(room, {
+      ...content,
+      "m.relates_to": { rel_type: "m.replace", event_id: eventId },
+      "m.new_content": content,
+    });
+  }
 
   public override sendStateEvent = async <E extends StateEvent>(
     room: string,

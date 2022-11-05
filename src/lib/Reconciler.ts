@@ -793,29 +793,15 @@ export default class Reconciler {
   private async replaceNotice(
     room: string,
     id: string,
-    body: { html?: string; text: string }
+    { html, text }: { html?: string; text: string }
   ): Promise<string> {
     const root = await this.getRootMessage(room, id);
 
-    info("🪧 Replace notice", { room, id, root, body });
-    let content: Event<"m.room.message">["content"];
-    if (body.html) {
-      content = {
-        msgtype: "m.notice",
-        body: body.text,
-        format: "org.matrix.custom.html",
-        formatted_body: body.html,
-      };
-    } else {
-      content = {
-        msgtype: "m.notice",
-        body: body.text,
-      };
-    }
-    return await this.matrix.sendMessage(room, {
-      ...content,
-      "m.relates_to": { rel_type: "m.replace", event_id: root },
-      "m.new_content": content,
+    info("🪧 Replace notice", { room, id, root, text, html });
+    return await this.matrix.replaceMessage(room, root, {
+      msgtype: "m.notice",
+      body: text,
+      ...(html ? { format: "org.matrix.custom.html", formatted_body: html } : {}),
     });
   }
 
