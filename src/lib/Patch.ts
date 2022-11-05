@@ -1,5 +1,5 @@
 import assert from "assert/strict";
-import { LogService, Permalinks, SimpleFsStorageProvider } from "matrix-bot-sdk";
+import { LogService as LS, Permalinks, SimpleFsStorageProvider } from "matrix-bot-sdk";
 import Client from "./Client.js";
 import Commands from "./Commands.js";
 import Concierge from "./Concierge.js";
@@ -16,7 +16,7 @@ interface Config {
 const badBot = /\bbad bot\b/i;
 const goodBot = /\bgood bot\b/i;
 
-export type Log = <D>(message: string, data?: D) => void;
+export type Log = <D>(message: string, data?: D, notice?: string) => void;
 
 export default class Patch {
   readonly #commands: Commands;
@@ -26,11 +26,11 @@ export default class Patch {
   readonly #reconciler: Reconciler;
   public controlRoom: string | undefined;
 
-  public trace: Log = (m, d) => LogService.trace("Patch", m, d);
-  public debug: Log = (m, d) => LogService.debug("Patch", m, d);
-  public error: Log = (m, d) => LogService.error("Patch", m, d);
-  public info: Log = (m, d) => LogService.info("Patch", m, d);
-  public warn: Log = (m, d) => LogService.warn("Patch", m, d);
+  public trace: Log = (m, d) => LS.trace("Patch", m, d);
+  public debug: Log = (m, d) => LS.debug("Patch", m, d);
+  public error: Log = (m, d, n) => (LS.error("Patch", m, d), this.handleError(m, d, n));
+  public info: Log = (m, d) => LS.info("Patch", m, d);
+  public warn: Log = (m, d, n) => (LS.warn("Patch", m, d), this.handleWarn(m, d, n));
 
   public constructor({ accessToken, baseUrl, plan }: Config) {
     const storage = new SimpleFsStorageProvider("state/state.json");
@@ -60,12 +60,20 @@ export default class Patch {
   }
 
   private async handleBadBot(room: string, event: Event<"m.room.message">) {
-    this.warn("🤖 Bad bot", { room, sender: event.sender, message: event.content.body });
+    this.warn(
+      "🤖 Bad bot",
+      { room, sender: event.sender, message: event.content.body },
+      `Negative feedback: ${Permalinks.forEvent(room, event.event_id)}`
+    );
+  }
 
-    if (this.controlRoom) {
-      const pill = Permalinks.forEvent(room, event.event_id);
-      await this.#matrix.sendHtmlNotice(this.controlRoom, `Negative feedback: ${pill}`);
-    }
+  private async handleError<D>(message: string, data?: D, notice?: string) {
+    if (!this.controlRoom) return;
+
+    await this.#matrix[notice ? "sendHtmlNotice" : "sendNotice"](
+      this.controlRoom,
+      notice ?? `Error: ${message} ${data ? JSON.stringify(data) : ""}`
+    );
   }
 
   private async handleGoodBot(room: string, event: Event<"m.room.message">) {
@@ -94,5 +102,14 @@ export default class Patch {
 
     this.debug("🧾 Send read receipt", { room, event: id, sender: sender });
     await this.#matrix.sendReadReceipt(room, id);
+  }
+
+  private async handleWarn<D>(message: string, data?: D, notice?: string) {
+    if (!this.controlRoom) return;
+
+    await this.#matrix[notice ? "sendHtmlNotice" : "sendNotice"](
+      this.controlRoom,
+      notice ?? `Warning: ${message} ${data ? JSON.stringify(data) : ""}`
+    );
   }
 }
