@@ -94,6 +94,18 @@ export default class Reconciler {
     return this.#spaceByChild.get(child);
   }
 
+  public async reconcile(now = DateTime.local({ zone: this.plan.timeZone })) {
+    await this.#limiter.schedule(async () => {
+      this.scheduleReconcile(now.plus(reconcilePeriod));
+
+      info("🔃 Reconcile");
+      await this.reconcileProfile(this.plan.steward);
+      await this.reconcileRooms(this.plan.rooms);
+      if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
+      debug("🔃 Completed reconciliation");
+    });
+  }
+
   public async start() {
     for (const room of await this.matrix.getJoinedRooms()) {
       const tag = await this.getTag(room);
@@ -267,18 +279,6 @@ export default class Reconciler {
         content: { ...content, alias: expected },
       });
     }
-  }
-
-  private async reconcile(now = DateTime.local({ zone: this.plan.timeZone })) {
-    await this.#limiter.schedule(async () => {
-      this.scheduleReconcile(now.plus(reconcilePeriod));
-
-      info("🔃 Reconcile");
-      await this.reconcileProfile(this.plan.steward);
-      await this.reconcileRooms(this.plan.rooms);
-      if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
-      debug("🔃 Completed reconciliation");
-    });
   }
 
   private async reconcileAvatar(room: Room) {

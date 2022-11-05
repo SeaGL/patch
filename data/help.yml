@@ -7,6 +7,7 @@ controlBrief: |
   Commands:
 
     - `!announce <pill>, <pill>…: Message`: Broadcast a message to multiple rooms/spaces
+    - `!sync`: Synchronize space with data sources
 
 commands:
   announce: |

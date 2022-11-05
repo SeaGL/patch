@@ -9,6 +9,7 @@ import type Client from "./Client.js";
 import { Event, isUserId, permalinkPattern } from "./matrix.js";
 import type Patch from "./Patch.js";
 import type { Plan } from "./Plan.js";
+import type Reconciler from "./Reconciler.js";
 import { expect, logger, sample } from "./utilities.js";
 
 const { debug, error, info } = logger("Commands");
@@ -49,6 +50,7 @@ export default class Commands {
   public constructor(
     private readonly patch: Patch,
     private readonly matrix: Client,
+    private readonly reconciler: Reconciler,
     private readonly plan: Plan
   ) {
     this.#limiter = new Bottleneck.Group({ maxConcurrent: 1, minTime: 1000 });
@@ -113,6 +115,8 @@ export default class Commands {
           return this.run(room, () => this.announce(room, event, input));
         case "help":
           return this.run(room, () => this.helpControl(room, event));
+        case "sync":
+          return this.run(room, () => this.sync(room, event));
       }
     } else {
       switch (input.command) {
@@ -157,6 +161,18 @@ export default class Commands {
 
   private run(room: string, task: () => Promise<void>) {
     this.#limiter.key(room).schedule(task);
+  }
+
+  private async sync(room: string, event: Message) {
+    const started = "Synchronizing space with data sources…";
+    const completed = "Synchronized space with data sources";
+
+    const output = await this.matrix.replyNotice(room, event, started);
+    this.reconciler
+      .reconcile()
+      .then(() =>
+        this.matrix.replaceMessage(room, output, { msgtype: "m.notice", body: completed })
+      );
   }
 
   // Adapted from https://github.com/treedavies/seagl-bot-2021/tree/58a07cb/plugins/tea

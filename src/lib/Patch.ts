@@ -34,7 +34,7 @@ export default class Patch {
     this.#plan = plan;
     this.#reconciler = new Reconciler(this, this.#matrix, this.#plan);
     this.#concierge = new Concierge(this.#matrix, this.#reconciler);
-    this.#commands = new Commands(this, this.#matrix, this.#plan);
+    this.#commands = new Commands(this, this.#matrix, this.#reconciler, this.#plan);
 
     this.#matrix.on("room.event", this.handleRoomEvent.bind(this));
     this.#matrix.on("room.leave", this.handleLeave.bind(this));
