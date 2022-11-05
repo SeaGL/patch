@@ -24,11 +24,11 @@ import {
 } from "./matrix.js";
 import { getOsemEvents, OsemEvent } from "./Osem.js";
 import type Patch from "./Patch.js";
+import type { Log } from "./Patch.js";
 import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
 import type { Scheduled } from "./scheduling.js";
-import { expect, logger, maxDelay, unimplemented } from "./utilities.js";
+import { expect, maxDelay, unimplemented } from "./utilities.js";
 
-const { debug, error, info } = logger("Reconciler");
 const md = new MarkdownIt();
 
 interface Room extends RoomPlan {
@@ -77,6 +77,12 @@ export default class Reconciler {
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
   #spaceByChild: Map<string, string>;
 
+  public trace: Log;
+  public debug: Log;
+  public error: Log;
+  public info: Log;
+  public warn: Log;
+
   public constructor(
     private readonly patch: Patch,
     private readonly matrix: Client,
@@ -88,6 +94,12 @@ export default class Reconciler {
     this.#scheduledRegroups = new Map();
     this.#sessionGroups = {};
     this.#spaceByChild = new Map();
+
+    this.trace = patch.trace.bind(patch);
+    this.debug = patch.debug.bind(patch);
+    this.error = patch.error.bind(patch);
+    this.info = patch.info.bind(patch);
+    this.warn = patch.warn.bind(patch);
   }
 
   public getParent(child: string): string | undefined {
@@ -98,11 +110,11 @@ export default class Reconciler {
     await this.#limiter.schedule(async () => {
       this.scheduleReconcile(now.plus(reconcilePeriod));
 
-      info("🔃 Reconcile");
+      this.info("🔃 Reconcile");
       await this.reconcileProfile(this.plan.steward);
       await this.reconcileRooms(this.plan.rooms);
       if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
-      debug("🔃 Completed reconciliation");
+      this.debug("🔃 Completed reconciliation");
     });
   }
 
@@ -169,7 +181,7 @@ export default class Reconciler {
     room: string,
     id: string
   ): Promise<Event<"m.room.message"> | undefined> {
-    debug("🪧 Get notice", { room, id });
+    this.debug("🪧 Get notice", { room, id });
     return await this.matrix.getEvent(room, id).catch(orNone);
   }
 
@@ -187,7 +199,7 @@ export default class Reconciler {
   }
 
   private async getRootMessage(room: string, id: string): Promise<string> {
-    debug("💬 Get message", { room, id });
+    this.debug("💬 Get message", { room, id });
     const message: Event<"m.room.message"> | undefined = await this.matrix
       .getEvent(room, id)
       .catch(orNone);
@@ -205,7 +217,7 @@ export default class Reconciler {
         .catch(orNone)
     )?.tag;
 
-    debug("🔖 Tag", { room, tag });
+    this.debug("🔖 Tag", { room, tag });
     return tag;
   }
 
@@ -213,7 +225,7 @@ export default class Reconciler {
     room: string,
     { state_key: user, content: { membership } }: StateEvent<"m.room.member">
   ) {
-    debug("🚪 Membership", { room, user, membership });
+    this.debug("🚪 Membership", { room, user, membership });
 
     if (
       membership === "join" &&
@@ -224,7 +236,7 @@ export default class Reconciler {
         const memberships = await this.matrix.getRoomMembers(child);
 
         if (!memberships.some((m) => m.membershipFor === user)) {
-          info("🔑 Invite space moderator to private room", {
+          this.info("🔑 Invite space moderator to private room", {
             space: room,
             moderator: user,
             room: child,
@@ -240,7 +252,7 @@ export default class Reconciler {
   }
 
   private async listSpace(space: Space, local: string): Promise<ListedSpace> {
-    debug("🏘️ List space", { local });
+    this.debug("🏘️ List space", { local });
     return Object.assign(space, { children: await space.getChildEntities(), local });
   }
 
@@ -255,11 +267,11 @@ export default class Reconciler {
       const resolved = await this.resolveAlias(expected);
 
       if (resolved && resolved !== room.id) {
-        info("🏷️ Reassign alias", { alias: expected, from: resolved, to: room.id });
+        this.info("🏷️ Reassign alias", { alias: expected, from: resolved, to: room.id });
         await this.matrix.deleteRoomAlias(expected);
         await this.matrix.createRoomAlias(expected, room.id);
       } else if (!resolved) {
-        info("🏷️ Create alias", { alias: expected, room: room.local });
+        this.info("🏷️ Create alias", { alias: expected, room: room.local });
         await this.matrix.createRoomAlias(expected, room.id);
       }
     }
@@ -270,13 +282,13 @@ export default class Reconciler {
         "m.room.canonical_alias"
       )
       .catch(orNone);
-    const actual = content?.alias;
 
-    if (actual !== expected) {
-      info("🏷️ Update canonical alias", { room: room.local, from: actual, to: expected });
+    const [from, to] = [content?.alias, expected];
+    if (from !== to) {
+      this.info("🏷️ Update canonical alias", { room: room.local, from, to });
       this.reconcileState(room, {
         type: "m.room.canonical_alias",
-        content: { ...content, alias: expected },
+        content: { ...content, alias: to },
       });
     }
   }
@@ -298,16 +310,16 @@ export default class Reconciler {
       mergeWith(actual, expected, (from, to, option) => {
         if (typeof to === "object" || !(from || to) || from === to) return;
 
-        info("🏘️ Update childhood", { space: space.local, child, option, from, to });
+        this.info("🏘️ Update childhood", { space: space.local, child, option, from, to });
         changed = true;
       });
 
       if (changed) {
-        debug("🏘️ Set childhood", { space: space.local, child });
+        this.debug("🏘️ Set childhood", { space: space.local, child });
         await space.addChildRoom(id, actual);
       }
     } else {
-      info("🏘️ Add to space", { space: space.local, child });
+      this.info("🏘️ Add to space", { space: space.local, child });
       await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
     }
     this.#spaceByChild.set(id, space.roomId);
@@ -326,10 +338,10 @@ export default class Reconciler {
 
   private async reconcileControlRoom(room: Room) {
     if (this.patch.controlRoom === room.id && !room.control) {
-      info("🚦 Update control room", { from: this.patch.controlRoom, to: undefined });
+      this.warn("🚦 Unlink control room", { room: this.patch.controlRoom });
       this.patch.controlRoom = undefined;
     } else if (room.control && this.patch.controlRoom !== room.id) {
-      info("🚦 Update control room", { from: this.patch.controlRoom, to: room.id });
+      this.info("🚦 Update control room", { from: this.patch.controlRoom, to: room.id });
       this.patch.controlRoom = room.id;
     }
   }
@@ -349,14 +361,14 @@ export default class Reconciler {
       existingByAlias !== existingByTag &&
       alias.endsWith(this.plan.homeserver)
     ) {
-      info("🏷️ Delete alias", { alias });
+      this.info("🏷️ Delete alias", { alias });
       await this.matrix.deleteRoomAlias(alias);
     }
     const existing = existingByTag ?? existingByAlias;
 
     if (expected.destroy) {
       if (existing) {
-        info("🏷️ Delete alias", { alias });
+        this.info("🏷️ Delete alias", { alias });
         await this.matrix.deleteRoomAlias(alias);
 
         const reason = "Decommissioning room";
@@ -364,14 +376,14 @@ export default class Reconciler {
         for (const user of members) {
           if (user === this.plan.steward.id) continue;
 
-          info("🚪 Kick user", { room: existing, user, reason });
+          this.info("🚪 Kick user", { room: existing, user, reason });
           await this.matrix.kickUser(user, existing, reason);
         }
 
-        info("🚪 Leave room", { room: existing });
+        this.info("🚪 Leave room", { room: existing });
         await this.matrix.leaveRoom(existing);
 
-        debug("📇 Forget room", { room: existing });
+        this.debug("📇 Forget room", { room: existing });
         await this.matrix.forgetRoom(existing);
       }
 
@@ -379,7 +391,7 @@ export default class Reconciler {
     } else {
       if (existing) return [existing, false];
 
-      info("🏠 Create room", { local });
+      this.info("🏠 Create room", { local });
       const isPrivate = Boolean(expected.private);
       const isSpace = Boolean(expected.children);
       const avatar = this.resolveAvatar(expected.avatar);
@@ -429,13 +441,13 @@ export default class Reconciler {
   private async reconcileInvitations(child: Room, parent?: Room) {
     if (!(parent && child.private)) return;
 
-    debug("🛡️ List moderators", { space: parent.local });
+    this.debug("🛡️ List moderators", { space: parent.local });
     const moderators = await this.getModerators(parent.id);
 
-    debug("🚪 Get memberships", { space: parent.local });
+    this.debug("🚪 Get memberships", { space: parent.local });
     const parentMemberships = await this.matrix.getRoomMembers(parent.id);
 
-    debug("🚪 Get memberships", { room: child.local });
+    this.debug("🚪 Get memberships", { room: child.local });
     const childMemberships = await this.matrix.getRoomMembers(child.id);
 
     for (const { membership, membershipFor: recipient, sender } of childMemberships) {
@@ -444,7 +456,7 @@ export default class Reconciler {
         sender === this.plan.steward.id &&
         !moderators.includes(recipient)
       ) {
-        info("🔑 Withdraw invitation", { room: child.local, recipient });
+        this.info("🔑 Withdraw invitation", { room: child.local, recipient });
         await this.matrix.sendStateEvent(child.id, "m.room.member", recipient, {
           membership: "leave",
         });
@@ -458,7 +470,7 @@ export default class Reconciler {
         ) &&
         !childMemberships.some((m) => m.membershipFor === moderator)
       ) {
-        info("🔑 Invite space moderator to private room", {
+        this.info("🔑 Invite space moderator to private room", {
           space: parent.local,
           moderator,
           room: child.local,
@@ -490,7 +502,7 @@ export default class Reconciler {
     if (actual) {
       return await this.replaceNotice(room, id, expected);
     } else {
-      info("🪧 Notice", { room, body: expected });
+      this.info("🪧 Notice", { room, body: expected });
       let content: Event<"m.room.message">["content"];
       if (expected.html) {
         content = {
@@ -512,7 +524,7 @@ export default class Reconciler {
   private async reconcilePowerLevels(room: Room) {
     const expected = this.getPowerLevels(room);
 
-    debug("🛡️ Get power levels", { room: room.local });
+    this.debug("🛡️ Get power levels", { room: room.local });
     const actual = expect(
       await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
         room.id,
@@ -525,12 +537,12 @@ export default class Reconciler {
     mergeWith(actual, expected, (from, to, ability) => {
       if (typeof to === "object" || from === to) return;
 
-      info("🛡️ Update power level", { room: room.local, ability, from, to });
+      this.info("🛡️ Update power level", { room: room.local, ability, from, to });
       changed = true;
     });
 
     if (changed) {
-      debug("🛡️ Set power levels", { room: room.local, content: actual });
+      this.debug("🛡️ Set power levels", { room: room.local, content: actual });
       await this.matrix.sendStateEvent(room.id, "m.room.power_levels", "", actual);
     }
   }
@@ -551,17 +563,17 @@ export default class Reconciler {
   private async reconcileProfile({ avatar, name }: Plan["steward"]) {
     const user = this.plan.steward.id;
 
-    debug("👤 Get profile", { user });
+    this.debug("👤 Get profile", { user });
     const actual: MatrixProfileInfo = await this.matrix.getUserProfile(user);
 
     if (!(actual.displayname === name)) {
-      info("👤 Set display name", { user, from: actual.displayname, to: name });
+      this.info("👤 Set display name", { user, from: actual.displayname, to: name });
       await this.matrix.setDisplayName(name);
     }
 
     const url = this.resolveAvatar(avatar);
     if (!(actual.avatar_url === url)) {
-      info("👤 Set avatar", { user, from: actual.avatar_url, to: url });
+      this.info("👤 Set avatar", { user, from: actual.avatar_url, to: url });
       await this.matrix.setAvatarUrl(url);
     }
   }
@@ -612,7 +624,7 @@ export default class Reconciler {
     await this.reconcileIntro(room);
 
     if (expected.children) {
-      debug("🏘️ Get space", { local });
+      this.debug("🏘️ Get space", { local });
       const space = await this.matrix.getSpace(id);
 
       if (typeof expected.children === "string") {
@@ -647,7 +659,7 @@ export default class Reconciler {
   private async reconcileSessions(plan: SessionsPlan, now: DateTime) {
     const ignore = new Set(plan.ignore ?? []);
 
-    debug("📅 Get sessions", { conference: plan.conference });
+    this.debug("📅 Get sessions", { conference: plan.conference });
     const osemEvents = await getOsemEvents(plan.conference);
     const startOfDay = DateTime.min(...osemEvents.map((e) => e.beginning)).startOf("day");
     const sessions = osemEvents
@@ -661,10 +673,13 @@ export default class Reconciler {
     if (plan.demo) {
       const dt = DateTime.fromISO(plan.demo, { zone: this.plan.timeZone });
       const offset = now.startOf("day").diff(dt, "days");
-      info("📅 Override conference date", { from: dt.toISODate(), to: now.toISODate() });
+      this.info("📅 Override conference date", {
+        from: dt.toISODate(),
+        to: now.toISODate(),
+      });
       for (const session of sessions) {
         const to = session.beginning.plus(offset);
-        debug("📅 Override session time", {
+        this.debug("📅 Override session time", {
           id: session.id,
           from: session.beginning.toISO(),
           to: to.toISO(),
@@ -718,14 +733,14 @@ export default class Reconciler {
     expected: StateEventInput
   ): Promise<boolean> {
     const { type, state_key: key, content: to } = expected;
-    debug("🗄️ Get state", { room, type, key });
+    this.debug("🗄️ Get state", { room, type, key });
     const from = await this.matrix.getRoomStateEvent(id, type, key).catch(orNone);
 
     if (
       (Object.keys(from ?? {}).length > 0 || Object.keys(to).length > 0) &&
       !isEqual(from, to)
     ) {
-      info("🗄️ Set state", { room, type, key, from, to });
+      this.info("🗄️ Set state", { room, type, key, from, to });
       await this.matrix.sendStateEvent(id, type, key ?? "", to);
       return true;
     }
@@ -781,12 +796,12 @@ export default class Reconciler {
   private async redactNotice(room: string, id: string, reason: string): Promise<string> {
     const root = await this.getRootMessage(room, id);
 
-    info("🪧 Redact notice", { room, id, root, reason });
+    this.info("🪧 Redact notice", { room, id, root, reason });
     return await this.matrix.redactEvent(room, root, reason);
   }
 
   private async removeFromSpace(space: ListedSpace, id: string, local?: string) {
-    info("🏘️ Remove from space", { space: space.local, child: local ?? id });
+    this.info("🏘️ Remove from space", { space: space.local, child: local ?? id });
     await space.removeChildRoom(id);
     this.#spaceByChild.delete(id);
     const privateChildren = this.#privateChildrenByParent.get(space.roomId);
@@ -802,7 +817,7 @@ export default class Reconciler {
   ): Promise<string> {
     const root = await this.getRootMessage(room, id);
 
-    info("🪧 Replace notice", { room, id, root, text, html });
+    this.info("🪧 Replace notice", { room, id, root, text, html });
     return await this.matrix.replaceMessage(room, root, {
       msgtype: "m.notice",
       body: text,
@@ -811,7 +826,7 @@ export default class Reconciler {
   }
 
   private async resolveAlias(alias: string): Promise<string | undefined> {
-    debug("🏷️ Resolve alias", { alias });
+    this.debug("🏷️ Resolve alias", { alias });
     return (await this.matrix.lookupRoomAlias(alias).catch(orNone))?.roomId;
   }
 
@@ -820,7 +835,7 @@ export default class Reconciler {
   }
 
   private resolveTag(tag: string): string | undefined {
-    debug("🔖 Resolve tag", { tag });
+    this.debug("🔖 Resolve tag", { tag });
     return this.#roomByTag.get(tag);
   }
 
@@ -829,16 +844,16 @@ export default class Reconciler {
     if (delay > maxDelay) throw new Error(`Not implemented for delay ${delay}`);
 
     if (this.#scheduledReconcile) {
-      debug("🕓 Unschedule reconcile", { at: this.#scheduledReconcile.at.toISO() });
+      this.debug("🕓 Unschedule reconcile", { at: this.#scheduledReconcile.at.toISO() });
       clearTimeout(this.#scheduledReconcile.timer);
       this.#scheduledReconcile = undefined;
     }
 
-    debug("🕓 Schedule reconcile", { at: at.toISO() });
+    this.debug("🕓 Schedule reconcile", { at: at.toISO() });
     const task = () => {
       this.#scheduledReconcile = undefined;
 
-      debug("🕓 Run scheduled reconcile");
+      this.debug("🕓 Run scheduled reconcile");
       this.reconcile(at);
     };
     this.#scheduledReconcile = { at, timer: setTimeout(task, delay) };
@@ -853,16 +868,16 @@ export default class Reconciler {
 
     const existing = this.#scheduledRegroups.get(room.id);
     if (existing) {
-      debug("🕓 Unschedule regroup", { room: room.local, at: existing.at.toISO() });
+      this.debug("🕓 Unschedule regroup", { room: room.local, at: existing.at.toISO() });
       clearTimeout(existing.timer);
       this.#scheduledRegroups.delete(room.id);
     }
 
-    debug("🕓 Schedule regroup", { room: room.local, at: at.toISO() });
+    this.debug("🕓 Schedule regroup", { room: room.local, at: at.toISO() });
     const task = () => {
       this.#scheduledRegroups.delete(room.id);
 
-      debug("🕓 Run scheduled regroup", { room: room.local, at: at.toISO() });
+      this.debug("🕓 Run scheduled regroup", { room: room.local, at: at.toISO() });
       this.reconcileSessionGroups(room, session, at);
     };
     this.#scheduledRegroups.set(room.id, { at, timer: setTimeout(task, delay) });
@@ -871,8 +886,8 @@ export default class Reconciler {
   private async tryInvite(room: string, user: string) {
     try {
       await this.matrix.inviteUser(user, room);
-    } catch (response) {
-      error("🔑 Failed to send invitation", { room, user, response });
+    } catch (error) {
+      this.error("🔑 Failed to send invitation", { room, user, error });
     }
   }
 }

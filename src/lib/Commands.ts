@@ -8,11 +8,11 @@ import { assertEquals } from "typescript-json";
 import type Client from "./Client.js";
 import { Event, isUserId, permalinkPattern } from "./matrix.js";
 import type Patch from "./Patch.js";
+import type { Log } from "./Patch.js";
 import type { Plan } from "./Plan.js";
 import type Reconciler from "./Reconciler.js";
-import { expect, logger, sample } from "./utilities.js";
+import { expect, sample } from "./utilities.js";
 
-const { debug, error, info } = logger("Commands");
 const md = new MarkdownIt();
 
 interface Help {
@@ -47,6 +47,12 @@ const commandPattern = /^!(?<command>[a-z]+)(?:\s+(?<input>.*?))?\s*$/;
 export default class Commands {
   #limiter: Bottleneck.Group;
 
+  public trace: Log;
+  public debug: Log;
+  public error: Log;
+  public info: Log;
+  public warn: Log;
+
   public constructor(
     private readonly patch: Patch,
     private readonly matrix: Client,
@@ -54,6 +60,12 @@ export default class Commands {
     private readonly plan: Plan
   ) {
     this.#limiter = new Bottleneck.Group({ maxConcurrent: 1, minTime: 1000 });
+
+    this.trace = patch.trace.bind(patch);
+    this.debug = patch.debug.bind(patch);
+    this.error = patch.error.bind(patch);
+    this.info = patch.info.bind(patch);
+    this.warn = patch.warn.bind(patch);
   }
 
   public async start() {
@@ -89,10 +101,10 @@ export default class Commands {
     await this.matrix.setTyping(room, true);
     for (const target of targets) {
       try {
-        info("💬 Send message", { room: target, html: asHtml.announcement });
+        this.info("💬 Send message", { room: target, html: asHtml.announcement });
         await this.matrix.sendHtmlNotice(target, asHtml.announcement);
-      } catch (result) {
-        error("💬 Failed to send message", { room: target, result });
+      } catch (error) {
+        this.error("💬 Failed to send message", { room: target, error });
         await reply(room, event, `Failed to announce in ${target}`);
       }
     }
@@ -107,7 +119,7 @@ export default class Commands {
 
     const input = this.parseCommand(event.content);
     if (!input) return;
-    debug("🛎️ Command", { room, sender: event.sender, input });
+    this.debug("🛎️ Command", { room, sender: event.sender, input });
 
     if (this.patch.controlRoom && room === this.patch.controlRoom) {
       switch (input.command) {
@@ -152,7 +164,7 @@ export default class Commands {
     if (!command) return;
 
     if (asText.command && asHtml?.command && asText.command !== asHtml.command) {
-      error("🛎️ Conflicting text and HTML commands", { content });
+      this.error("🛎️ Conflicting text and HTML commands", { content });
       return;
     }
 

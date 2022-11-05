@@ -1,14 +1,11 @@
 import assert from "assert/strict";
-import { Permalinks, SimpleFsStorageProvider } from "matrix-bot-sdk";
+import { LogService, Permalinks, SimpleFsStorageProvider } from "matrix-bot-sdk";
 import Client from "./Client.js";
 import Commands from "./Commands.js";
 import Concierge from "./Concierge.js";
 import type { Event } from "./matrix.js";
 import type { Plan } from "./Plan.js";
 import Reconciler from "./Reconciler.js";
-import { logger } from "./utilities.js";
-
-const { debug, info, warn } = logger("Patch");
 
 interface Config {
   accessToken: string;
@@ -19,6 +16,8 @@ interface Config {
 const badBot = /\bbad bot\b/i;
 const goodBot = /\bgood bot\b/i;
 
+export type Log = <D>(message: string, data?: D) => void;
+
 export default class Patch {
   readonly #commands: Commands;
   readonly #concierge: Concierge;
@@ -27,13 +26,19 @@ export default class Patch {
   readonly #reconciler: Reconciler;
   public controlRoom: string | undefined;
 
+  public trace: Log = (m, d) => LogService.trace("Patch", m, d);
+  public debug: Log = (m, d) => LogService.debug("Patch", m, d);
+  public error: Log = (m, d) => LogService.error("Patch", m, d);
+  public info: Log = (m, d) => LogService.info("Patch", m, d);
+  public warn: Log = (m, d) => LogService.warn("Patch", m, d);
+
   public constructor({ accessToken, baseUrl, plan }: Config) {
     const storage = new SimpleFsStorageProvider("state/state.json");
 
     this.#matrix = new Client(baseUrl, accessToken, storage);
     this.#plan = plan;
     this.#reconciler = new Reconciler(this, this.#matrix, this.#plan);
-    this.#concierge = new Concierge(this.#matrix, this.#reconciler);
+    this.#concierge = new Concierge(this, this.#matrix, this.#reconciler);
     this.#commands = new Commands(this, this.#matrix, this.#reconciler, this.#plan);
 
     this.#matrix.on("room.event", this.handleRoomEvent.bind(this));
@@ -42,12 +47,12 @@ export default class Patch {
   }
 
   public async start() {
-    info("🪪 Authenticate", { user: this.#plan.steward.id });
+    this.info("🪪 Authenticate", { user: this.#plan.steward.id });
     assert.equal(await this.#matrix.getUserId(), this.#plan.steward.id);
 
-    info("📥 Sync");
+    this.info("📥 Sync");
     await this.#matrix.start();
-    debug("📥 Completed sync");
+    this.debug("📥 Completed sync");
 
     await this.#reconciler.start();
     await this.#concierge.start();
@@ -55,7 +60,7 @@ export default class Patch {
   }
 
   private async handleBadBot(room: string, event: Event<"m.room.message">) {
-    warn("🤖 Bad bot", { room, sender: event.sender, message: event.content.body });
+    this.warn("🤖 Bad bot", { room, sender: event.sender, message: event.content.body });
 
     if (this.controlRoom) {
       const pill = Permalinks.forEvent(room, event.event_id);
@@ -64,7 +69,7 @@ export default class Patch {
   }
 
   private async handleGoodBot(room: string, event: Event<"m.room.message">) {
-    info("🤖 Good bot", { room, sender: event.sender, message: event.content.body });
+    this.info("🤖 Good bot", { room, sender: event.sender, message: event.content.body });
 
     await this.#matrix.sendEvent(room, "m.reaction", {
       "m.relates_to": { rel_type: "m.annotation", key: "🤖", event_id: event.event_id },
@@ -74,7 +79,7 @@ export default class Patch {
   private handleLeave(roomId: string, event: Event<"m.room.member">) {
     if (event.sender === this.#plan.steward.id) return;
 
-    warn("👮 Got kicked", { roomId, event });
+    this.warn("👮 Got kicked", { roomId, event });
   }
 
   private async handleMessage(room: string, event: Event<"m.room.message">) {
@@ -84,10 +89,10 @@ export default class Patch {
     if (goodBot.test(event.content.body)) await this.handleGoodBot(room, event);
   }
 
-  private async handleRoomEvent(room: string, event: Event) {
-    if (event.sender === this.#plan.steward.id) return;
+  private async handleRoomEvent(room: string, { event_id: id, sender }: Event) {
+    if (sender === this.#plan.steward.id) return;
 
-    debug("🧾 Send read receipt", { room, event: event.event_id, sender: event.sender });
-    await this.#matrix.sendReadReceipt(room, event.event_id);
+    this.debug("🧾 Send read receipt", { room, event: id, sender: sender });
+    await this.#matrix.sendReadReceipt(room, id);
   }
 }

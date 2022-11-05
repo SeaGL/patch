@@ -2,9 +2,7 @@ import Bottleneck from "bottleneck";
 import { MatrixClient, RoomCreateOptions as RoomCreateFullOptions } from "matrix-bot-sdk";
 import { setTimeout } from "timers/promises";
 import type { Event, StateEvent, StateEventInput, Sync } from "./matrix.js";
-import { env, logger } from "./utilities.js";
-
-const { debug, warn } = logger("Client");
+import { env } from "./utilities.js";
 
 export interface RoomCreateOptions extends RoomCreateFullOptions {
   initial_state?: StateEventInput[];
@@ -32,7 +30,7 @@ export default class Client extends MatrixClient {
       if (retryCount < 3 && error.errcode === "M_LIMIT_EXCEEDED") {
         const ms: number = error.retryAfterMs ?? 5000;
 
-        warn("Rate limited", { ms });
+        console.warn("Rate limited: %j", { ms });
         return ms;
       }
 
@@ -46,7 +44,7 @@ export default class Client extends MatrixClient {
 
     // Workaround for matrix-org/synapse#8895
     this.#scheduleIssue8895 = limiter.wrap((async (...args) => {
-      debug("⏳ Wait before non-retryable API call", { ms: issue8895Cooldown });
+      console.debug("Wait before non-retryable API call: %j", { ms: issue8895Cooldown });
       await setTimeout(issue8895Cooldown);
       return unlimited(...args);
     }) as MatrixClient["doRequest"]);
