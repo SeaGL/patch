@@ -1,3 +1,4 @@
+import Bottleneck from "bottleneck";
 import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
 import { DateTime, Duration } from "luxon";
@@ -68,6 +69,7 @@ const compareSessions = (a: Session, b: Session): number =>
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class Reconciler {
+  #limiter: Bottleneck;
   #privateChildrenByParent: Map<string, Set<string>>;
   #roomByTag: Map<string, string>;
   #scheduledReconcile: Scheduled | undefined;
@@ -80,6 +82,7 @@ export default class Reconciler {
     private readonly matrix: Client,
     private readonly plan: Plan
   ) {
+    this.#limiter = new Bottleneck({ maxConcurrent: 1 });
     this.#privateChildrenByParent = new Map();
     this.#roomByTag = new Map();
     this.#scheduledRegroups = new Map();
@@ -267,13 +270,15 @@ export default class Reconciler {
   }
 
   private async reconcile(now = DateTime.local({ zone: this.plan.timeZone })) {
-    this.scheduleReconcile(now.plus(reconcilePeriod));
+    await this.#limiter.schedule(async () => {
+      this.scheduleReconcile(now.plus(reconcilePeriod));
 
-    info("🔃 Reconcile");
-    await this.reconcileProfile(this.plan.steward);
-    await this.reconcileRooms(this.plan.rooms);
-    if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
-    debug("🔃 Completed reconciliation");
+      info("🔃 Reconcile");
+      await this.reconcileProfile(this.plan.steward);
+      await this.reconcileRooms(this.plan.rooms);
+      if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
+      debug("🔃 Completed reconciliation");
+    });
   }
 
   private async reconcileAvatar(room: Room) {
