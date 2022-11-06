@@ -112,7 +112,7 @@ export default class Reconciler {
 
       this.info("🔃 Reconcile");
       await this.reconcileProfile(this.plan.steward);
-      await this.reconcileRooms(this.plan.rooms);
+      if (this.plan.rooms) await this.reconcileRooms(this.plan.rooms);
       if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
       this.debug("🔃 Completed reconciliation");
     });

@@ -41,7 +41,7 @@ export type Plan = {
   homeserver: string;
   jitsiDomain: string;
   powerLevels: PowerLevels;
-  rooms: RoomsPlan;
+  rooms?: RoomsPlan;
   sessions?: SessionsPlan;
   steward: {
     avatar?: string;
