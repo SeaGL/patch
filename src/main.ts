@@ -10,7 +10,7 @@ const plan = parsePlan(readFileSync("./data/plan.yml", { encoding: "utf8" }));
 
 Settings.defaultZone = plan.timeZone;
 
-LogService.setLogger(new Logger());
+LogService.setLogger(new Logger({ MatrixClientLite: LogLevel.INFO }));
 LogService.setLevel(LogLevel.fromString(process.env["LOG_LEVEL"]!));
 LogService.muteModule("MatrixHttpClient");
 LogService.muteModule("Metrics");
