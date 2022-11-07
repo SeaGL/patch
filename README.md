@@ -1,3 +1,5 @@
+<p align="center" width="100%"><img alt="Patch" src="./avatar.png" width="96" /></p>
+
 # Patch
 
 *Patch*, named after the [SeaGL] mascot, is a Matrix bot that assists with running the [SeaGL Matrix space].
