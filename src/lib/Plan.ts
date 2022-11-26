@@ -4,6 +4,8 @@ import { assertEquals } from "typescript-json";
 
 export type SessionGroupId = "CURRENT_SESSIONS" | "FUTURE_SESSIONS" | "PAST_SESSIONS";
 
+type InheritUserPowerLevelsPlan = Record<string, { raiseTo?: number }>;
+
 export interface RoomPlan {
   avatar?: string;
   children?: RoomsPlan | SessionGroupId;
@@ -39,6 +41,7 @@ export type Plan = {
   avatars: Record<string, string>;
   defaultRoomVersion: string;
   homeserver: string;
+  inheritUserPowerLevels?: InheritUserPowerLevelsPlan;
   jitsiDomain: string;
   powerLevels: PowerLevels;
   rooms?: RoomsPlan;

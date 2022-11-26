@@ -112,8 +112,10 @@ export default class Reconciler {
 
       this.info("🔃 Reconcile");
       await this.reconcileProfile(this.plan.steward);
-      if (this.plan.rooms) await this.reconcileRooms(this.plan.rooms);
-      if (this.plan.sessions) await this.reconcileSessions(this.plan.sessions, now);
+      const inheritedUsers = await this.getInheritedUsers();
+      if (this.plan.rooms) await this.reconcileRooms(inheritedUsers, this.plan.rooms);
+      if (this.plan.sessions)
+        await this.reconcileSessions(this.plan.sessions, inheritedUsers, now);
       this.debug("🔃 Completed reconciliation");
     });
   }
@@ -163,6 +165,31 @@ export default class Reconciler {
     };
   }
 
+  private async getInheritedUsers(): Promise<PowerLevels["users"]> {
+    const plan = this.plan.inheritUserPowerLevels;
+    if (!plan) return undefined;
+
+    const users: PowerLevels["users"] = {};
+
+    for (const [room, { raiseTo = 0 }] of Object.entries(plan)) {
+      const id = await this.matrix.resolveRoom(room);
+      const { users: original = {} } = expect(
+        await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
+          id,
+          "m.room.power_levels"
+        ),
+        "power levels"
+      );
+
+      this.info("🛡️ Inherit user power levels", { room, users: original });
+      for (const [user, level] of Object.entries(original)) {
+        users[user] = Math.max(users[user] ?? 0, level, raiseTo);
+      }
+    }
+
+    return users;
+  }
+
   private async getModerators(room: string): Promise<string[]> {
     const powerLevels = expect(
       await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
@@ -185,16 +212,20 @@ export default class Reconciler {
     return await this.matrix.getEvent(room, id).catch(orNone);
   }
 
-  private getPowerLevels({ readOnly, redirect, widget }: RoomPlan): PowerLevels {
+  private getPowerLevels(inherited: PowerLevels["users"], room: RoomPlan): PowerLevels {
     return {
       ...this.plan.powerLevels,
       events: {
         ...this.plan.powerLevels.events,
-        ...(widget
+        ...(room.widget
           ? { "im.vector.modular.widgets": 99, "io.element.widgets.layout": 99 }
           : {}),
       },
-      ...(readOnly || redirect ? { events_default: moderatorLevel } : {}),
+      users: {
+        ...inherited,
+        ...this.plan.powerLevels.users,
+      },
+      ...(room.readOnly || room.redirect ? { events_default: moderatorLevel } : {}),
     };
   }
 
@@ -347,6 +378,7 @@ export default class Reconciler {
   }
 
   private async reconcileExistence(
+    inheritedUsers: PowerLevels["users"],
     local: string,
     expected: RoomPlan,
     parent?: Room
@@ -405,7 +437,7 @@ export default class Reconciler {
             room_version: this.plan.defaultRoomVersion,
             room_alias_name: local,
             name: expected.name,
-            power_level_content_override: this.getPowerLevels(expected),
+            power_level_content_override: this.getPowerLevels(inheritedUsers, expected),
             initial_state: [
               { type: "m.room.avatar", content: { url: avatar } },
               { type: "m.room.canonical_alias", content: { alias } },
@@ -521,8 +553,8 @@ export default class Reconciler {
     }
   }
 
-  private async reconcilePowerLevels(room: Room) {
-    const expected = this.getPowerLevels(room);
+  private async reconcilePowerLevels(inheritedUsers: PowerLevels["users"], room: Room) {
+    const expected = this.getPowerLevels(inheritedUsers, room);
 
     this.debug("🛡️ Get power levels", { room: room.local });
     const actual = expect(
@@ -593,16 +625,22 @@ export default class Reconciler {
   }
 
   private async reconcileRoom(
+    inheritedUsers: PowerLevels["users"],
     local: string,
     order: string,
     expected: RoomPlan,
     parent?: Room
   ): Promise<Room | undefined> {
-    const [id, created] = await this.reconcileExistence(local, expected, parent);
+    const [id, created] = await this.reconcileExistence(
+      inheritedUsers,
+      local,
+      expected,
+      parent
+    );
 
     if (!id) {
       if (typeof expected.children === "object")
-        await this.reconcileRooms(expected.children);
+        await this.reconcileRooms(inheritedUsers, expected.children);
 
       return undefined;
     }
@@ -612,7 +650,7 @@ export default class Reconciler {
     if (!created) {
       await this.reconcileTag(room);
       await this.reconcileAlias(room, this.localToAlias(local));
-      await this.reconcilePowerLevels(room);
+      await this.reconcilePowerLevels(inheritedUsers, room);
       await this.reconcilePrivacy(room, parent);
       await this.reconcileAvatar(room);
       await this.reconcileName(room);
@@ -632,7 +670,7 @@ export default class Reconciler {
       } else {
         await this.reconcileChildren(
           await this.listSpace(space, local),
-          await this.reconcileRooms(expected.children, room)
+          await this.reconcileRooms(inheritedUsers, expected.children, room)
         );
       }
     }
@@ -643,12 +681,16 @@ export default class Reconciler {
     return room;
   }
 
-  private async reconcileRooms(expected: RoomsPlan, parent?: Room): Promise<Room[]> {
+  private async reconcileRooms(
+    inheritedUsers: PowerLevels["users"],
+    expected: RoomsPlan,
+    parent?: Room
+  ): Promise<Room[]> {
     const rooms = [];
 
     for (const [index, [local, plan]] of Object.entries(expected).entries()) {
       const order = sortKey(index);
-      const room = await this.reconcileRoom(local, order, plan, parent);
+      const room = await this.reconcileRoom(inheritedUsers, local, order, plan, parent);
 
       if (room) rooms.push(room);
     }
@@ -656,7 +698,11 @@ export default class Reconciler {
     return rooms;
   }
 
-  private async reconcileSessions(plan: SessionsPlan, now: DateTime) {
+  private async reconcileSessions(
+    plan: SessionsPlan,
+    inheritedUsers: PowerLevels["users"],
+    now: DateTime
+  ) {
     const ignore = new Set(plan.ignore ?? []);
 
     this.debug("📅 Get sessions", { conference: plan.conference });
@@ -697,7 +743,8 @@ export default class Reconciler {
       const intro = plan.intro?.replace(/\$URL\b/, session.url);
       const widget = plan.widgets?.[session.room]?.[session.day];
 
-      const room = await this.reconcileRoom(`${plan.prefix}${suffix}`, sortKey(index), {
+      const local = `${plan.prefix}${suffix}`;
+      const room = await this.reconcileRoom(inheritedUsers, local, sortKey(index), {
         name: `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`,
         tag: `osem-event-${session.id}`,
         ...(intro ? { intro } : {}),

@@ -5,6 +5,9 @@ timeZone: America/Los_Angeles
 avatars:
   default: mxc://seattlematrix.org/qLlREuYzRwaRXNHweAQgxVRF
   patch: mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx
+inheritUserPowerLevels:
+  "#staff:seagl.org":
+    raiseTo: 50
 powerLevels:
   users:
     steward: 100
