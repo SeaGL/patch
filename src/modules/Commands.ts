@@ -5,13 +5,13 @@ import { MentionPill } from "matrix-bot-sdk";
 import MarkdownIt from "markdown-it";
 import { setTimeout } from "timers/promises";
 import { assertEquals } from "typia";
-import type Client from "./Client.js";
-import { Event, isUserId, permalinkPattern } from "./matrix.js";
-import type Patch from "./Patch.js";
-import type { Log } from "./Patch.js";
-import type { Plan } from "./Plan.js";
+import type Client from "../lib/Client.js";
+import { Event, isUserId, permalinkPattern } from "../lib/matrix.js";
+import type Patch from "../Patch.js";
+import type { Log } from "../Patch.js";
+import type { Plan } from "../lib/Plan.js";
 import type Reconciler from "./Reconciler.js";
-import { expect, sample } from "./utilities.js";
+import { expect, sample } from "../lib/utilities.js";
 
 const md = new MarkdownIt();
 

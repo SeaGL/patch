@@ -10,8 +10,8 @@ import type {
 } from "matrix-bot-sdk";
 import MarkdownIt from "markdown-it";
 import { assert, Equals } from "tsafe";
-import type Client from "./Client.js";
-import type { RoomCreateOptions } from "./Client.js";
+import type Client from "../lib/Client.js";
+import type { RoomCreateOptions } from "../lib/Client.js";
 import {
   Event,
   IStateEvent,
@@ -21,17 +21,17 @@ import {
   resolvePreset,
   StateEvent,
   StateEventInput,
-} from "./matrix.js";
-import { getOsemEvents, OsemEvent } from "./Osem.js";
-import type Patch from "./Patch.js";
-import type { Log } from "./Patch.js";
-import type { Plan, RoomPlan, RoomsPlan, SessionGroupId, SessionsPlan } from "./Plan.js";
-import type { Scheduled } from "./scheduling.js";
-import { expect, maxDelay, unimplemented } from "./utilities.js";
+} from "../lib/matrix.js";
+import * as OSEM from "../lib/Osem.js";
+import type Patch from "../Patch.js";
+import type { Log } from "../Patch.js";
+import type { Plan, SessionGroupId } from "../lib/Plan.js";
+import type { Scheduled } from "../lib/scheduling.js";
+import { expect, maxDelay, unimplemented } from "../lib/utilities.js";
 
 const md = new MarkdownIt();
 
-interface Room extends RoomPlan {
+interface Room extends Plan.Room {
   id: string;
   local: string;
   order: string;
@@ -42,7 +42,7 @@ interface ListedSpace extends Space {
   local: string;
 }
 
-interface Session extends OsemEvent {
+interface Session extends OSEM.Event {
   day: number;
   open: DateTime;
 }
@@ -212,7 +212,7 @@ export default class Reconciler {
     return await this.matrix.getEvent(room, id).catch(orNone);
   }
 
-  private getPowerLevels(inherited: PowerLevels["users"], room: RoomPlan): PowerLevels {
+  private getPowerLevels(inherited: PowerLevels["users"], room: Plan.Room): PowerLevels {
     return {
       ...this.plan.powerLevels,
       events: {
@@ -380,7 +380,7 @@ export default class Reconciler {
   private async reconcileExistence(
     inheritedUsers: PowerLevels["users"],
     local: string,
-    expected: RoomPlan,
+    expected: Plan.Room,
     parent?: Room
   ): Promise<[string | undefined, boolean]> {
     const alias = this.localToAlias(local);
@@ -628,7 +628,7 @@ export default class Reconciler {
     inheritedUsers: PowerLevels["users"],
     local: string,
     order: string,
-    expected: RoomPlan,
+    expected: Plan.Room,
     parent?: Room
   ): Promise<Room | undefined> {
     const [id, created] = await this.reconcileExistence(
@@ -683,7 +683,7 @@ export default class Reconciler {
 
   private async reconcileRooms(
     inheritedUsers: PowerLevels["users"],
-    expected: RoomsPlan,
+    expected: Plan.Rooms,
     parent?: Room
   ): Promise<Room[]> {
     const rooms = [];
@@ -699,14 +699,14 @@ export default class Reconciler {
   }
 
   private async reconcileSessions(
-    plan: SessionsPlan,
+    plan: Plan.Sessions,
     inheritedUsers: PowerLevels["users"],
     now: DateTime
   ) {
     const ignore = new Set(plan.ignore ?? []);
 
     this.debug("📅 Get sessions", { conference: plan.conference });
-    const osemEvents = await getOsemEvents(plan.conference);
+    const osemEvents = await OSEM.getEvents(plan.conference);
     const startOfDay = DateTime.min(...osemEvents.map((e) => e.beginning)).startOf("day");
     const sessions = osemEvents
       .filter((e) => !ignore.has(e.id))

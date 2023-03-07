@@ -4,60 +4,58 @@ import { assertEquals } from "typia";
 
 export type SessionGroupId = "CURRENT_SESSIONS" | "FUTURE_SESSIONS" | "PAST_SESSIONS";
 
-type InheritUserPowerLevelsPlan = Record<string, { raiseTo?: number }>;
+export namespace Plan {
+  export type InheritUserPowerLevels = Record<string, { raiseTo?: number }>;
 
-export interface RoomPlan {
-  avatar?: string;
-  children?: RoomsPlan | SessionGroupId;
-  control?: boolean;
-  destroy?: boolean;
-  intro?: string;
-  name: string;
-  private?: boolean;
-  readOnly?: boolean;
-  redirect?: string;
-  suggested?: boolean;
-  tag?: string;
-  topic?: string;
-  widget?: WidgetPlan;
-}
+  export interface Room {
+    avatar?: string;
+    children?: Rooms | SessionGroupId;
+    control?: boolean;
+    destroy?: boolean;
+    intro?: string;
+    name: string;
+    private?: boolean;
+    readOnly?: boolean;
+    redirect?: string;
+    suggested?: boolean;
+    tag?: string;
+    topic?: string;
+    widget?: Widget;
+  }
 
-export type RoomsPlan = Record<string, RoomPlan>;
+  export type Rooms = Record<string, Room>;
 
-export interface SessionsPlan {
-  conference: string;
-  demo?: string;
-  ignore?: string[];
-  intro?: string;
-  openEarly: number;
-  prefix: string;
-  redirects?: Record<string, string>;
-  suffixes?: Record<string, string>;
-  topic?: string;
-  widgets?: Record<string, { [day: number]: WidgetPlan }>;
+  export interface Sessions {
+    conference: string;
+    demo?: string;
+    ignore?: string[];
+    intro?: string;
+    openEarly: number;
+    prefix: string;
+    redirects?: Record<string, string>;
+    suffixes?: Record<string, string>;
+    topic?: string;
+    widgets?: Record<string, { [day: number]: Widget }>;
+  }
+
+  type Widget = { avatar?: string; name?: string } & (
+    | { custom: string }
+    | { jitsi: { id: string; name: string } }
+  );
 }
 
 export type Plan = {
   avatars: Record<string, string>;
   defaultRoomVersion: string;
   homeserver: string;
-  inheritUserPowerLevels?: InheritUserPowerLevelsPlan;
+  inheritUserPowerLevels?: Plan.InheritUserPowerLevels;
   jitsiDomain: string;
   powerLevels: PowerLevels;
-  rooms?: RoomsPlan;
-  sessions?: SessionsPlan;
-  steward: {
-    avatar?: string;
-    id: string;
-    name: string;
-  };
+  rooms?: Plan.Rooms;
+  sessions?: Plan.Sessions;
+  steward: { avatar?: string; id: string; name: string };
   timeZone: string;
 };
-
-export type WidgetPlan = { avatar?: string; name?: string } & (
-  | { custom: string }
-  | { jitsi: { id: string; name: string } }
-);
 
 export const parsePlan = (yaml: string): Plan => {
   const plan = assertEquals<Plan>(load(yaml));

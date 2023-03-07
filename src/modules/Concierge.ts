@@ -1,11 +1,11 @@
 import { DateTime, Duration } from "luxon";
 import type { MembershipEvent } from "matrix-bot-sdk";
-import type Client from "./Client.js";
-import type { Event, StateEvent } from "./matrix.js";
-import type Patch from "./Patch.js";
-import type { Log } from "./Patch.js";
+import type Client from "../lib/Client.js";
+import type { Event, StateEvent } from "../lib/matrix.js";
+import type Patch from "../Patch.js";
+import type { Log } from "../Patch.js";
 import type Reconciler from "./Reconciler.js";
-import type { Scheduled } from "./scheduling.js";
+import type { Scheduled } from "../lib/scheduling.js";
 
 interface ScheduledNudge extends Scheduled {
   children: Set<string>;

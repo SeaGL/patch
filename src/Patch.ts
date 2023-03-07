@@ -1,11 +1,11 @@
 import assert from "assert/strict";
 import { LogService as LS, Permalinks, SimpleFsStorageProvider } from "matrix-bot-sdk";
-import Client from "./Client.js";
-import Commands from "./Commands.js";
-import Concierge from "./Concierge.js";
-import type { Event } from "./matrix.js";
-import type { Plan } from "./Plan.js";
-import Reconciler from "./Reconciler.js";
+import Client from "./lib/Client.js";
+import Commands from "./modules/Commands.js";
+import Concierge from "./modules/Concierge.js";
+import type { Event } from "./lib/matrix.js";
+import type { Plan } from "./lib/Plan.js";
+import Reconciler from "./modules/Reconciler.js";
 
 interface Config {
   accessToken: string;

@@ -2,7 +2,7 @@ import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
 import type { MatrixError, PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import type { RoomCreateOptions } from "./Client.js";
-import type { IntroEvent, RedirectEvent, TagEvent } from "./Reconciler";
+import type { IntroEvent, RedirectEvent, TagEvent } from "../modules/Reconciler";
 
 //
 // Events

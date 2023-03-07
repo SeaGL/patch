@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { Settings } from "luxon";
 import { LogLevel, LogService } from "matrix-bot-sdk";
 import Logger from "./lib/Logger.js";
-import Patch from "./lib/Patch.js";
+import Patch from "./Patch.js";
 import { parsePlan } from "./lib/Plan.js";
 import { env } from "./lib/utilities.js";
 
