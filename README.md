@@ -19,6 +19,8 @@ Populate environment variables:
     - `ISSUE_8895_COOLDOWN`: Seconds to wait before room creation ([matrix-org/synapse#8895])
   - [OSEM]:
     - `OSEM_RATE_LIMIT`: Rate limit in hertz
+  - [Sentry]:
+    - `SENTRY_DSN` (Optional): Data Source Name of Sentry project. If unset, error reporting is not enabled.
 
 Build the bot:
 
@@ -38,4 +40,5 @@ yarn start
 [OSEM]: https://osem.seagl.org/
 [SeaGL]: https://seagl.org/
 [SeaGL Matrix space]: https://seagl.org/meet
+[Sentry]: https://sentry.io/
 [Yarn]: https://yarnpkg.com/

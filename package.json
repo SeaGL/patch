@@ -8,6 +8,8 @@
     "node": "18"
   },
   "dependencies": {
+    "@sentry/node": "^7.41.0",
+    "@sentry/tracing": "^7.41.0",
     "bottleneck": "^2.19.5",
     "js-yaml": "^4.1.0",
     "lodash.isequal": "^4.5.0",

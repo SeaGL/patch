@@ -1,3 +1,7 @@
+import * as Sentry from "@sentry/node";
+import "@sentry/tracing";
+Sentry.init();
+
 import { readFileSync } from "fs";
 import { Settings } from "luxon";
 import { LogLevel, LogService } from "matrix-bot-sdk";
