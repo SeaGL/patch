@@ -64,12 +64,6 @@ export default class Client extends MatrixClient {
     return handler(...args);
   };
 
-  // Pending turt2live/matrix-bot-sdk#262
-  public forgetRoom(roomId: string) {
-    const path = `/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/forget`;
-    return this.doRequest("POST", path);
-  }
-
   public override getRoomState: MatrixClient["getRoomState"] = async (id) => [
     ...(this.#cache.get(id)?.values() ?? []),
   ];

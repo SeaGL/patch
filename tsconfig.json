@@ -3,6 +3,6 @@
 
   "compilerOptions": {
     "outDir": "dist",
-    "plugins": [{ "transform": "typescript-json/lib/transform" }]
+    "plugins": [{ "transform": "typia/lib/transform" }]
   }
 }

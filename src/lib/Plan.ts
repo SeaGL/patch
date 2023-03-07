@@ -1,6 +1,6 @@
 import { load } from "js-yaml";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
-import { assertEquals } from "typescript-json";
+import { assertEquals } from "typia";
 
 export type SessionGroupId = "CURRENT_SESSIONS" | "FUTURE_SESSIONS" | "PAST_SESSIONS";
 

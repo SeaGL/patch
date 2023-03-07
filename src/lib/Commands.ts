@@ -4,7 +4,7 @@ import { load } from "js-yaml";
 import { MentionPill } from "matrix-bot-sdk";
 import MarkdownIt from "markdown-it";
 import { setTimeout } from "timers/promises";
-import { assertEquals } from "typescript-json";
+import { assertEquals } from "typia";
 import type Client from "./Client.js";
 import { Event, isUserId, permalinkPattern } from "./matrix.js";
 import type Patch from "./Patch.js";
