@@ -170,6 +170,7 @@ skip upgrade '!nKscbiAUZsyZRyzHiL:seattlematrix.org' 'staff' 'volunteers' 'SeaGL
 # upgrade '!cTnkSFRMtOyrZzVTEJ:seattlematrix.org' 'staff' 'all-staff' 'SeaGL All Staff Discussions' 'Birdhouse dedicated to the SeaGL staff'
 skip upgrade '!OSwhxVfZENcsMpzCDu:matrix.org' 'public' 'participate' 'SeaGL Participate' 'Where folks flock to lend a wing or beak to the SeaGL organizing effort. Join us!'
 skip upgrade '!JTTivRrYKTLzcMmTaj:seattlematrix.org' 'public' 'TeaGL' 'SeaGL TeaGL House' 'Sip tea and chat with your feathered SeaGL friends'
+skip upgrade '!wDfsAmIeuAqaySFjNw:seattlematrix.org' 'public' 'office-hours' 'SeaGL Office Hours' 'Video call: https://meet.seattlematrix.org/SeaGL_Office_Hours · CfP: https://seagl.org/cfp · CoC: https://seagl.org/coc'
 skip upgrade '!bQeqvvhdiyzTEhBDaa:seattlematrix.org' 'public' 'general' 'SeaGL General Discussions' '#SeaGL2023: Year 11! | November 3 & 4 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
 skip upgrade '!NlEIUUZNgVXRcUOIay:seattlematrix.org' 'public_readonly' 'announce' 'SeaGL Announcements' '#SeaGL2023: Year 11! | November 3 & 4 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
 
