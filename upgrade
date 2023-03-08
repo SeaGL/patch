@@ -49,6 +49,10 @@ create() { access="$1"; proxy_alias_name="$2"; display_name="$3"; topic="$4"
     'public') extra_args+=(
       preset='public_chat'
     );;
+    'public_readonly') extra_args+=(
+      preset='public_chat'
+      'power_level_content_override[events_default]':='50'
+    );;
     'staff') extra_args+=(
       preset='private_chat'
       'initial_state[2][type]'='m.room.join_rules'
@@ -167,7 +171,7 @@ skip upgrade '!nKscbiAUZsyZRyzHiL:seattlematrix.org' 'staff' 'volunteers' 'SeaGL
 skip upgrade '!OSwhxVfZENcsMpzCDu:matrix.org' 'public' 'participate' 'SeaGL Participate' 'Where folks flock to lend a wing or beak to the SeaGL organizing effort. Join us!'
 skip upgrade '!JTTivRrYKTLzcMmTaj:seattlematrix.org' 'public' 'TeaGL' 'SeaGL TeaGL House' 'Sip tea and chat with your feathered SeaGL friends'
 # upgrade '!bQeqvvhdiyzTEhBDaa:seattlematrix.org' 'public' 'general' 'SeaGL General Discussions' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
-# upgrade '!NlEIUUZNgVXRcUOIay:seattlematrix.org' 'public' 'announce' 'SeaGL Announcements' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
+# upgrade '!NlEIUUZNgVXRcUOIay:seattlematrix.org' 'public_readonly' 'announce' 'SeaGL Announcements' '#SeaGL2022: Year 10! | November 5 & 6 #SaveTheDate | Please send us your comments: https://seagl.org/feedback | Join our low-traffic mailing list: https://groups.google.com/forum/#!forum/seagl_announce'
 
 info 'Done' elapsed="${SECONDS}s"
 
