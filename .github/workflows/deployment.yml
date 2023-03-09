@@ -1,0 +1,23 @@
+name: Deployment
+
+on:
+  push: { branches: main }
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    concurrency: { group: production, cancel-in-progress: true }
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Complete
+
+      - name: Push to Dokku
+        uses: dokku/github-action@master
+        with:
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          git_remote_url: 'ssh://dokku@dokku.seagl.org/patch'
+          branch: main
