@@ -1,7 +1,6 @@
 import Bottleneck from "bottleneck";
 import { DateTime } from "luxon";
-import unlimited from "node-fetch"; // Pending DefinitelyTyped/DefinitelyTyped#60924
-import { env } from "./utilities.js";
+import { env, fetch as unlimited } from "./utilities.js";
 
 const endpoint = "https://osem.seagl.org/api/v1";
 const minTime = 1000 / Number(env("OSEM_RATE_LIMIT"));
