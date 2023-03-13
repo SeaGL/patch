@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
-Sentry.init();
+import { release } from "./lib/version.js";
+Sentry.init({ release });
 
 import { readFileSync } from "fs";
 import { Settings } from "luxon";
