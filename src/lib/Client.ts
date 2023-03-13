@@ -27,14 +27,24 @@ export default class Client extends MatrixClient {
     const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
 
     limiter.on("failed", async (error, { retryCount }) => {
-      if (retryCount < 3 && error.errcode === "M_LIMIT_EXCEEDED") {
-        const ms: number = error.retryAfterMs ?? 5000;
+      switch (error.errcode) {
+        case "M_LIMIT_EXCEEDED":
+          if (retryCount < 3) {
+            const ms: number = error.retryAfterMs ?? 5_000;
+            console.warn("Rate limited: %j", { ms });
+            return ms;
+          } else return undefined;
 
-        console.warn("Rate limited: %j", { ms });
-        return ms;
+        case "M_UNKNOWN":
+          if (retryCount < 5) {
+            const ms: number = Math.pow(2, retryCount) * 30_000;
+            console.warn("Retryable error: %j", { error, ms });
+            return ms;
+          } else return undefined;
+
+        default:
+          return undefined;
       }
-
-      return undefined;
     });
 
     const unlimited = super.doRequest.bind(this);
