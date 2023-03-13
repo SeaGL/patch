@@ -5,6 +5,7 @@ import Commands from "./modules/Commands.js";
 import Concierge from "./modules/Concierge.js";
 import type { Event } from "./lib/matrix.js";
 import type { Plan } from "./lib/Plan.js";
+import { version } from "./lib/version.js";
 import Reconciler from "./modules/Reconciler.js";
 
 interface Config {
@@ -47,6 +48,8 @@ export default class Patch {
   }
 
   public async start() {
+    this.info("▶️ Start", { version });
+
     this.info("🪪 Authenticate", { user: this.#plan.steward.id });
     assert.equal(await this.#matrix.getUserId(), this.#plan.steward.id);
 

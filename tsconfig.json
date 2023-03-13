@@ -2,7 +2,9 @@
   "extends": "@tsconfig/node18-strictest-esm/tsconfig.json",
 
   "compilerOptions": {
+    "module": "esnext", // TS2821
     "outDir": "dist",
-    "plugins": [{ "transform": "typia/lib/transform" }]
+    "plugins": [{ "transform": "typia/lib/transform" }],
+    "resolveJsonModule": true
   }
 }

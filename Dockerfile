@@ -7,7 +7,8 @@ COPY package.json yarn.lock ./
 RUN yarn install --immutable
 
 # Build
-COPY src tsconfig.json ./
+COPY tsconfig.json ./
+COPY src ./src
 RUN yarn build
 
 # Runtime data

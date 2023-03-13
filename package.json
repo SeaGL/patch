@@ -34,7 +34,7 @@
   },
   "scripts": {
     "build": "./node_modules/.bin/ttsc",
-    "start": "node ./dist/main.js"
+    "start": "node ./dist/src/main.js"
   },
   "prettier": {
     "printWidth": 90
