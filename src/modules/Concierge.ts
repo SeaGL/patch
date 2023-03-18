@@ -1,10 +1,7 @@
 import { DateTime, Duration } from "luxon";
 import type { MembershipEvent } from "matrix-bot-sdk";
-import type Client from "../lib/Client.js";
-import type { Event, StateEvent } from "../lib/matrix.js";
-import type Patch from "../Patch.js";
-import type { Log } from "../Patch.js";
-import type Reconciler from "./Reconciler.js";
+import type { StateEvent } from "../lib/matrix.js";
+import Module from "../lib/Module.js";
 import type { Scheduled } from "../lib/scheduling.js";
 
 interface ScheduledNudge extends Scheduled {
@@ -13,31 +10,13 @@ interface ScheduledNudge extends Scheduled {
 
 const nudgeDelay = Duration.fromObject({ minutes: 1 });
 
-export default class Concierge {
-  #scheduledNudges: Map<string, ScheduledNudge>;
-
-  public trace: Log;
-  public debug: Log;
-  public error: Log;
-  public info: Log;
-  public warn: Log;
-
-  public constructor(
-    patch: Patch,
-    private readonly matrix: Client,
-    private readonly reconciler: Reconciler
-  ) {
-    this.#scheduledNudges = new Map();
-
-    this.trace = patch.trace.bind(patch);
-    this.debug = patch.debug.bind(patch);
-    this.error = patch.error.bind(patch);
-    this.info = patch.info.bind(patch);
-    this.warn = patch.warn.bind(patch);
-  }
+export default class extends Module {
+  #scheduledNudges: Map<string, ScheduledNudge> = new Map();
 
   public async start() {
-    this.matrix.on("room.event", this.handleRoomEvent.bind(this));
+    this.patch.on("event", (room, event) => {
+      if (event.type === "m.room.member") this.handleMembership(room, event);
+    });
   }
 
   private async getMembership(
@@ -57,17 +36,13 @@ export default class Concierge {
     this.debug("🚪 Membership", { room, user, membership });
 
     if (membership === "join" || membership === "leave") {
-      const parent = this.reconciler.getParent(room);
+      const space = this.patch.getCanonicalSpace(room);
 
-      if (parent) {
-        if (membership === "join") this.scheduleNudge(user, parent, room);
-        else this.unscheduleNudge(user, parent, room);
+      if (space) {
+        if (membership === "join") this.scheduleNudge(user, space, room);
+        else this.unscheduleNudge(user, space, room);
       }
     }
-  }
-
-  private handleRoomEvent(room: string, event: Event) {
-    if (event.type === "m.room.member") this.handleMembership(room, event);
   }
 
   private scheduleNudge(user: string, space: string, child: string) {

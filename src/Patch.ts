@@ -1,11 +1,14 @@
 import assert from "assert/strict";
-import { LogService as LS, Permalinks, SimpleFsStorageProvider } from "matrix-bot-sdk";
+import { LogService as LS, SimpleFsStorageProvider } from "matrix-bot-sdk";
+import { TypedEmitter } from "tiny-typed-emitter";
 import Client from "./lib/Client.js";
-import Commands from "./modules/Commands.js";
-import Concierge from "./modules/Concierge.js";
 import type { Event } from "./lib/matrix.js";
 import type { Plan } from "./lib/Plan.js";
 import { version } from "./lib/version.js";
+import Commands from "./modules/Commands.js";
+import Concierge from "./modules/Concierge.js";
+import Feedback from "./modules/Feedback.js";
+import ReadReceipts from "./modules/ReadReceipts.js";
 import Reconciler from "./modules/Reconciler.js";
 
 interface Config {
@@ -14,105 +17,81 @@ interface Config {
   plan: Plan;
 }
 
-const badBot = /\bbad bot\b/i;
-const goodBot = /\bgood bot\b/i;
+interface Events {
+  event: (room: string, event: Event) => void;
+  kicked: (room: string, event: Event<"m.room.member">) => void;
+  message: (room: string, event: Event<"m.room.message">) => void;
+}
 
-export type Log = <D>(message: string, data?: D, notice?: string) => void;
+type Log = <D>(message: string, data?: D, notice?: string) => void;
 
-export default class Patch {
-  readonly #commands: Commands;
-  readonly #concierge: Concierge;
-  readonly #matrix: Client;
-  readonly #plan: Plan;
-  readonly #reconciler: Reconciler;
+export default class Patch extends TypedEmitter<Events> {
+  static modules = [Commands, Concierge, Feedback, ReadReceipts];
+
   public controlRoom: string | undefined;
+  public readonly id: string;
 
-  public trace: Log = (m, d) => LS.trace("Patch", m, d);
-  public debug: Log = (m, d) => LS.debug("Patch", m, d);
-  public error: Log = (m, d, n) => (LS.error("Patch", m, d), this.handleError(m, d, n));
-  public info: Log = (m, d) => LS.info("Patch", m, d);
-  public warn: Log = (m, d, n) => (LS.warn("Patch", m, d), this.handleWarn(m, d, n));
+  readonly #matrix: Client;
+  readonly #reconciler: Reconciler;
 
   public constructor({ accessToken, baseUrl, plan }: Config) {
+    super();
+
     const storage = new SimpleFsStorageProvider("state/state.json");
 
-    this.#matrix = new Client(baseUrl, accessToken, storage);
-    this.#plan = plan;
-    this.#reconciler = new Reconciler(this, this.#matrix, this.#plan);
-    this.#concierge = new Concierge(this, this.#matrix, this.#reconciler);
-    this.#commands = new Commands(this, this.#matrix, this.#reconciler, this.#plan);
+    this.id = plan.steward.id;
 
-    this.#matrix.on("room.event", this.handleRoomEvent.bind(this));
-    this.#matrix.on("room.leave", this.handleLeave.bind(this));
-    this.#matrix.on("room.message", this.handleMessage.bind(this));
+    this.#matrix = new Client(baseUrl, accessToken, storage);
+    this.#reconciler = new Reconciler(this, this.#matrix, plan);
   }
+
+  trace: Log = (m, d) => LS.trace("Patch", m, d);
+  debug: Log = (m, d) => LS.debug("Patch", m, d);
+  info: Log = (m, d) => LS.info("Patch", m, d);
+  warn: Log = (m, d, n) => (LS.warn("Patch", m, d), this.#alert("Warning")(m, d, n));
+  error: Log = (m, d, n) => (LS.error("Patch", m, d), this.#alert("Error")(m, d, n));
 
   public async start() {
     this.info("▶️ Start", { version });
 
-    this.info("🪪 Authenticate", { user: this.#plan.steward.id });
-    assert.equal(await this.#matrix.getUserId(), this.#plan.steward.id);
+    this.info("🪪 Authenticate", { user: this.id });
+    assert.equal(await this.#matrix.getUserId(), this.id);
+
+    this.#matrix.on("room.event", this.#forward("event"));
+    this.#matrix.on("room.leave", this.#forward("kicked"));
+    this.#matrix.on("room.message", this.#forward("message"));
 
     this.info("📥 Sync");
     await this.#matrix.start();
     this.debug("📥 Completed sync");
 
     await this.#reconciler.start();
-    await this.#concierge.start();
-    await this.#commands.start();
+    await Promise.all(Patch.modules.map((M) => new M(this, this.#matrix).start()));
   }
 
-  private async handleBadBot(room: string, event: Event<"m.room.message">) {
-    this.warn(
-      "🤖 Bad bot",
-      { room, sender: event.sender, message: event.content.body },
-      `Negative feedback: ${Permalinks.forEvent(room, event.event_id)}`
-    );
+  public getCanonicalSpace(room: string): string | undefined {
+    return this.#reconciler.getParent(room);
   }
 
-  private async handleError<D>(message: string, data?: D, notice?: string) {
-    if (!this.controlRoom) return;
-
-    await this.#matrix[notice ? "sendHtmlNotice" : "sendNotice"](
-      this.controlRoom,
-      notice ?? `Error: ${message} ${data ? JSON.stringify(data) : ""}`
-    );
+  public isControlRoom(room: string): boolean {
+    return !!this.controlRoom && room === this.controlRoom;
   }
 
-  private async handleGoodBot(room: string, event: Event<"m.room.message">) {
-    this.info("🤖 Good bot", { room, sender: event.sender, message: event.content.body });
-
-    await this.#matrix.sendEvent(room, "m.reaction", {
-      "m.relates_to": { rel_type: "m.annotation", key: "🤖", event_id: event.event_id },
-    });
+  public async sync() {
+    await this.#reconciler.reconcile();
   }
 
-  private handleLeave(roomId: string, event: Event<"m.room.member">) {
-    if (event.sender === this.#plan.steward.id) return;
+  #alert =
+    (level: string) =>
+    <D>(message: string, data?: D, notice?: string) =>
+      this.controlRoom &&
+      this.#matrix[notice ? "sendHtmlNotice" : "sendNotice"](
+        this.controlRoom,
+        notice ?? `${level}: ${message} ${data ? JSON.stringify(data) : ""}`
+      );
 
-    this.warn("👮 Got kicked", { roomId, event });
-  }
-
-  private async handleMessage(room: string, event: Event<"m.room.message">) {
-    if (event.sender === this.#plan.steward.id) return;
-
-    if (badBot.test(event.content.body)) await this.handleBadBot(room, event);
-    if (goodBot.test(event.content.body)) await this.handleGoodBot(room, event);
-  }
-
-  private async handleRoomEvent(room: string, { event_id: id, sender }: Event) {
-    if (sender === this.#plan.steward.id) return;
-
-    this.debug("🧾 Send read receipt", { room, event: id, sender: sender });
-    await this.#matrix.sendReadReceipt(room, id);
-  }
-
-  private async handleWarn<D>(message: string, data?: D, notice?: string) {
-    if (!this.controlRoom) return;
-
-    await this.#matrix[notice ? "sendHtmlNotice" : "sendNotice"](
-      this.controlRoom,
-      notice ?? `Warning: ${message} ${data ? JSON.stringify(data) : ""}`
-    );
-  }
+  #forward =
+    <E extends Event>(name: keyof Events) =>
+    (room: string, event: E) =>
+      event.sender !== this.id && this.emit(name, room, event);
 }

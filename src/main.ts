@@ -11,7 +11,7 @@ import Patch from "./Patch.js";
 import { parsePlan } from "./lib/Plan.js";
 import { env } from "./lib/utilities.js";
 
-const plan = parsePlan(readFileSync("./data/plan.yml", { encoding: "utf8" }));
+const plan = parsePlan(readFileSync("data/plan.yml", { encoding: "utf8" }));
 
 Settings.defaultZone = plan.timeZone;
 

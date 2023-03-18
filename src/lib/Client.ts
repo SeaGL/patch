@@ -98,6 +98,14 @@ export default class Client extends MatrixClient {
     });
   }
 
+  public async replaceNotice(
+    room: string,
+    eventId: string,
+    content: Omit<Event<"m.room.message">["content"], "msgtype">
+  ) {
+    return await this.replaceMessage(room, eventId, { msgtype: "m.notice", ...content });
+  }
+
   public override sendStateEvent = async <E extends StateEvent>(
     room: string,
     type: E["type"],

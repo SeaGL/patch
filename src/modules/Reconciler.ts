@@ -22,12 +22,12 @@ import {
   StateEvent,
   StateEventInput,
 } from "../lib/matrix.js";
+import Module from "../lib/Module.js";
 import * as OSEM from "../lib/Osem.js";
-import type Patch from "../Patch.js";
-import type { Log } from "../Patch.js";
 import type { Plan, SessionGroupId } from "../lib/Plan.js";
 import type { Scheduled } from "../lib/scheduling.js";
 import { expect, maxDelay, unimplemented } from "../lib/utilities.js";
+import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
 
@@ -68,7 +68,7 @@ const compareSessions = (a: Session, b: Session): number =>
     : a.title.localeCompare(b.title);
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
-export default class Reconciler {
+export default class extends Module {
   #limiter: Bottleneck;
   #privateChildrenByParent: Map<string, Set<string>>;
   #roomByTag: Map<string, string>;
@@ -77,29 +77,15 @@ export default class Reconciler {
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
   #spaceByChild: Map<string, string>;
 
-  public trace: Log;
-  public debug: Log;
-  public error: Log;
-  public info: Log;
-  public warn: Log;
+  public constructor(patch: Patch, matrix: Client, private readonly plan: Plan) {
+    super(patch, matrix);
 
-  public constructor(
-    private readonly patch: Patch,
-    private readonly matrix: Client,
-    private readonly plan: Plan
-  ) {
     this.#limiter = new Bottleneck({ maxConcurrent: 1 });
     this.#privateChildrenByParent = new Map();
     this.#roomByTag = new Map();
     this.#scheduledRegroups = new Map();
     this.#sessionGroups = {};
     this.#spaceByChild = new Map();
-
-    this.trace = patch.trace.bind(patch);
-    this.debug = patch.debug.bind(patch);
-    this.error = patch.error.bind(patch);
-    this.info = patch.info.bind(patch);
-    this.warn = patch.warn.bind(patch);
   }
 
   public getParent(child: string): string | undefined {
