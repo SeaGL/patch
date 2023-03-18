@@ -1,8 +1,5 @@
 import Bottleneck from "bottleneck";
-import { readFileSync } from "fs";
-import { load } from "js-yaml";
 import { MentionPill } from "matrix-bot-sdk";
-import MarkdownIt from "markdown-it";
 import { setTimeout } from "timers/promises";
 import { assertEquals } from "typia";
 import type Client from "../lib/Client.js";
@@ -11,9 +8,8 @@ import type Patch from "../Patch.js";
 import type { Log } from "../Patch.js";
 import type { Plan } from "../lib/Plan.js";
 import type Reconciler from "./Reconciler.js";
-import { expect, sample } from "../lib/utilities.js";
+import { expect, importYaml, sample } from "../lib/utilities.js";
 
-const md = new MarkdownIt();
 
 interface Help {
   brief: string;
@@ -29,17 +25,8 @@ interface Input {
 
 type Message = Event<"m.room.message">;
 
-const help: Help = assertEquals<Help>(
-  load(readFileSync("./data/help.yml", { encoding: "utf-8" }))
-);
-help.brief = md.render(help.brief);
-help.controlBrief = md.render(help.controlBrief);
-for (const command in help.commands)
-  help.commands[command] = md.render(help.commands[command]!);
-
-const toasts = assertEquals<string[]>(
-  load(readFileSync("./data/toasts.yml", { encoding: "utf-8" }))
-).map((markdown) => md.renderInline(markdown));
+const help = assertEquals<Help>(importYaml("data/help.yml"));
+const toasts = assertEquals<string[]>(importYaml("data/toasts.yml"));
 
 const announcePattern = /^\s*(?<queries>.+?)\s*:\s+(?<announcement>.*?)\s*$/;
 const commandPattern = /^!(?<command>[a-z]+)(?:\s+(?<input>.*?))?\s*$/;

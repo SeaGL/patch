@@ -1,11 +1,11 @@
-brief: |
+brief: !md |
   Commands:
 
     - `!tea <recipient>`: Toast a friend
 
   [View source](https://github.com/SeaGL/patch)
 
-controlBrief: |
+controlBrief: !md |
   Commands:
 
     - `!announce <pill>, <pill>…: Message`: Broadcast a message to multiple rooms/spaces
@@ -14,7 +14,7 @@ controlBrief: |
   [View source](https://github.com/SeaGL/patch)
 
 commands:
-  announce: |
+  announce: !md |
     Usage:
 
     ```
