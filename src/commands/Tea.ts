@@ -29,7 +29,7 @@ export default class extends Command {
     }
 
     let html;
-    if (recipient) {
+    if (recipient && recipient !== this.patch.id) {
       const to = await MentionPill.forUser(recipient, room, this.matrix);
       const from = await MentionPill.forUser(event.sender, room, this.matrix);
       html = `${to.html}: ${from.html} is toasting you! ${toast}`;
@@ -38,7 +38,8 @@ export default class extends Command {
     }
 
     await minDelay;
-    await this.matrix.replyHtmlNotice(room, event, html);
+    const reply = await this.matrix.replyHtmlNotice(room, event, html);
+    if (recipient === this.patch.id) await this.matrix.react(room, reply, "🍵");
     await this.matrix.setTyping(room, false);
   };
 }
