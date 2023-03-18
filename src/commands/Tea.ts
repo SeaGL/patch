@@ -18,8 +18,6 @@ export default class extends Command {
     await this.matrix.setTyping(room, true);
     const minDelay = setTimeout(1000);
 
-    const toast = expect(sample(toasts), "toast");
-
     let recipient;
     if (input.html) {
       recipient = input.html?.match(permalinkPattern)?.[1];
@@ -28,18 +26,27 @@ export default class extends Command {
       if (first && isUserId(first)) recipient = first;
     }
 
-    let html;
-    if (recipient && recipient !== this.patch.id) {
-      const to = await MentionPill.forUser(recipient, room, this.matrix);
-      const from = await MentionPill.forUser(event.sender, room, this.matrix);
-      html = `${to.html}: ${from.html} is toasting you! ${toast}`;
+    if (recipient === event.sender) {
+      const sender = await MentionPill.forUser(event.sender, room, this.matrix);
+
+      await this.matrix.sendEmote(room, `steals a fry from ${sender.text}`);
     } else {
-      html = toast;
+      const toast = expect(sample(toasts), "toast");
+
+      let html;
+      if (recipient && recipient !== this.patch.id) {
+        const to = await MentionPill.forUser(recipient, room, this.matrix);
+        const from = await MentionPill.forUser(event.sender, room, this.matrix);
+        html = `${to.html}: ${from.html} is toasting you! ${toast}`;
+      } else {
+        html = toast;
+      }
+
+      await minDelay;
+      const reply = await this.matrix.replyHtmlNotice(room, event, html);
+      if (recipient === this.patch.id) await this.matrix.react(room, reply, "🍵");
     }
 
-    await minDelay;
-    const reply = await this.matrix.replyHtmlNotice(room, event, html);
-    if (recipient === this.patch.id) await this.matrix.react(room, reply, "🍵");
     await this.matrix.setTyping(room, false);
   };
 }

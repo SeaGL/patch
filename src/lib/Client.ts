@@ -112,6 +112,10 @@ export default class Client extends MatrixClient {
     return await this.replaceMessage(room, eventId, { msgtype: "m.notice", ...content });
   }
 
+  public async sendEmote(room: string, text: string) {
+    await this.sendMessage(room, { msgtype: "m.emote", body: text });
+  }
+
   public override sendStateEvent = async <E extends StateEvent>(
     room: string,
     type: E["type"],
