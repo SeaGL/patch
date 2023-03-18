@@ -18,6 +18,8 @@ export default class extends Command {
     await this.matrix.setTyping(room, true);
     const minDelay = setTimeout(1000);
 
+    const toast = expect(sample(toasts), "toast");
+
     let recipient;
     if (input.html) {
       recipient = input.html?.match(permalinkPattern)?.[1];
@@ -30,10 +32,9 @@ export default class extends Command {
     if (recipient) {
       const to = await MentionPill.forUser(recipient, room, this.matrix);
       const from = await MentionPill.forUser(event.sender, room, this.matrix);
-      const toast = expect(sample(toasts), "toast");
       html = `${to.html}: ${from.html} is toasting you! ${toast}`;
     } else {
-      html = expect(sample(toasts), "toast");
+      html = toast;
     }
 
     await minDelay;

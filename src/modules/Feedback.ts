@@ -26,9 +26,7 @@ export default class extends Module {
   private async good(room: string, event: Event<"m.room.message">) {
     this.info("🤖 Good bot", { room, sender: event.sender, message: event.content.body });
 
-    await this.matrix.sendEvent(room, "m.reaction", {
-      "m.relates_to": { rel_type: "m.annotation", key: "🤖", event_id: event.event_id },
-    });
+    await this.matrix.react(room, event.event_id, "🤖");
   }
 
   private kicked(room: string, event: Event<"m.room.member">) {

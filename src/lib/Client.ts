@@ -86,6 +86,12 @@ export default class Client extends MatrixClient {
   ): Promise<E["content"] | undefined> =>
     (this.#cache.get(room)?.get(`${type}/${key}`) as E | undefined)?.content;
 
+  public async react(room: string, eventId: string, reaction: string) {
+    await this.sendEvent(room, "m.reaction", {
+      "m.relates_to": { rel_type: "m.annotation", key: reaction, event_id: eventId },
+    });
+  }
+
   public async replaceMessage(
     room: string,
     eventId: string,
