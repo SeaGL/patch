@@ -1,13 +1,21 @@
 import Bottleneck from "bottleneck";
-import { MatrixClient, RoomCreateOptions as RoomCreateFullOptions } from "matrix-bot-sdk";
+import {
+  getRequestFn,
+  MatrixClient,
+  RoomCreateOptions as RoomCreateFullOptions,
+  setRequestFn,
+} from "matrix-bot-sdk";
 import { setTimeout } from "timers/promises";
 import type { Event, StateEvent, StateEventInput, Sync } from "./matrix.js";
 import { env } from "./utilities.js";
+import { userAgent } from "./version.js";
 
 export interface RoomCreateOptions extends RoomCreateFullOptions {
   initial_state?: StateEventInput[];
   preset?: Exclude<NonNullable<RoomCreateFullOptions["preset"]>, "trusted_private_chat">;
 }
+
+setRequestFn(getRequestFn().defaults({ headers: { "User-Agent": userAgent } }));
 
 const issue8895Cooldown = 1000 * Number(env("ISSUE_8895_COOLDOWN"));
 const minTime = 1000 / Number(env("MATRIX_RATE_LIMIT"));
