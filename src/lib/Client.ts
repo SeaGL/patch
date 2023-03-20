@@ -1,4 +1,5 @@
 import Bottleneck from "bottleneck";
+import { htmlToText } from "html-to-text"; // As used by MatrixClient
 import {
   getRequestFn,
   MatrixClient,
@@ -122,6 +123,15 @@ export default class Client extends MatrixClient {
 
   public async sendEmote(room: string, text: string) {
     await this.sendMessage(room, { msgtype: "m.emote", body: text });
+  }
+
+  public async sendHtmlEmote(room: string, html: string) {
+    await this.sendMessage(room, {
+      msgtype: "m.emote",
+      format: "org.matrix.custom.html",
+      formatted_body: html,
+      body: htmlToText(html, { wordwrap: false }),
+    });
   }
 
   public override sendStateEvent = async <E extends StateEvent>(

@@ -29,7 +29,7 @@ export default class extends Command {
     if (recipient === event.sender) {
       const sender = await MentionPill.forUser(event.sender, room, this.matrix);
 
-      await this.matrix.sendEmote(room, `steals a fry from ${sender.text}`);
+      await this.matrix.sendHtmlEmote(room, `steals a fry from ${sender.html}`);
     } else {
       const toast = expect(sample(toasts), "toast");
 

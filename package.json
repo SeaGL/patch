@@ -12,6 +12,7 @@
     "@sentry/node": "^7.41.0",
     "@sentry/tracing": "^7.41.0",
     "bottleneck": "^2.19.5",
+    "html-to-text": "^9.0.4",
     "js-yaml": "^4.1.0",
     "lodash.isequal": "^4.5.0",
     "lodash.mergewith": "^4.6.2",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@tsconfig/node18-strictest-esm": "^1.0.1",
+    "@types/html-to-text": "^9.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash.isequal": "^4.5.6",
     "@types/lodash.mergewith": "^4.6.7",
