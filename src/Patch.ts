@@ -2,7 +2,7 @@ import assert from "assert/strict";
 import { LogService as LS, SimpleFsStorageProvider } from "matrix-bot-sdk";
 import { TypedEmitter } from "tiny-typed-emitter";
 import Client from "./lib/Client.js";
-import type { Event } from "./lib/matrix.js";
+import type { Event, MessageEvent, StateEvent } from "./lib/matrix.js";
 import type { Plan } from "./lib/Plan.js";
 import { version } from "./lib/version.js";
 import Commands from "./modules/Commands.js";
@@ -19,8 +19,8 @@ interface Config {
 
 interface Events {
   event: (room: string, event: Event) => void;
-  kicked: (room: string, event: Event<"m.room.member">) => void;
-  message: (room: string, event: Event<"m.room.message">) => void;
+  kicked: (room: string, event: StateEvent<"m.room.member">) => void;
+  message: (room: string, event: MessageEvent<"m.room.message">) => void;
 }
 
 type Log = <D>(message: string, data?: D, notice?: string) => void;
@@ -90,8 +90,6 @@ export default class Patch extends TypedEmitter<Events> {
         notice ?? `${level}: ${message} ${data ? JSON.stringify(data) : ""}`
       );
 
-  #forward =
-    <E extends Event>(name: keyof Events) =>
-    (room: string, event: E) =>
-      event.sender !== this.id && this.emit(name, room, event);
+  #forward = (name: keyof Events) => (room: string, event: Event) =>
+    event.sender !== this.id && this.emit(name, room, event);
 }

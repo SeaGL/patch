@@ -5,7 +5,7 @@ import Help from "../commands/Help.js";
 import Sync from "../commands/Sync.js";
 import Tea from "../commands/Tea.js";
 import type Client from "../lib/Client.js";
-import type { Event } from "../lib/matrix.js";
+import type { Event, MessageEvent } from "../lib/matrix.js";
 import Module from "../lib/Module.js";
 import { importYaml } from "../lib/utilities.js";
 
@@ -68,7 +68,7 @@ export default class Commands extends Module {
     this.#commands[group][name] = handler;
   };
 
-  #detect = async (room: string, event: Event<"m.room.message">) => {
+  #detect = async (room: string, event: MessageEvent<"m.room.message">) => {
     if (event.content.msgtype !== "m.text") return;
     if (event.content["m.relates_to"]?.rel_type === "m.replace") return;
     if (!event.content.body.startsWith("!")) return;
@@ -84,7 +84,7 @@ export default class Commands extends Module {
     if (handler) this.#limiter.key(room).schedule(() => handler(context));
   };
 
-  #parse(content: Event<"m.room.message">["content"]): Input | undefined {
+  #parse(content: MessageEvent<"m.room.message">["content"]): Input | undefined {
     const parse = (body: string) => {
       const groups = body.match(Commands.syntax)?.groups;
       return { command: groups?.["command"], input: groups?.["input"] };

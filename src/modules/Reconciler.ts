@@ -13,9 +13,9 @@ import { assert, Equals } from "tsafe";
 import type Client from "../lib/Client.js";
 import type { RoomCreateOptions } from "../lib/Client.js";
 import {
-  Event,
   IStateEvent,
   mergeWithMatrixState,
+  MessageEvent,
   moderatorLevel,
   orNone,
   resolvePreset,
@@ -193,7 +193,7 @@ export default class extends Module {
   private async getNotice(
     room: string,
     id: string
-  ): Promise<Event<"m.room.message"> | undefined> {
+  ): Promise<MessageEvent<"m.room.message"> | undefined> {
     this.debug("🪧 Get notice", { room, id });
     return await this.matrix.getEvent(room, id).catch(orNone);
   }
@@ -217,7 +217,7 @@ export default class extends Module {
 
   private async getRootMessage(room: string, id: string): Promise<string> {
     this.debug("💬 Get message", { room, id });
-    const message: Event<"m.room.message"> | undefined = await this.matrix
+    const message: MessageEvent<"m.room.message"> | undefined = await this.matrix
       .getEvent(room, id)
       .catch(orNone);
 
@@ -521,7 +521,7 @@ export default class extends Module {
       return await this.replaceNotice(room, id, expected);
     } else {
       this.info("🪧 Notice", { room, body: expected });
-      let content: Event<"m.room.message">["content"];
+      let content: MessageEvent<"m.room.message">["content"];
       if (expected.html) {
         content = {
           msgtype: "m.notice",

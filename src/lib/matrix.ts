@@ -83,7 +83,7 @@ export type StateEvent<T = unknown> = (
   | TagEvent
 ) & { type: T };
 
-export type Event<T = unknown> = MessageEvent<T> | StateEvent<T>;
+export type Event = MessageEvent | StateEvent;
 
 export type StateEventInput = Omit<StateEvent, "event_id" | "sender" | "state_key"> &
   Partial<Pick<StateEvent, "state_key">>;

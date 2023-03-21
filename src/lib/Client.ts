@@ -7,7 +7,7 @@ import {
   setRequestFn,
 } from "matrix-bot-sdk";
 import { setTimeout } from "timers/promises";
-import type { Event, StateEvent, StateEventInput, Sync } from "./matrix.js";
+import type { MessageEvent, StateEvent, StateEventInput, Sync } from "./matrix.js";
 import { env } from "./utilities.js";
 import { userAgent } from "./version.js";
 
@@ -98,13 +98,13 @@ export default class Client extends MatrixClient {
   public async react(room: string, eventId: string, reaction: string) {
     await this.sendEvent(room, "m.reaction", {
       "m.relates_to": { rel_type: "m.annotation", key: reaction, event_id: eventId },
-    } as Event<"m.reaction">["content"]);
+    } as MessageEvent<"m.reaction">["content"]);
   }
 
   public async replaceMessage(
     room: string,
     eventId: string,
-    content: Event<"m.room.message">["content"]
+    content: MessageEvent<"m.room.message">["content"]
   ) {
     return await this.sendMessage(room, {
       ...content,
@@ -116,7 +116,7 @@ export default class Client extends MatrixClient {
   public async replaceNotice(
     room: string,
     eventId: string,
-    content: Omit<Event<"m.room.message">["content"], "msgtype">
+    content: Omit<MessageEvent<"m.room.message">["content"], "msgtype">
   ) {
     return await this.replaceMessage(room, eventId, { msgtype: "m.notice", ...content });
   }
