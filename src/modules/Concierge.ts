@@ -14,9 +14,7 @@ export default class extends Module {
   #scheduledNudges: Map<string, ScheduledNudge> = new Map();
 
   public async start() {
-    this.patch.on("event", (room, event) => {
-      if (event.type === "m.room.member") this.handleMembership(room, event);
-    });
+    this.patch.on("membership", this.handleMembership.bind(this));
   }
 
   private async getMembership(

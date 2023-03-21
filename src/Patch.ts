@@ -18,9 +18,9 @@ interface Config {
 }
 
 interface Emissions {
-  event: (room: string, event: Event) => void;
-  kicked: (room: string, event: StateEvent<"m.room.member">) => void;
+  membership: (room: string, event: StateEvent<"m.room.member">) => void;
   message: (room: string, event: MessageEvent<"m.room.message">) => void;
+  readable: (room: string, event: Event) => void;
 }
 
 type Log = <D>(message: string, data?: D, notice?: string) => void;
@@ -57,9 +57,7 @@ export default class Patch extends TypedEmitter<Emissions> {
     this.info("🪪 Authenticate", { user: this.id });
     assert.equal(await this.#matrix.getUserId(), this.id);
 
-    this.#matrix.on("room.event", this.#forward("event"));
-    this.#matrix.on("room.leave", this.#forward("kicked"));
-    this.#matrix.on("room.message", this.#forward("message"));
+    this.#matrix.on("room.event", this.#dispatch);
 
     this.info("📥 Sync");
     await this.#matrix.start();
@@ -90,6 +88,12 @@ export default class Patch extends TypedEmitter<Emissions> {
         notice ?? `${level}: ${message} ${data ? JSON.stringify(data) : ""}`
       );
 
-  #forward = (name: keyof Events) => (room: string, event: Event) =>
-    event.sender !== this.id && this.emit(name, room, event);
+  #dispatch = (room: string, event: Event) => {
+    if (event.sender === this.id) return;
+
+    if (event.type === "m.room.member") this.emit("membership", room, event);
+    else if (event.type === "m.room.message") this.emit("message", room, event);
+
+    this.emit("readable", room, event);
+  };
 }

@@ -7,7 +7,10 @@ const goodBot = /\bgood bot\b/i;
 
 export default class extends Module {
   public async start() {
-    this.patch.on("kicked", this.kicked);
+    this.patch.on("membership", async (room, event) => {
+      if (event.state_key === this.patch.id && event.content.membership === "leave")
+        this.kicked(room, event);
+    });
 
     this.patch.on("message", async (room, event) => {
       if (badBot.test(event.content.body)) await this.bad(room, event);

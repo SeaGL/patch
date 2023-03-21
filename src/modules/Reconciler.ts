@@ -114,7 +114,7 @@ export default class extends Module {
 
     await this.reconcile();
 
-    this.matrix.on("room.event", this.handleRoomEvent.bind(this));
+    this.patch.on("membership", this.handleMembership.bind(this));
   }
 
   private getAccessOptions({
@@ -262,10 +262,6 @@ export default class extends Module {
         }
       }
     }
-  }
-
-  private handleRoomEvent(room: string, event: Event) {
-    if (event.type === "m.room.member") this.handleMembership(room, event);
   }
 
   private async listSpace(space: Space, local: string): Promise<ListedSpace> {
