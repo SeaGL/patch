@@ -98,7 +98,7 @@ export default class Client extends MatrixClient {
   public async react(room: string, eventId: string, reaction: string) {
     await this.sendEvent(room, "m.reaction", {
       "m.relates_to": { rel_type: "m.annotation", key: reaction, event_id: eventId },
-    });
+    } as Event<"m.reaction">["content"]);
   }
 
   public async replaceMessage(

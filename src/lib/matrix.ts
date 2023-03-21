@@ -19,6 +19,19 @@ export interface IStateEvent<T extends string, C> extends IEvent<T, C> {
   state_key: string;
 }
 
+export type MessageEvent<T = unknown> = (
+  | IEvent<
+      "m.reaction",
+      { "m.relates_to": { rel_type: "m.annotation"; event_id: string; key: string } }
+    >
+  | IEvent<
+      "m.room.message",
+      { body: string; "m.relates_to"?: { rel_type: "m.replace"; event_id: string } } & ({
+        msgtype: "m.notice" | "m.text";
+      } & ({} | { format: "org.matrix.custom.html"; formatted_body: string }))
+    >
+) & { type: T };
+
 type WidgetContent = {
   creatorUserId: string;
   name: string;
@@ -70,14 +83,7 @@ export type StateEvent<T = unknown> = (
   | TagEvent
 ) & { type: T };
 
-export type Event<T = unknown> =
-  | StateEvent<T>
-  | IEvent<
-      "m.room.message",
-      { body: string; "m.relates_to"?: { rel_type: "m.replace"; event_id: string } } & ({
-        msgtype: "m.notice" | "m.text";
-      } & ({} | { format: "org.matrix.custom.html"; formatted_body: string }))
-    >;
+export type Event<T = unknown> = MessageEvent<T> | StateEvent<T>;
 
 export type StateEventInput = Omit<StateEvent, "event_id" | "sender" | "state_key"> &
   Partial<Pick<StateEvent, "state_key">>;
