@@ -17,7 +17,7 @@ interface Config {
   plan: Plan;
 }
 
-interface Events {
+interface Emissions {
   event: (room: string, event: Event) => void;
   kicked: (room: string, event: StateEvent<"m.room.member">) => void;
   message: (room: string, event: MessageEvent<"m.room.message">) => void;
@@ -25,7 +25,7 @@ interface Events {
 
 type Log = <D>(message: string, data?: D, notice?: string) => void;
 
-export default class Patch extends TypedEmitter<Events> {
+export default class Patch extends TypedEmitter<Emissions> {
   static modules = [Commands, Concierge, Feedback, ReadReceipts];
 
   public controlRoom: string | undefined;
