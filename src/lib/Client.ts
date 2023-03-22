@@ -7,7 +7,13 @@ import {
   setRequestFn,
 } from "matrix-bot-sdk";
 import { setTimeout } from "timers/promises";
-import type { MessageEvent, StateEvent, StateEventInput, Sync } from "./matrix.js";
+import {
+  isStateEvent,
+  MessageEvent,
+  StateEvent,
+  StateEventInput,
+  Sync,
+} from "./matrix.js";
 import { env } from "./utilities.js";
 import { userAgent } from "./version.js";
 
@@ -175,10 +181,10 @@ export default class Client extends MatrixClient {
     const emissions: Parameters<typeof this.emit>[] = [];
 
     Object.entries(sync.rooms?.join ?? {}).forEach(([room, { state, timeline }]) => {
-      [
-        ...timeline.events.filter((e): e is StateEvent => "state_key" in e),
-        ...state.events,
-      ].forEach((event) => this.setCache(room, event));
+      // Populate state event cache
+      [...timeline.events.filter(isStateEvent), ...state.events].forEach((e) =>
+        this.setCache(room, e)
+      );
     });
 
     if (!this.#completedInitialSync) {

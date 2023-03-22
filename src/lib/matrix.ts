@@ -2,7 +2,7 @@ import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
 import type { MatrixError, PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import type { RoomCreateOptions } from "./Client.js";
-import type { IntroEvent, RedirectEvent, TagEvent } from "../modules/Reconciler";
+import type { IntroEvent, RedirectEvent, TagEvent } from "../modules/Reconciler.js";
 
 //
 // Events
@@ -179,6 +179,8 @@ export const resolvePreset = (
 //
 // Helpers
 //
+
+export const isStateEvent = (event: Event): event is StateEvent => "state_key" in event;
 
 export const isUserId = (text: string): boolean => /^@[-.\w]+:[-.\w]+$/.test(text);
 
