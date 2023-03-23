@@ -25,6 +25,8 @@ export const expect = <V>(value: V | null | undefined, as = "value"): V => {
 export const fetch: typeof _fetch = (url, { headers, ...init } = {}) =>
   _fetch(url, { headers: { "user-agent": userAgent, ...headers }, ...init });
 
+export const identity = <V>(value: V): V => value;
+
 export const importYaml = (path: string): unknown =>
   load(readFileSync(path, { encoding: "utf-8" }), { schema });
 

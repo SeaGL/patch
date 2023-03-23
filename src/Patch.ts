@@ -21,6 +21,7 @@ interface Config {
 interface Emissions {
   membership: (room: string, event: Received<StateEvent<"m.room.member">>) => void;
   message: (room: string, event: Received<MessageEvent<"m.room.message">>) => void;
+  reaction: (room: string, event: Received<MessageEvent<"m.reaction">>) => void;
   readable: (room: string, event: Received<Event>) => void;
 }
 
@@ -99,7 +100,8 @@ export default class Patch extends TypedEmitter<Emissions> {
   #dispatch = (room: string, event: Received<Event>) => {
     if (event.sender === this.id) return;
 
-    if (event.type === "m.room.member") this.emit("membership", room, event);
+    if (event.type === "m.reaction") this.emit("reaction", room, event);
+    else if (event.type === "m.room.member") this.emit("membership", room, event);
     else if (event.type === "m.room.message") this.emit("message", room, event);
 
     this.emit("readable", room, event);

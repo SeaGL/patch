@@ -2,6 +2,7 @@ import isEqual from "lodash.isequal";
 import mergeWith from "lodash.mergewith";
 import type { MatrixError, PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import type { RoomCreateOptions } from "./Client.js";
+import type { Announcement } from "../commands/Announce.js";
 import type { IntroEvent, RedirectEvent, TagEvent } from "../modules/Reconciler.js";
 
 //
@@ -20,6 +21,7 @@ export interface IStateEvent<T extends string, C> extends IEvent<T, C> {
 
 export type Received<E extends Event> = E & {
   content: E["content"] | {} /* redacted */;
+  origin_server_ts: number;
   room_id: string;
   sender: string;
 };
@@ -31,10 +33,14 @@ export type MessageEvent<T = unknown> = (
     >
   | IEvent<
       "m.room.message",
-      { body: string; "m.relates_to"?: { rel_type: "m.replace"; event_id: string } } & ({
+      {
+        body: string;
         msgtype: "m.notice" | "m.text";
-      } & ({} | { format: "org.matrix.custom.html"; formatted_body: string }))
+        "m.relates_to"?: { rel_type: "m.replace"; event_id: string };
+        "org.seagl.patch"?: { announcement?: Announcement };
+      } & ({} | { format: "org.matrix.custom.html"; formatted_body: string })
     >
+  | (IEvent<"m.room.redaction", { reason?: string }> & { redacts: string })
 ) & { type: T };
 
 type WidgetContent = {

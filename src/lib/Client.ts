@@ -19,7 +19,7 @@ import {
   StateEventInput,
   Sync,
 } from "./matrix.js";
-import { env } from "./utilities.js";
+import { env, identity } from "./utilities.js";
 import { userAgent } from "./version.js";
 
 export interface RoomCreateOptions extends RoomCreateFullOptions {
@@ -185,6 +185,23 @@ export default class Client extends MatrixClient {
 
     return new Promise((r) => this.once("sync.initial", () => r(result)));
   };
+
+  public async updateReply(
+    { content, event_id: id, room_id: room }: Received<MessageEvent<"m.room.message">>,
+    updateText: (text: string) => string,
+    updateHtml: (html: string) => string = identity
+  ) {
+    return await this.replaceMessage(room, id, {
+      msgtype: content.msgtype,
+      body: updateText(content.body.replace(/^.*?\n\n/s, "")),
+      ...("format" in content && {
+        format: content.format,
+        formatted_body: updateHtml(
+          content.formatted_body.replace(/^.*<\/mx-reply>/s, "")
+        ),
+      }),
+    });
+  }
 
   // Modified from https://github.com/turt2live/matrix-bot-sdk/blob/v0.6.2/src/MatrixClient.ts#L736
   protected override doSync(token: string): Promise<any> {
