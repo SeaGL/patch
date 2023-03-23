@@ -8,8 +8,13 @@ import {
 } from "matrix-bot-sdk";
 import { setTimeout } from "timers/promises";
 import {
+  Event,
+  GetRoomMessagesRequest,
+  GetRoomMessagesResponse,
   isStateEvent,
   MessageEvent,
+  Received,
+  RoomEventFilter,
   StateEvent,
   StateEventInput,
   Sync,
@@ -24,6 +29,7 @@ export interface RoomCreateOptions extends RoomCreateFullOptions {
 
 setRequestFn(getRequestFn().defaults({ headers: { "User-Agent": userAgent } }));
 
+const directions = { forward: "f", reverse: "b" } as const;
 const issue8895Cooldown = 1000 * Number(env("ISSUE_8895_COOLDOWN"));
 const minTime = 1000 / Number(env("MATRIX_RATE_LIMIT"));
 
@@ -88,6 +94,27 @@ export default class Client extends MatrixClient {
 
     return handler(...args);
   };
+
+  // Pending https://github.com/turt2live/matrix-bot-sdk/issues/250
+  public async *getRoomEvents(
+    room: string,
+    direction: "forward" | "reverse",
+    filter?: RoomEventFilter
+  ): AsyncGenerator<Received<Event>[], void, void> {
+    const path = `/_matrix/client/v3/rooms/${encodeURIComponent(room)}/messages`;
+    const base: GetRoomMessagesRequest = {
+      ...(direction && { dir: directions[direction] }),
+      ...(filter && { filter: JSON.stringify(filter) }),
+    };
+
+    let from: string | undefined;
+    do {
+      const query: GetRoomMessagesRequest = { ...base, ...(from && { from }) };
+      const response: GetRoomMessagesResponse = await this.doRequest("GET", path, query);
+      from = response.end;
+      yield response.chunk;
+    } while (from);
+  }
 
   public override getRoomState: MatrixClient["getRoomState"] = async (id) => [
     ...(this.#cache.get(id)?.values() ?? []),

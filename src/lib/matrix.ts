@@ -119,6 +119,24 @@ export const mergeWithMatrixState = <T, F>(to: T, from: F): T & F =>
 // Client API
 //
 
+export interface GetRoomMessagesRequest {
+  dir: "b" | "f";
+  filter?: string; // RoomEventFilter
+  from?: string;
+}
+
+export interface GetRoomMessagesResponse {
+  chunk: Received<Event>[];
+  end?: string;
+}
+
+export interface RoomEventFilter {
+  not_senders?: string[];
+  not_types?: string[];
+  senders?: string[];
+  types?: string[];
+}
+
 export interface Sync {
   rooms?: {
     join?: {
