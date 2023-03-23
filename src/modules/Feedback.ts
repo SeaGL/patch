@@ -1,5 +1,5 @@
 import { Permalinks } from "matrix-bot-sdk";
-import type { MessageEvent, StateEvent } from "../lib/matrix.js";
+import type { MessageEvent, Received, StateEvent } from "../lib/matrix.js";
 import Module from "../lib/Module.js";
 
 const badBot = /\bbad bot\b/i;
@@ -18,7 +18,7 @@ export default class extends Module {
     });
   }
 
-  private async bad(room: string, event: MessageEvent<"m.room.message">) {
+  private async bad(room: string, event: Received<MessageEvent<"m.room.message">>) {
     this.warn(
       "🤖 Bad bot",
       { room, sender: event.sender, message: event.content.body },
@@ -26,7 +26,7 @@ export default class extends Module {
     );
   }
 
-  private async good(room: string, event: MessageEvent<"m.room.message">) {
+  private async good(room: string, event: Received<MessageEvent<"m.room.message">>) {
     this.info("🤖 Good bot", { room, sender: event.sender, message: event.content.body });
 
     await this.matrix.react(room, event.event_id, "🤖");

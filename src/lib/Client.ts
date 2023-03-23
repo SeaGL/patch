@@ -181,10 +181,8 @@ export default class Client extends MatrixClient {
     const emissions: Parameters<typeof this.emit>[] = [];
 
     Object.entries(sync.rooms?.join ?? {}).forEach(([room, { state, timeline }]) => {
-      // Populate state event cache
-      [...timeline.events.filter(isStateEvent), ...state.events].forEach((e) =>
-        this.setCache(room, e)
-      );
+      state.events.forEach((e) => this.setCache(room, e));
+      timeline.events.forEach((e) => isStateEvent(e) && this.setCache(room, e));
     });
 
     if (!this.#completedInitialSync) {

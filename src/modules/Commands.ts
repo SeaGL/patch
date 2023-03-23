@@ -5,7 +5,7 @@ import Help from "../commands/Help.js";
 import Sync from "../commands/Sync.js";
 import Tea from "../commands/Tea.js";
 import type Client from "../lib/Client.js";
-import type { Event, MessageEvent } from "../lib/matrix.js";
+import type { MessageEvent, Received } from "../lib/matrix.js";
 import Module from "../lib/Module.js";
 import { importYaml } from "../lib/utilities.js";
 
@@ -14,7 +14,7 @@ const docs = assertEquals<Docs>(importYaml("data/help.yml"));
 
 interface Context {
   docs: Docs;
-  event: Event;
+  event: Received<MessageEvent<"m.room.message">>;
   input: Input;
   matrix: Client;
   room: string;
@@ -68,7 +68,7 @@ export default class Commands extends Module {
     this.#commands[group][name] = handler;
   };
 
-  #detect = async (room: string, event: MessageEvent<"m.room.message">) => {
+  #detect = async (room: string, event: Received<MessageEvent<"m.room.message">>) => {
     if (event.content.msgtype !== "m.text") return;
     if (event.content["m.relates_to"]?.rel_type === "m.replace") return;
     if (!event.content.body.startsWith("!")) return;

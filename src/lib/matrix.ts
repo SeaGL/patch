@@ -11,13 +11,18 @@ import type { IntroEvent, RedirectEvent, TagEvent } from "../modules/Reconciler.
 interface IEvent<T extends string, C> {
   type: T;
   event_id: string;
-  sender: string;
   content: C;
 }
 
 export interface IStateEvent<T extends string, C> extends IEvent<T, C> {
   state_key: string;
 }
+
+export type Received<E extends Event> = E & {
+  content: E["content"] | {} /* redacted */;
+  room_id: string;
+  sender: string;
+};
 
 export type MessageEvent<T = unknown> = (
   | IEvent<
@@ -118,8 +123,8 @@ export interface Sync {
   rooms?: {
     join?: {
       [id: string]: {
-        state: { events: StateEvent[] };
-        timeline: { events: Event[] };
+        state: { events: Received<StateEvent>[] };
+        timeline: { events: Received<Event>[] };
       };
     };
   };

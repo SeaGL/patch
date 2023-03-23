@@ -2,7 +2,7 @@ import assert from "assert/strict";
 import { LogService as LS, SimpleFsStorageProvider } from "matrix-bot-sdk";
 import { TypedEmitter } from "tiny-typed-emitter";
 import Client from "./lib/Client.js";
-import type { Event, MessageEvent, StateEvent } from "./lib/matrix.js";
+import type { Event, MessageEvent, Received, StateEvent } from "./lib/matrix.js";
 import type { Plan } from "./lib/Plan.js";
 import { version } from "./lib/version.js";
 import Commands from "./modules/Commands.js";
@@ -18,9 +18,9 @@ interface Config {
 }
 
 interface Emissions {
-  membership: (room: string, event: StateEvent<"m.room.member">) => void;
-  message: (room: string, event: MessageEvent<"m.room.message">) => void;
-  readable: (room: string, event: Event) => void;
+  membership: (room: string, event: Received<StateEvent<"m.room.member">>) => void;
+  message: (room: string, event: Received<MessageEvent<"m.room.message">>) => void;
+  readable: (room: string, event: Received<Event>) => void;
 }
 
 type Log = <D>(message: string, data?: D, notice?: string) => void;
@@ -88,7 +88,7 @@ export default class Patch extends TypedEmitter<Emissions> {
         notice ?? `${level}: ${message} ${data ? JSON.stringify(data) : ""}`
       );
 
-  #dispatch = (room: string, event: Event) => {
+  #dispatch = (room: string, event: Received<Event>) => {
     if (event.sender === this.id) return;
 
     if (event.type === "m.room.member") this.emit("membership", room, event);
