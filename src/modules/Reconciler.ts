@@ -453,13 +453,10 @@ export default class extends Module {
   }
 
   private async reconcileInvitations(child: Room, parent?: Room) {
-    if (!(parent && child.private)) return;
+    if (!child.private) return;
 
-    this.debug("🛡️ List moderators", { space: parent.local });
-    const moderators = await this.getModerators(parent.id);
-
-    this.debug("🚪 Get memberships", { space: parent.local });
-    const parentMemberships = await this.matrix.getRoomMembers(parent.id);
+    this.debug("🛡️ List moderators", { room: (parent ?? child).local });
+    const moderators = await this.getModerators((parent ?? child).id);
 
     this.debug("🚪 Get memberships", { room: child.local });
     const childMemberships = await this.matrix.getRoomMembers(child.id);
@@ -477,15 +474,18 @@ export default class extends Module {
       }
     }
 
+    if (parent) this.debug("🚪 Get memberships", { space: parent.local });
+    const parentMemberships = parent && (await this.matrix.getRoomMembers(parent.id));
+
     for (const moderator of moderators) {
       if (
-        parentMemberships.some(
-          (m) => m.membershipFor === moderator && m.membership === "join"
-        ) &&
+        (!parentMemberships ||
+          parentMemberships.some(
+            (m) => m.membershipFor === moderator && m.membership === "join"
+          )) &&
         !childMemberships.some((m) => m.membershipFor === moderator)
       ) {
-        this.info("🔑 Invite space moderator to private room", {
-          space: parent.local,
+        this.info("🔑 Invite moderator to private room", {
           moderator,
           room: child.local,
         });
