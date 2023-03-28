@@ -4,6 +4,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import Client from "./lib/Client.js";
 import type { Event, MessageEvent, Received, StateEvent } from "./lib/matrix.js";
 import type { Plan } from "./lib/Plan.js";
+import { escapeHtml } from "./lib/utilities.js";
 import { version } from "./lib/version.js";
 import Commands from "./modules/Commands.js";
 import Concierge from "./modules/Concierge.js";
@@ -83,9 +84,16 @@ export default class Patch extends TypedEmitter<Emissions> {
     (level: string) =>
     <D>(message: string, data?: D, notice?: string) =>
       this.controlRoom &&
-      this.#matrix[notice ? "sendHtmlNotice" : "sendNotice"](
+      this.#matrix.sendHtmlNotice(
         this.controlRoom,
-        notice ?? `${level}: ${message} ${data ? JSON.stringify(data) : ""}`
+        notice ??
+          `<p><strong>${level}:</strong> ${escapeHtml(message)}</p>${
+            data
+              ? `<pre><code>${escapeHtml(
+                  JSON.stringify(data, undefined, 2)
+                )}</code></pre>`
+              : ""
+          }`
       );
 
   #dispatch = (room: string, event: Received<Event>) => {
