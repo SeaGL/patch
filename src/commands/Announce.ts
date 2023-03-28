@@ -14,7 +14,7 @@ export interface Announcement {
 type Button = "Cancel" | "Send";
 
 export default class Announce extends Command {
-  static syntax = /^\s*(?<recipients>.+?)\s*:\s+(?<message>.*?)\s*$/;
+  static syntax = /^(?<open><p>)?(?<recipients>.+?)\s*:(?<message>\s*(?:\s|<\/p>)\s*.*)/s;
 
   public async start() {
     this.on("announce", this.onCommand, { group: Group.Control });
@@ -79,7 +79,7 @@ export default class Announce extends Command {
         await this.matrix.updateReply(
           prompt,
           (text) => `${text}\n\n${status}`,
-          (html) => `${html}<br><br>${status}`
+          (html) => `<blockquote>${html}</blockquote>${status}`
         );
         await this.matrix.setTyping(room, false);
       }
@@ -116,7 +116,10 @@ export default class Announce extends Command {
     const parts = body.match(Announce.syntax)?.groups;
     return (
       parts && {
-        message: parts["message"]!,
+        message: `${parts["open"] ?? ""}${parts["message"]!}`.replace(
+          /^(?:<p><\/p>|\s)*/,
+          ""
+        ),
         recipients: (parts["recipients"]!.split(/\s*,\s*/) ?? []).flatMap((html) =>
           optional(html.match(permalinkPattern)?.[1])
         ),

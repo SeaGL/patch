@@ -47,7 +47,8 @@ interface Input {
 
 export default class Commands extends Module {
   static commands = [Announce, Help, Sync, Tea];
-  static syntax = /^!(?<command>[a-z]+)(?:\s+(?<input>.*?))?\s*$/;
+  static htmlSyntax = /^(?<open><p>)?!(?<command>[a-z]+)(?:\s+(?<input>.*?))?\s*$/s;
+  static textSyntax = /^!(?<command>[a-z]+)(?:\s+(?<input>.*?))?\s*$/s;
 
   #commands: { [group in Group]: Record<string, Handler> } = {
     [Group.Control]: {},
@@ -85,25 +86,22 @@ export default class Commands extends Module {
   };
 
   #parse(content: MessageEvent<"m.room.message">["content"]): Input | undefined {
-    const parse = (body: string) => {
-      const groups = body.match(Commands.syntax)?.groups;
-      return { command: groups?.["command"], input: groups?.["input"] };
-    };
-
-    const asText = parse(content.body);
-    const asHtml =
+    const text = content.body.match(Commands.textSyntax)?.groups;
+    const html =
       "format" in content && content.format === "org.matrix.custom.html"
-        ? parse(content.formatted_body)
+        ? content.formatted_body.match(Commands.htmlSyntax)?.groups
         : undefined;
 
-    const command = asText.command ?? asHtml?.command;
+    const command = text?.["command"] ?? html?.["command"];
     if (!command) return;
 
-    if (asText.command && asHtml?.command && asText.command !== asHtml.command) {
-      this.error("🛎️ Conflicting text and HTML commands", { content });
-      return;
-    }
+    if (text?.["command"] && html?.["command"] && text["command"] !== html["command"])
+      return void this.error("🛎️ Conflicting text and HTML commands", { content });
 
-    return { command, html: asHtml?.input, text: asText.input };
+    return {
+      command,
+      html: html?.["input"] && `${html?.["open"] ?? ""}${html?.["input"]}`,
+      text: text?.["input"],
+    };
   }
 }
