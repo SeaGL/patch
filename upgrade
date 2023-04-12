@@ -167,7 +167,7 @@ skip upgrade '!pWLuBdCAVDFXRvbkuH:seattlematrix.org' 'staff' 'partnerships' 'Sea
 skip upgrade '!EqKLewWpHnMWPzIOrA:seattlematrix.org' 'staff' 'outreach' 'SeaGL Promotion & Outreach Committee' 'Spreading the word about SeaGL world wide | Meetings 30 minutes before All-Hands, Tuesdays at 5:30pm PT'
 skip upgrade '!nKscbiAUZsyZRyzHiL:seattlematrix.org' 'staff' 'volunteers' 'SeaGL Volunteers Committee' 'Keeping the SeaGL staff happy and recruiting new volunteers to the flock'
 skip upgrade '!pigkbvrSvYNGkDHWhl:seattlematrix.org' 'staff' 'programming' 'SeaGL Programming & Flow Committee' 'Packing the SeaGL program with amazing content'
-# upgrade '!cTnkSFRMtOyrZzVTEJ:seattlematrix.org' 'staff' 'all-staff' 'SeaGL All Staff Discussions' 'Birdhouse dedicated to the SeaGL staff'
+skip upgrade '!cTnkSFRMtOyrZzVTEJ:seattlematrix.org' 'staff' 'all-staff' 'SeaGL All Staff Discussions' 'Birdhouse dedicated to the SeaGL staff'
 skip upgrade '!OSwhxVfZENcsMpzCDu:matrix.org' 'public' 'participate' 'SeaGL Participate' 'Where folks flock to lend a wing or beak to the SeaGL organizing effort. Join us!'
 skip upgrade '!JTTivRrYKTLzcMmTaj:seattlematrix.org' 'public' 'TeaGL' 'SeaGL TeaGL House' 'Sip tea and chat with your feathered SeaGL friends'
 skip upgrade '!wDfsAmIeuAqaySFjNw:seattlematrix.org' 'public' 'office-hours' 'SeaGL Office Hours' 'Video call: https://meet.seattlematrix.org/SeaGL_Office_Hours · CfP: https://seagl.org/cfp · CoC: https://seagl.org/coc'
