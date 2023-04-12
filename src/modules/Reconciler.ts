@@ -135,7 +135,7 @@ export default class extends Module {
             {
               type: "m.room.join_rules",
               content: {
-                join_rule: "restricted" /* knock_restricted pending room version 10 */,
+                join_rule: "knock_restricted",
                 allow: [{ type: "m.room_membership", room_id: parent.id }],
               },
             },
