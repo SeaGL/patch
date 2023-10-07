@@ -3,6 +3,7 @@ import mergeWith from "lodash.mergewith";
 import type { MatrixError, PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import type { RoomCreateOptions } from "./Client.js";
 import type { Announcement } from "../commands/Announce.js";
+import type { QAEvent } from "../commands/QA.js";
 import type { IntroEvent, RedirectEvent, TagEvent } from "../modules/Reconciler.js";
 
 //
@@ -90,6 +91,7 @@ export type StateEvent<T = unknown> = (
   | IStateEvent<"m.room.power_levels", PowerLevels>
   | IStateEvent<"m.room.topic", { topic: string }>
   | IntroEvent
+  | QAEvent
   | RedirectEvent
   | TagEvent
 ) & { type: T };

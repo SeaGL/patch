@@ -2,6 +2,7 @@ import Bottleneck from "bottleneck";
 import { assertEquals } from "typia";
 import Announce from "../commands/Announce.js";
 import Help from "../commands/Help.js";
+import QA from "../commands/QA.js";
 import Sync from "../commands/Sync.js";
 import Tea from "../commands/Tea.js";
 import type Client from "../lib/Client.js";
@@ -46,9 +47,9 @@ interface Input {
 }
 
 export default class Commands extends Module {
-  static commands = [Announce, Help, Sync, Tea];
-  static htmlSyntax = /^(?<open><p>)?!(?<command>[a-z]+)(?:\s+(?<input>.*?))?\s*$/s;
-  static textSyntax = /^!(?<command>[a-z]+)(?:\s+(?<input>.*?))?\s*$/s;
+  static commands = [Announce, Help, QA, Sync, Tea];
+  static htmlSyntax = /^(?<open><p>)?!(?<command>[-a-z]+)(?:\s+(?<input>.*?))?\s*$/s;
+  static textSyntax = /^!(?<command>[-a-z]+)(?:\s+(?<input>.*?))?\s*$/s;
 
   #commands: { [group in Group]: Record<string, Handler> } = {
     [Group.Control]: {},

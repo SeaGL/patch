@@ -1,6 +1,9 @@
 brief: !md |
   Commands:
 
+    - `!ask <question>`: Add a question to the question queue
+    - `!qa`: Show the question queue
+    - `!qa-clear`: Clear the question queue
     - `!tea <recipient>`: Toast a friend
 
   [View source](https://github.com/SeaGL/patch)
@@ -19,4 +22,13 @@ commands:
 
     ```
     !announce <pill>, <pill>…: Message
+    ```
+
+  ask: !md |
+    Usage: `!ask <question>`
+
+    Example:
+
+    ```
+    !ask How did you decide to use prefabulated aluminite?
     ```
