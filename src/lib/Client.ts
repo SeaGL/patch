@@ -134,6 +134,15 @@ export default class Client extends MatrixClient {
     } as MessageEvent<"m.reaction">["content"]);
   }
 
+  public async replaceHtmlNotice(room: string, eventId: string, html: string) {
+    return await this.replaceMessage(room, eventId, {
+      msgtype: "m.notice",
+      body: htmlToText(html, { wordwrap: false }),
+      format: "org.matrix.custom.html",
+      formatted_body: html,
+    });
+  }
+
   public async replaceMessage(
     room: string,
     eventId: string,

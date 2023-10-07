@@ -1,5 +1,5 @@
 import Command from "../lib/Command.js";
-import { IStateEvent, orNone } from "../lib/matrix.js";
+import { Event, IStateEvent, orNone, Received } from "../lib/matrix.js";
 import type { Handler } from "../modules/Commands.js";
 import { escapeHtml } from "../lib/utilities.js";
 
@@ -8,6 +8,7 @@ interface QA {
     html: string;
     submitter: string;
   }[];
+  view: string | undefined;
 }
 
 export type QAEvent = IStateEvent<"org.seagl.patch.qa", QA>;
@@ -31,9 +32,13 @@ export default class extends Command {
     await this.#set(room, qa);
 
     await this.matrix.react(room, event.event_id, "✔️");
+
+    await this.#updateView(room, qa, true);
   };
 
   private reset: Handler = async ({ event, room }) => {
+    await this.#updateView(room, await this.#get(room), false);
+
     await this.#set(room, this.#default());
 
     await this.matrix.react(room, event.event_id, "✔️");
@@ -42,18 +47,16 @@ export default class extends Command {
   private show: Handler = async ({ event, room }) => {
     const qa = await this.#get(room);
 
-    const html =
-      qa.questions.length === 0
-        ? "No questions have been <code>!ask</code>ed."
-        : `<p>Questions:</p><ol>${qa.questions
-            .map((q) => `<li>${q.html} (from ${q.submitter})</li>`)
-            .join("")}</ol>`;
+    if (qa.view) await this.matrix.redactEvent(room, qa.view, "Outdated");
 
-    await this.matrix.replyHtmlNotice(room, event, html);
+    qa.view = await this.matrix.replyHtmlNotice(room, event, this.#render(qa, true));
+
+    await this.#set(room, qa);
   };
 
   #default = (): QA => ({
     questions: [],
+    view: undefined,
   });
 
   #get = async (room: string): Promise<QA> => {
@@ -64,8 +67,28 @@ export default class extends Command {
     return existing ?? this.#default();
   };
 
+  #render = (qa: QA, live: boolean): string =>
+    qa.questions.length === 0
+      ? "No questions have been <code>!ask</code>ed."
+      : `<p>Questions:</p><ol>${qa.questions
+          .map((q) => `<li>${q.html} (from ${q.submitter})</li>`)
+          .join("")}</ol>${
+          live ? `<p><code>!ask</code> a question to add it to this list.</p>` : ""
+        }`;
+
   #set = async (room: string, qa: QA) => {
     this.debug("✋ Set QA", { room, qa });
     await this.matrix.sendStateEvent<QAEvent>(room, "org.seagl.patch.qa", "", qa);
+  };
+
+  #updateView = async (room: string, qa: QA, live: boolean) => {
+    const id = qa.view;
+    if (!id) return;
+
+    this.debug("💬 Get message", { room, id });
+    const event: Received<Event> = await this.matrix.getEvent(room, id);
+    if (!(event.type === "m.room.message" && event.sender === this.patch.id)) return;
+
+    await this.matrix.replaceHtmlNotice(room, id, this.#render(qa, live));
   };
 }
