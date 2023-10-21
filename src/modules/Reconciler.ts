@@ -252,7 +252,9 @@ export default class extends Module {
       for (const child of this.#privateChildrenByParent.get(room) ?? []) {
         const memberships = await this.matrix.getRoomMembers(child);
 
-        if (!memberships.some((m) => m.membershipFor === user)) {
+        if (
+          !memberships.some((m) => m.membershipFor === user && m.membership !== "leave")
+        ) {
           this.info("🔑 Invite space moderator to private room", {
             space: room,
             moderator: user,
