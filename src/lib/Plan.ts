@@ -35,7 +35,7 @@ export namespace Plan {
     redirects?: Record<string, string>;
     suffixes?: Record<string, string>;
     topic?: string;
-    widgets?: Record<string, { [day: number]: Widget }>;
+    widgets?: Record<string, Widget[]>;
   }
 
   type Widget = { avatar?: string; name?: string } & (
