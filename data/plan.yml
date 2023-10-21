@@ -1,6 +1,6 @@
 homeserver: seattlematrix.org
 jitsiDomain: meet.seattlematrix.org
-defaultRoomVersion: "9"
+defaultRoomVersion: "10"
 timeZone: America/Los_Angeles
 avatars:
   default: mxc://seattlematrix.org/qLlREuYzRwaRXNHweAQgxVRF
