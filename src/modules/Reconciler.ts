@@ -642,8 +642,8 @@ export default class extends Module {
     }
 
     await this.reconcileWidget(room);
-    await this.reconcileRedirect(room);
     await this.reconcileIntro(room);
+    await this.reconcileRedirect(room);
 
     if (expected.children) {
       this.debug("🏘️ Get space", { local });
