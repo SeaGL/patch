@@ -169,7 +169,7 @@ export default class extends Module {
 
       this.info("🛡️ Inherit user power levels", { room, users: original });
       for (const [user, level] of Object.entries(original)) {
-        users[user] = Math.max(users[user] ?? 0, level, raiseTo);
+        users[user] = Math.min(99, Math.max(users[user] ?? 0, level, raiseTo));
       }
     }
 
