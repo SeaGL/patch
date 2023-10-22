@@ -725,7 +725,7 @@ export default class extends Module {
       const redirect = plan.redirects?.[session.id];
       const topic = plan.topic;
       const intro = plan.intro?.replace(/\$URL\b/, session.url);
-      const widget = plan.widgets?.[session.room]?.[session.day];
+      const widget = redirect ? undefined : plan.widgets?.[session.room]?.[session.day];
 
       const local = `${plan.prefix}${suffix}`;
       const room = await this.reconcileRoom(inheritedUsers, local, sortKey(index), {
