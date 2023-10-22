@@ -701,24 +701,15 @@ export default class extends Module {
         open: event.beginning.minus({ minutes: plan.openEarly }),
       }));
     sessions.sort(compareSessions);
+
+    let demoOffset: Duration | undefined;
     if (plan.demo) {
       const dt = DateTime.fromISO(plan.demo, { zone: this.plan.timeZone });
-      const offset = now.startOf("day").diff(dt, "days");
       this.info("📅 Override conference date", {
         from: dt.toISODate(),
         to: now.toISODate(),
       });
-      for (const session of sessions) {
-        const to = session.beginning.plus(offset);
-        this.debug("📅 Override session time", {
-          id: session.id,
-          from: session.beginning.toISO(),
-          to: to.toISO(),
-        });
-        session.open = session.open.plus(offset);
-        session.beginning = to;
-        session.end = session.end.plus(offset);
-      }
+      demoOffset = now.startOf("day").diff(dt, "days");
     }
 
     for (const [index, session] of sessions.entries()) {
@@ -744,6 +735,18 @@ export default class extends Module {
         ...(topic ? { topic } : {}),
         ...(widget ? { widget } : {}),
       });
+
+      if (demoOffset) {
+        const to = session.beginning.plus(demoOffset);
+        this.debug("📅 Override session time", {
+          id: session.id,
+          from: session.beginning.toISO(),
+          to: to.toISO(),
+        });
+        session.open = session.open.plus(demoOffset);
+        session.beginning = to;
+        session.end = session.end.plus(demoOffset);
+      }
 
       if (room) await this.reconcileSessionGroups(room, session, now);
     }
