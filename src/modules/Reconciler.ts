@@ -385,7 +385,7 @@ export default class extends Module {
     if (expected.destroy) {
       if (existing) {
         this.info("🏷️ Delete alias", { alias });
-        await this.matrix.deleteRoomAlias(alias);
+        await this.matrix.deleteRoomAlias(alias).catch(orNone);
 
         const reason = "Decommissioning room";
         const members = await this.matrix.getJoinedRoomMembers(existing);
