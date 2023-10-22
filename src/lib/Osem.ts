@@ -25,6 +25,18 @@ interface EventsResponse {
   }[];
 }
 
+export interface Room {
+  name: string;
+}
+
+// As at https://github.com/SeaGL/osem/blob/4a8d10b/app/serializers/room_serializer.rb
+interface RoomsResponse {
+  rooms: {
+    guid: string;
+    name: string;
+  }[];
+}
+
 const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
 const fetch = limiter.wrap(unlimited);
 
@@ -40,4 +52,11 @@ export const getEvents = async (conference: string): Promise<Event[]> => {
 
     return [{ beginning, end: beginning.plus({ minutes }), id, room, title, url }];
   });
+};
+
+export const getRooms = async (conference: string): Promise<Record<string, Room>> => {
+  const url = `${endpoint}/conferences/${encodeURIComponent(conference)}/rooms`;
+  const { rooms } = (await (await fetch(url)).json()) as RoomsResponse;
+
+  return Object.fromEntries(rooms.map(({ guid, name }) => [guid, { name }]));
 };

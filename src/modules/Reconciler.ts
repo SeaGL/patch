@@ -26,7 +26,7 @@ import Module from "../lib/Module.js";
 import * as OSEM from "../lib/Osem.js";
 import type { Plan, SessionGroupId } from "../lib/Plan.js";
 import type { Scheduled } from "../lib/scheduling.js";
-import { expect, maxDelay, unimplemented } from "../lib/utilities.js";
+import { expect, maxDelay, optional, unimplemented } from "../lib/utilities.js";
 import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
@@ -690,6 +690,7 @@ export default class extends Module {
     const ignore = new Set(plan.ignore ?? []);
 
     this.debug("📅 Get sessions", { conference: plan.conference });
+    const osemRooms = await OSEM.getRooms(plan.conference);
     const osemEvents = await OSEM.getEvents(plan.conference);
     const startOfDay = DateTime.min(...osemEvents.map((e) => e.beginning)).startOf("day");
     const sessions = osemEvents
@@ -723,13 +724,19 @@ export default class extends Module {
     for (const [index, session] of sessions.entries()) {
       const suffix = plan.suffixes?.[session.id] ?? `session-${session.id}`;
       const redirect = plan.redirects?.[session.id];
+      const venueRoom = osemRooms[session.room]?.name;
       const topic = plan.topic;
       const intro = plan.intro?.replace(/\$URL\b/, session.url);
       const widget = redirect ? undefined : plan.widgets?.[session.room]?.[session.day];
 
       const local = `${plan.prefix}${suffix}`;
       const room = await this.reconcileRoom(inheritedUsers, local, sortKey(index), {
-        name: `${session.beginning.toFormat("EEE HH:mm")} ${session.title}`,
+        name: [
+          session.beginning.toFormat("EEE HH:mm"),
+          ...optional(venueRoom?.replace(/Room (?=\d+)/, "R")),
+          "·",
+          session.title,
+        ].join(" "),
         tag: `osem-event-${session.id}`,
         ...(intro ? { intro } : {}),
         ...(redirect ? { redirect } : {}),
