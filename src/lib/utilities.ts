@@ -35,6 +35,9 @@ export const maxDelay = 2147483647; // Approximately 25 days
 export const optional = <V>(value: V | null | undefined): V[] =>
   present(value) ? [value] : [];
 
+export const populate = (values: Record<string, string | undefined>, template?: string) =>
+  template?.replace(/\$(\w+)/g, (m, k: string) => values[k.toLowerCase()] ?? m);
+
 export const present = <V>(value: V | null | undefined): value is V =>
   value !== null && value !== undefined;
 

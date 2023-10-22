@@ -26,7 +26,7 @@ import Module from "../lib/Module.js";
 import * as OSEM from "../lib/Osem.js";
 import type { Plan, SessionGroupId } from "../lib/Plan.js";
 import type { Scheduled } from "../lib/scheduling.js";
-import { expect, maxDelay, optional, unimplemented } from "../lib/utilities.js";
+import { expect, maxDelay, optional, populate, unimplemented } from "../lib/utilities.js";
 import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
@@ -725,8 +725,9 @@ export default class extends Module {
       const suffix = plan.suffixes?.[session.id] ?? `session-${session.id}`;
       const redirect = plan.redirects?.[session.id];
       const venueRoom = osemRooms[session.room]?.name;
-      const topic = plan.topic;
-      const intro = plan.intro?.replace(/\$URL\b/, session.url);
+      const values = { room: venueRoom, title: session.title, url: session.url };
+      const intro = populate(values, plan.intro);
+      const topic = populate(values, plan.topic);
       const widget = redirect ? undefined : plan.widgets?.[session.room]?.[session.day];
 
       const local = `${plan.prefix}${suffix}`;
