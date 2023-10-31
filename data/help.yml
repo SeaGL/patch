@@ -3,6 +3,7 @@ brief: !md |
 
     - `!ask <question>`: Add a question to the question queue
     - `!qa`: Show the question queue
+    - `!qa-asked <number…>`: Mark question(s) as asked
     - `!qa-clear`: Clear the question queue
     - `!tea <recipient>`: Toast a friend
 
@@ -31,4 +32,13 @@ commands:
 
     ```
     !ask How did you decide to use prefabulated aluminite?
+    ```
+
+  qa-asked: !md |
+    Usage: `!qa-asked <question number…>`
+
+    Example:
+
+    ```
+    !qa-asked 1 4 5
     ```

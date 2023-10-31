@@ -5,6 +5,7 @@ import { escapeHtml } from "../lib/utilities.js";
 
 interface QA {
   questions: {
+    asked?: boolean;
     html: string;
     submitter: string;
   }[];
@@ -17,6 +18,7 @@ export default class extends Command {
   public async start() {
     this.on("ask", this.ask);
     this.on("qa", this.show);
+    this.on("qa-asked", this.asked);
     this.on("qa-clear", this.reset);
   }
 
@@ -29,6 +31,32 @@ export default class extends Command {
 
     const qa = await this.#get(room);
     qa.questions.push({ html, submitter: event.sender });
+    await this.#set(room, qa);
+
+    await this.matrix.react(room, event.event_id, "✔️");
+
+    await this.#updateView(room, qa, true);
+  };
+
+  private asked: Handler = async ({ docs, event, input, room }): Promise<void> => {
+    const qa = await this.#get(room);
+    const total = qa.questions.length;
+
+    const ids = input.text?.split(/[\s,]+/)?.map((n) => Number.parseInt(n));
+    if (
+      !(
+        ids &&
+        ids.length !== 0 &&
+        ids.every((n) => Number.isSafeInteger(n) && 0 < n && n <= total)
+      )
+    )
+      return void (await this.matrix.replyHtmlNotice(
+        room,
+        event,
+        docs.commands["qa-asked"]!
+      ));
+
+    for (const id of ids) qa.questions[id - 1]!.asked = true;
     await this.#set(room, qa);
 
     await this.matrix.react(room, event.event_id, "✔️");
@@ -71,7 +99,7 @@ export default class extends Command {
     qa.questions.length === 0
       ? "No questions have been <code>!ask</code>ed."
       : `<p>Questions:</p><ol>${qa.questions
-          .map((q) => `<li>${q.html} (from ${q.submitter})</li>`)
+          .map((q) => `<li>${q.asked ? "☑︎" : "☐"} ${q.html} (from ${q.submitter})</li>`)
           .join("")}</ol>${
           live ? `<p><code>!ask</code> a question to add it to this list.</p>` : ""
         }`;
