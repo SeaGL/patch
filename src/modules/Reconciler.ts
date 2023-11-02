@@ -159,7 +159,9 @@ export default class extends Module {
 
     for (const [room, { raiseTo = 0 }] of Object.entries(plan)) {
       const id = await this.matrix.resolveRoom(room);
-      const { users: original = {} } = expect(
+
+      this.debug("🛡️ Get power levels", { room });
+      const { users: explicit = {}, users_default: defaultLevel = 0 } = expect(
         await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
           id,
           "m.room.power_levels"
@@ -167,10 +169,16 @@ export default class extends Module {
         "power levels"
       );
 
-      this.info("🛡️ Inherit user power levels", { room, users: original });
-      for (const [user, level] of Object.entries(original)) {
+      this.debug("🚪 Get memberships", { room });
+      const implicit = Object.fromEntries(
+        (await this.matrix.getRoomMembers(id))
+          .filter((m) => ["invite", "join"].includes(m.membership))
+          .map((m) => [m.membershipFor, defaultLevel])
+      );
+
+      this.info("🛡️ Inherit user power levels", { room, explicit, implicit, raiseTo });
+      for (const [user, level] of Object.entries({ ...implicit, ...explicit }))
         users[user] = Math.min(99, Math.max(users[user] ?? 0, level, raiseTo));
-      }
     }
 
     return users;
