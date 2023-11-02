@@ -1,5 +1,5 @@
 homeserver: seattlematrix.org
-jitsiDomain: meet.seattlematrix.org
+jitsiDomain: meet.seagl.org
 defaultRoomVersion: "10"
 timeZone: America/Los_Angeles
 avatars:
