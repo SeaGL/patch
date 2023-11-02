@@ -43,7 +43,7 @@ rooms:
         intro: |
           # Welcome
           This the place for introductions and orientation.
-          Consider joining some of the sessions you are interested in attending and [#2023-lobby:seagl.org](https://matrix.to/#/#2023-lobby:seagl.org) for general discussion.
+          Consider joining some of the sessions you are interested in attending and [#2023-Lobby:seagl.org](https://matrix.to/#/#2023-Lobby:seagl.org) for general discussion.
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
         widget:
