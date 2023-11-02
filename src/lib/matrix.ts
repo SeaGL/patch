@@ -90,6 +90,7 @@ export type StateEvent<T = unknown> = (
   | IStateEvent<"m.room.name", { name: string }>
   | IStateEvent<"m.room.power_levels", PowerLevels>
   | IStateEvent<"m.room.topic", { topic: string }>
+  | IStateEvent<"org.seagl.jitsi", { disable?: boolean; id?: string }>
   | IntroEvent
   | QAEvent
   | RedirectEvent

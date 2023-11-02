@@ -833,6 +833,17 @@ export default class extends Module {
       type: "io.element.widgets.layout",
       content: room.widget ? widgetLayout : {},
     });
+
+    await this.reconcileState(room, {
+      type: "org.seagl.jitsi",
+      content: room.widget
+        ? "jitsi" in room.widget
+          ? { id: room.widget.jitsi.id }
+          : { disable: true }
+        : room.redirect
+        ? { disable: true }
+        : {},
+    });
   }
 
   private async redactNotice(room: string, id: string, reason: string): Promise<string> {
