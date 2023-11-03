@@ -219,7 +219,11 @@ export default class extends Module {
         ...inherited,
         ...this.plan.powerLevels.users,
       },
-      ...(room.readOnly || room.redirect ? { events_default: 99 } : {}),
+      ...(room.moderatorsOnly
+        ? { events_default: 50 }
+        : room.readOnly || room.redirect
+        ? { events_default: 99 }
+        : {}),
     };
   }
 

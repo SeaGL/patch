@@ -59,7 +59,7 @@ rooms:
         intro: |
           # Announcements
           This the place for timely conference updates and announcements.
-        readOnly: true
+        moderatorsOnly: true
         suggested: true
       SeaGL2023-CurrentSessions:
         tag: seagl2023-current-sessions

@@ -13,6 +13,7 @@ export namespace Plan {
     control?: boolean;
     destroy?: boolean;
     intro?: string;
+    moderatorsOnly?: boolean;
     name: string;
     private?: boolean;
     readOnly?: boolean;
