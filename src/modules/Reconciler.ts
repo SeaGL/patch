@@ -604,7 +604,7 @@ export default class extends Module {
 
   private async reconcileRedirect(room: Room) {
     const alias = room.redirect && this.localToAlias(room.redirect);
-    const body = alias ? { text: `This event takes place in ${alias}.` } : undefined;
+    const body = alias ? { text: `↩️ This event takes place in ${alias}.` } : undefined;
     const redactReason = "Removed redirect";
 
     const type = "org.seagl.patch.redirect";
