@@ -301,6 +301,18 @@ sessions:
     Details: $URL
 
     Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+
+    ## Q & A commands
+
+    Attendees:
+
+      - `!ask <question>`: Add a question to the list
+
+    Moderator:
+
+      - `!qa`: Show the list of questions
+      - `!qa-asked <number>`: Mark a question as asked
+      - `!qa-clear`: Clear the list of questions
   widgets:
     Y1umAGffy1GhFpm4BTTglw: # Room 1
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-1.html }
