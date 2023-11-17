@@ -13,7 +13,7 @@ Install dependencies:
 Populate environment variables:
 
   - [Matrix Client-Server API]:
-    - `MATRIX_ACCESS_TOKEN`: Secret authentication token
+    - `MATRIX_ACCESS_TOKEN`: Secret authentication token (see [this Stack Exchange question] for how to get one)
     - `MATRIX_BASE_URL`: Homeserver base URL
     - `MATRIX_RATE_LIMIT`: Rate limit in hertz
     - `ISSUE_8895_COOLDOWN`: Seconds to wait before room creation ([matrix-org/synapse#8895])
@@ -35,6 +35,7 @@ yarn start
 ```
 
 [Matrix Client-Server API]: https://spec.matrix.org/v1.4/client-server-api/
+[this Stack Exchange question]: https://webapps.stackexchange.com/q/131056/19769
 [matrix-org/synapse#8895]: https://github.com/matrix-org/synapse/issues/8895
 [Node.js]: https://nodejs.org/
 [OSEM]: https://osem.seagl.org/
