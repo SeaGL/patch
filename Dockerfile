@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 # Dependencies
 COPY package.json yarn.lock ./
-RUN yarn install --immutable
+RUN yarn install --immutable && yarn cache clean
 
 # Build
 COPY tsconfig.json ./
