@@ -10,10 +10,12 @@ RUN yarn install --immutable
 COPY tsconfig.json ./
 COPY src ./src
 RUN yarn build
-
-# Runtime data
 COPY data ./data
 
-VOLUME state
+# State
+RUN mkdir state && chown node:node state
+VOLUME /usr/src/app/state
+
+# Execution
 USER node
 CMD yarn start
