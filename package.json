@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@sentry/node": "^7.41.0",
-    "@sentry/tracing": "^7.41.0",
+    "@sentry/tracing": "^7.51.2",
     "bottleneck": "^2.19.5",
     "html-to-text": "^9.0.4",
     "js-yaml": "^4.1.0",
