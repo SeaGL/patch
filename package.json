@@ -22,7 +22,7 @@
     "matrix-bot-sdk": "^0.6.2",
     "node-fetch": "^3.2.10",
     "tsafe": "^1.0.1",
-    "typia": "^3.3.6"
+    "typia": "^3.8.6"
   },
   "devDependencies": {
     "@tsconfig/node18-strictest-esm": "^1.0.1",
