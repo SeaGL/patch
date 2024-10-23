@@ -19,7 +19,7 @@ export default class extends Module {
 
   private async getMembership(
     room: string,
-    user: string
+    user: string,
   ): Promise<MembershipEvent["membership"] | undefined> {
     this.debug("🚪 Get memberships", { room });
     const memberships = await this.matrix.getRoomMembers(room);
@@ -29,7 +29,7 @@ export default class extends Module {
 
   private async handleMembership(
     room: string,
-    { state_key: user, content: { membership } }: StateEvent<"m.room.member">
+    { state_key: user, content: { membership } }: StateEvent<"m.room.member">,
   ) {
     this.debug("🚪 Membership", { room, user, membership });
 

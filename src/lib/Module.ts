@@ -8,7 +8,10 @@ export default abstract class Module {
   protected warn: Patch["warn"];
   protected error: Patch["error"];
 
-  constructor(protected readonly patch: Patch, protected readonly matrix: Client) {
+  constructor(
+    protected readonly patch: Patch,
+    protected readonly matrix: Client,
+  ) {
     this.trace = patch.trace.bind(patch);
     this.debug = patch.debug.bind(patch);
     this.info = patch.info.bind(patch);

@@ -53,7 +53,7 @@ export default class extends Command {
       return void (await this.matrix.replyHtmlNotice(
         room,
         event,
-        docs.commands["qa-asked"]!
+        docs.commands["qa-asked"]!,
       ));
 
     for (const id of ids) qa.questions[id - 1]!.asked = true;

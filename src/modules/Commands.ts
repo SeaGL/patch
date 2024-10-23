@@ -37,7 +37,7 @@ export type Handler = (context: Context) => Promise<void>;
 export type Define = (
   name: string,
   handler: Handler,
-  options?: { group?: Group }
+  options?: { group?: Group },
 ) => void;
 
 interface Input {
@@ -59,7 +59,7 @@ export default class Commands extends Module {
 
   public async start() {
     await Promise.all(
-      Commands.commands.map((C) => new C(this.patch, this.matrix, this.define).start())
+      Commands.commands.map((C) => new C(this.patch, this.matrix, this.define).start()),
     );
 
     this.patch.on("message", this.#detect);

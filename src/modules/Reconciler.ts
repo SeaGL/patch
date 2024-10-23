@@ -64,8 +64,8 @@ const compareSessions = (a: Session, b: Session): number =>
   a.beginning !== b.beginning
     ? a.beginning.valueOf() - b.beginning.valueOf()
     : a.end !== b.end
-    ? a.end.valueOf() - b.end.valueOf()
-    : a.title.localeCompare(b.title);
+      ? a.end.valueOf() - b.end.valueOf()
+      : a.title.localeCompare(b.title);
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class extends Module {
@@ -77,7 +77,11 @@ export default class extends Module {
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
   #spaceByChild: Map<string, string>;
 
-  public constructor(patch: Patch, matrix: Client, private readonly plan: Plan) {
+  public constructor(
+    patch: Patch,
+    matrix: Client,
+    private readonly plan: Plan,
+  ) {
     super(patch, matrix);
 
     this.#limiter = new Bottleneck({ maxConcurrent: 1 });
@@ -131,23 +135,23 @@ export default class extends Module {
       initial_state: isPrivate
         ? [{ type: "m.room.join_rules", content: { join_rule: "knock" } }]
         : parent?.private
-        ? [
-            {
-              type: "m.room.join_rules",
-              content: {
-                join_rule: "knock_restricted",
-                allow: [{ type: "m.room_membership", room_id: parent.id }],
+          ? [
+              {
+                type: "m.room.join_rules",
+                content: {
+                  join_rule: "knock_restricted",
+                  allow: [{ type: "m.room_membership", room_id: parent.id }],
+                },
               },
-            },
-          ]
-        : isSpace
-        ? [
-            {
-              type: "m.room.history_visibility",
-              content: { history_visibility: "world_readable" },
-            },
-          ]
-        : [],
+            ]
+          : isSpace
+            ? [
+                {
+                  type: "m.room.history_visibility",
+                  content: { history_visibility: "world_readable" },
+                },
+              ]
+            : [],
     };
   }
 
@@ -164,16 +168,16 @@ export default class extends Module {
       const { users: explicit = {}, users_default: defaultLevel = 0 } = expect(
         await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
           id,
-          "m.room.power_levels"
+          "m.room.power_levels",
         ),
-        "power levels"
+        "power levels",
       );
 
       this.debug("🚪 Get memberships", { room });
       const implicit = Object.fromEntries(
         (await this.matrix.getRoomMembers(id))
           .filter((m) => ["invite", "join"].includes(m.membership))
-          .map((m) => [m.membershipFor, defaultLevel])
+          .map((m) => [m.membershipFor, defaultLevel]),
       );
 
       this.info("🛡️ Inherit user power levels", { room, explicit, implicit, raiseTo });
@@ -188,9 +192,9 @@ export default class extends Module {
     const powerLevels = expect(
       await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
         room,
-        "m.room.power_levels"
+        "m.room.power_levels",
       ),
-      "power levels"
+      "power levels",
     );
 
     return Object.entries(powerLevels.users ?? {})
@@ -200,7 +204,7 @@ export default class extends Module {
 
   private async getNotice(
     room: string,
-    id: string
+    id: string,
   ): Promise<MessageEvent<"m.room.message"> | undefined> {
     this.debug("🪧 Get notice", { room, id });
     return await this.matrix.getEvent(room, id).catch(orNone);
@@ -222,8 +226,8 @@ export default class extends Module {
       ...(room.moderatorsOnly
         ? { events_default: 50 }
         : room.readOnly || room.redirect
-        ? { events_default: 99 }
-        : {}),
+          ? { events_default: 99 }
+          : {}),
     };
   }
 
@@ -252,7 +256,7 @@ export default class extends Module {
 
   private async handleMembership(
     room: string,
-    { state_key: user, content: { membership } }: StateEvent<"m.room.member">
+    { state_key: user, content: { membership } }: StateEvent<"m.room.member">,
   ) {
     this.debug("🚪 Membership", { room, user, membership });
 
@@ -304,10 +308,9 @@ export default class extends Module {
     }
 
     const content = await this.matrix
-      .getRoomStateEvent<StateEvent<"m.room.canonical_alias">>(
-        room.id,
-        "m.room.canonical_alias"
-      )
+      .getRoomStateEvent<
+        StateEvent<"m.room.canonical_alias">
+      >(room.id, "m.room.canonical_alias")
       .catch(orNone);
 
     const [from, to] = [content?.alias, expected];
@@ -377,7 +380,7 @@ export default class extends Module {
     inheritedUsers: PowerLevels["users"],
     local: string,
     expected: Plan.Room,
-    parent?: Room
+    parent?: Room,
   ): Promise<[string | undefined, boolean]> {
     const alias = this.localToAlias(local);
 
@@ -442,8 +445,8 @@ export default class extends Module {
             ...(expected.topic ? { topic: expected.topic } : {}),
             ...(isSpace ? { creation_content: { type: "m.space" } } : {}),
           },
-          this.getAccessOptions({ isPrivate, isSpace, parent })
-        )
+          this.getAccessOptions({ isPrivate, isSpace, parent }),
+        ),
       );
       if (expected.tag) this.#roomByTag.set(expected.tag, created);
       return [created, true];
@@ -495,7 +498,7 @@ export default class extends Module {
       if (
         (!parentMemberships ||
           parentMemberships.some(
-            (m) => m.membershipFor === moderator && m.membership === "join"
+            (m) => m.membershipFor === moderator && m.membership === "join",
           )) &&
         !childMemberships.some((m) => m.membershipFor === moderator)
       ) {
@@ -517,7 +520,7 @@ export default class extends Module {
     { id: room }: Room,
     id: string | undefined,
     expected: { html?: string; text: string } | undefined,
-    redactionReason: string
+    redactionReason: string,
   ): Promise<string | undefined> {
     if (!expected) {
       if (id) await this.redactNotice(room, id, redactionReason);
@@ -556,9 +559,9 @@ export default class extends Module {
     const actual = expect(
       await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
         room.id,
-        "m.room.power_levels"
+        "m.room.power_levels",
       ),
-      "power levels"
+      "power levels",
     );
     let changed = false;
 
@@ -625,13 +628,13 @@ export default class extends Module {
     local: string,
     order: string,
     expected: Plan.Room,
-    parent?: Room
+    parent?: Room,
   ): Promise<Room | undefined> {
     const [id, created] = await this.reconcileExistence(
       inheritedUsers,
       local,
       expected,
-      parent
+      parent,
     );
 
     if (!id) {
@@ -666,7 +669,7 @@ export default class extends Module {
       } else {
         await this.reconcileChildren(
           await this.listSpace(space, local),
-          await this.reconcileRooms(inheritedUsers, expected.children, room)
+          await this.reconcileRooms(inheritedUsers, expected.children, room),
         );
       }
     }
@@ -680,7 +683,7 @@ export default class extends Module {
   private async reconcileRooms(
     inheritedUsers: PowerLevels["users"],
     expected: Plan.Rooms,
-    parent?: Room
+    parent?: Room,
   ): Promise<Room[]> {
     const rooms = [];
 
@@ -697,7 +700,7 @@ export default class extends Module {
   private async reconcileSessions(
     plan: Plan.Sessions,
     inheritedUsers: PowerLevels["users"],
-    now: DateTime
+    now: DateTime,
   ) {
     const ignore = new Set(plan.ignore ?? []);
 
@@ -784,7 +787,7 @@ export default class extends Module {
 
   private async reconcileState(
     { id, local: room }: Room,
-    expected: StateEventInput
+    expected: StateEventInput,
   ): Promise<boolean> {
     const { type, state_key: key, content: to } = expected;
     this.debug("🗄️ Get state", { room, type, key });
@@ -827,16 +830,16 @@ export default class extends Module {
             ...("custom" in room.widget
               ? { type: "customwidget", url: room.widget.custom }
               : "jitsi" in room.widget
-              ? {
-                  type: "jitsi",
-                  url: jitsiUrl,
-                  data: {
-                    domain: this.plan.jitsiDomain,
-                    conferenceId: room.widget.jitsi.id,
-                    roomName: room.widget.jitsi.name,
-                  },
-                }
-              : unimplemented(room.widget)),
+                ? {
+                    type: "jitsi",
+                    url: jitsiUrl,
+                    data: {
+                      domain: this.plan.jitsiDomain,
+                      conferenceId: room.widget.jitsi.id,
+                      roomName: room.widget.jitsi.name,
+                    },
+                  }
+                : unimplemented(room.widget)),
           }
         : {},
     });
@@ -853,8 +856,8 @@ export default class extends Module {
           ? { id: room.widget.jitsi.id }
           : { disable: true }
         : room.redirect
-        ? { disable: true }
-        : {},
+          ? { disable: true }
+          : {},
     });
   }
 
@@ -878,7 +881,7 @@ export default class extends Module {
   private async replaceNotice(
     room: string,
     id: string,
-    { html, text }: { html?: string; text: string }
+    { html, text }: { html?: string; text: string },
   ): Promise<string> {
     const root = await this.getRootMessage(room, id);
 

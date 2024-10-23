@@ -91,10 +91,10 @@ export default class Patch extends TypedEmitter<Emissions> {
           `<p><strong>${level}:</strong> ${escapeHtml(message)}</p>${
             data
               ? `<pre><code>${escapeHtml(
-                  JSON.stringify(data, undefined, 2)
+                  JSON.stringify(data, undefined, 2),
                 )}</code></pre>`
               : ""
-          }`
+          }`,
       );
 
   #dispatch = (room: string, event: Received<Event>) => {

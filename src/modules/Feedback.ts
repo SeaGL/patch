@@ -22,7 +22,7 @@ export default class extends Module {
     this.warn(
       "🤖 Bad bot",
       { room, sender: event.sender, message: event.content.body },
-      `Negative feedback: ${Permalinks.forEvent(room, event.event_id)}`
+      `Negative feedback: ${Permalinks.forEvent(room, event.event_id)}`,
     );
   }
 

@@ -89,8 +89,8 @@ export default class Client extends MatrixClient {
       method === "GET" && path === "/_matrix/client/v3/sync"
         ? this.#scheduleUnlimited
         : method === "POST" && path === "/_matrix/client/v3/createRoom"
-        ? this.#scheduleIssue8895
-        : this.#scheduleDefault;
+          ? this.#scheduleIssue8895
+          : this.#scheduleDefault;
 
     return handler(...args);
   };
@@ -99,7 +99,7 @@ export default class Client extends MatrixClient {
   public async *getRoomEvents(
     room: string,
     direction: "forward" | "reverse",
-    filter?: RoomEventFilter
+    filter?: RoomEventFilter,
   ): AsyncGenerator<Received<Event>[], void, void> {
     const path = `/_matrix/client/v3/rooms/${encodeURIComponent(room)}/messages`;
     const base: GetRoomMessagesRequest = {
@@ -124,7 +124,7 @@ export default class Client extends MatrixClient {
   public override getRoomStateEvent = async <E extends StateEvent>(
     room: string,
     type: E["type"],
-    key: E["state_key"] = ""
+    key: E["state_key"] = "",
   ): Promise<E["content"] | undefined> =>
     (this.#cache.get(room)?.get(`${type}/${key}`) as E | undefined)?.content;
 
@@ -146,7 +146,7 @@ export default class Client extends MatrixClient {
   public async replaceMessage(
     room: string,
     eventId: string,
-    content: MessageEvent<"m.room.message">["content"]
+    content: MessageEvent<"m.room.message">["content"],
   ) {
     return await this.sendMessage(room, {
       ...content,
@@ -158,7 +158,7 @@ export default class Client extends MatrixClient {
   public async replaceNotice(
     room: string,
     eventId: string,
-    content: Omit<MessageEvent<"m.room.message">["content"], "msgtype">
+    content: Omit<MessageEvent<"m.room.message">["content"], "msgtype">,
   ) {
     return await this.replaceMessage(room, eventId, { msgtype: "m.notice", ...content });
   }
@@ -180,7 +180,7 @@ export default class Client extends MatrixClient {
     room: string,
     type: E["type"],
     key: E["state_key"],
-    content: E["content"]
+    content: E["content"],
   ) => {
     const id = await super.sendStateEvent(room, type, key, content);
 
@@ -198,7 +198,7 @@ export default class Client extends MatrixClient {
   public async updateReply(
     { content, event_id: id, room_id: room }: Received<MessageEvent<"m.room.message">>,
     updateText: (text: string) => string,
-    updateHtml: (html: string) => string = identity
+    updateHtml: (html: string) => string = identity,
   ) {
     return await this.replaceMessage(room, id, {
       msgtype: content.msgtype,
@@ -206,7 +206,7 @@ export default class Client extends MatrixClient {
       ...("format" in content && {
         format: content.format,
         formatted_body: updateHtml(
-          content.formatted_body.replace(/^.*<\/mx-reply>/s, "")
+          content.formatted_body.replace(/^.*<\/mx-reply>/s, ""),
         ),
       }),
     });
@@ -229,7 +229,7 @@ export default class Client extends MatrixClient {
   // Pending turt2live/matrix-bot-sdk#215
   protected override processSync: MatrixClient["processSync"] = async (
     sync: Sync,
-    emit
+    emit,
   ) => {
     const emissions: Parameters<typeof this.emit>[] = [];
 

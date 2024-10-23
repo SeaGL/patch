@@ -121,7 +121,7 @@ export const mergeWithMatrixState = <T, F>(to: T, from: F): T & F =>
   mergeWith(to, from, (a, b) =>
     Array.isArray(a) && !(a[0] && !(a[0].type && a[0].content))
       ? mergeMatrixState(a, b)
-      : undefined
+      : undefined,
   );
 
 //
@@ -176,7 +176,7 @@ export const moderatorLevel = 50;
 
 // As at https://github.com/matrix-org/synapse/blob/v1.67.0/synapse/handlers/room.py#L123
 export const resolvePreset = (
-  preset: RoomCreateOptions["preset"]
+  preset: RoomCreateOptions["preset"],
 ): Pick<RoomCreateOptions, "initial_state"> => {
   switch (preset) {
     case undefined:

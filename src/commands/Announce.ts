@@ -71,7 +71,7 @@ export default class Announce extends Command {
           buttons.map(async (id) => {
             this.info("💬 Redact reaction", { room, id });
             await this.matrix.redactEvent(room, id);
-          })
+          }),
         );
 
         if (key === "Send") await this.#send(announcement);
@@ -79,7 +79,7 @@ export default class Announce extends Command {
         await this.matrix.updateReply(
           prompt,
           (text) => `${text}\n\n${status}`,
-          (html) => `<blockquote>${html}</blockquote>${status}`
+          (html) => `<blockquote>${html}</blockquote>${status}`,
         );
         await this.matrix.setTyping(room, false);
       }
@@ -118,10 +118,10 @@ export default class Announce extends Command {
       parts && {
         message: `${parts["open"] ?? ""}${parts["message"]!}`.replace(
           /^(?:<p><\/p>|\s)*/,
-          ""
+          "",
         ),
         recipients: (parts["recipients"]!.split(/\s*,\s*/) ?? []).flatMap((html) =>
-          optional(html.match(permalinkPattern)?.[1])
+          optional(html.match(permalinkPattern)?.[1]),
         ),
       }
     );
@@ -130,12 +130,12 @@ export default class Announce extends Command {
   #prompt = async (
     room: string,
     request: Received<MessageEvent<"m.room.message">>,
-    announcement: Announcement
+    announcement: Announcement,
   ) => {
     this.info("💬 Prompt", { announcement });
     const pills = await announcement.recipients.reduce(
       async (p, r) => [...(await p), await MentionPill.forRoom(r, this.matrix)],
-      Promise.resolve([] as MentionPill[])
+      Promise.resolve([] as MentionPill[]),
     );
     const html = `
       <strong>To:</strong> ${pills.map((p) => p.html).join(", ")}<br>
