@@ -88,6 +88,7 @@ export type StateEvent<T = unknown> = (
       { membership: "ban" | "invite" | "join" | "knock" | "leave" }
     >
   | IStateEvent<"m.room.name", { name: string }>
+  | IStateEvent<"m.room.pinned_events", { pinned: string[] }>
   | IStateEvent<"m.room.power_levels", PowerLevels>
   | IStateEvent<"m.room.topic", { topic: string }>
   | IStateEvent<"org.seagl.jitsi", { disable?: boolean; id?: string }>

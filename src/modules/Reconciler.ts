@@ -461,13 +461,20 @@ export default class extends Module {
       ? { html: md.render(room.intro), text: room.intro }
       : undefined;
 
-    const type = "org.seagl.patch.intro";
     const event = await this.matrix
-      .getRoomStateEvent<IntroEvent>(room.id, type)
+      .getRoomStateEvent<IntroEvent>(room.id, "org.seagl.patch.intro")
       .catch(orNone);
     const message = await this.reconcileNotice(room, event?.message, body, redactReason);
 
-    await this.reconcileState(room, { type, content: message ? { message } : {} });
+    await this.reconcileState(room, {
+      type: "org.seagl.patch.intro",
+      content: message ? { message } : {},
+    });
+
+    await this.reconcileState(room, {
+      type: "m.room.pinned_events",
+      content: message ? { pinned: [message] } : {},
+    });
   }
 
   private async reconcileInvitations(child: Room, parent?: Room) {
