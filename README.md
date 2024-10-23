@@ -8,7 +8,7 @@
 
 Install dependencies:
 
-  - [Node.js], [Yarn], and the packages installed via `yarn install`
+  - [Node.js], [Yarn Classic], and the packages installed via `yarn install`
 
 Populate environment variables:
 
@@ -42,4 +42,4 @@ yarn start
 [SeaGL]: https://seagl.org/
 [SeaGL Matrix space]: https://seagl.org/meet
 [Sentry]: https://sentry.io/
-[Yarn]: https://yarnpkg.com/
+[Yarn Classic]: https://classic.yarnpkg.com/
