@@ -23,10 +23,10 @@ import {
   StateEventInput,
 } from "../lib/matrix.js";
 import Module from "../lib/Module.js";
-import * as OSEM from "../lib/Osem.js";
 import type { Plan, SessionGroupId } from "../lib/Plan.js";
+import * as Pretalx from "../lib/Pretalx.js";
 import type { Scheduled } from "../lib/scheduling.js";
-import { expect, maxDelay, optional, populate, unimplemented } from "../lib/utilities.js";
+import { expect, maxDelay, populate, unimplemented } from "../lib/utilities.js";
 import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
@@ -42,7 +42,7 @@ interface ListedSpace extends Space {
   local: string;
 }
 
-interface Session extends OSEM.Event {
+interface Session extends Pretalx.Talk {
   day: number;
   open: DateTime;
 }
@@ -704,11 +704,10 @@ export default class extends Module {
   ) {
     const ignore = new Set(plan.ignore ?? []);
 
-    this.debug("📅 Get sessions", { conference: plan.conference });
-    const osemRooms = await OSEM.getRooms(plan.conference);
-    const osemEvents = await OSEM.getEvents(plan.conference);
-    const startOfDay = DateTime.min(...osemEvents.map((e) => e.beginning)).startOf("day");
-    const sessions = osemEvents
+    this.debug("📅 Get sessions", { event: plan.event });
+    const talks = await Pretalx.getTalks(plan.event);
+    const startOfDay = DateTime.min(...talks.map((e) => e.beginning)).startOf("day");
+    const sessions = talks
       .filter((e) => !ignore.has(e.id))
       .map((event) => ({
         ...event,
@@ -730,21 +729,20 @@ export default class extends Module {
     for (const [index, session] of sessions.entries()) {
       const suffix = plan.suffixes?.[session.id] ?? `session-${session.id}`;
       const redirect = plan.redirects?.[session.id];
-      const venueRoom = osemRooms[session.room]?.name;
-      const values = { room: venueRoom, title: session.title, url: session.url };
+      const values = { room: session.roomName, title: session.title, url: session.url };
       const intro = populate(values, plan.intro);
       const topic = populate(values, plan.topic);
-      const widget = redirect ? undefined : plan.widgets?.[session.room]?.[session.day];
+      const widget = redirect ? undefined : plan.widgets?.[session.roomId]?.[session.day];
 
       const local = `${plan.prefix}${suffix}`;
       const room = await this.reconcileRoom(inheritedUsers, local, sortKey(index), {
         name: [
           session.beginning.toFormat("EEE HH:mm"),
-          ...optional(venueRoom?.replace(/Room (?=\d+)/, "R")),
+          session.roomName.replace(/Room (?=\d+)/, "R"),
           "·",
           session.title,
         ].join(" "),
-        tag: `osem-event-${session.id}`,
+        tag: `pretalx-talk-${session.id}`,
         ...(intro ? { intro } : {}),
         ...(redirect ? { redirect } : {}),
         ...(topic ? { topic } : {}),

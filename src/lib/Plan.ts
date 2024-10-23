@@ -27,8 +27,8 @@ export namespace Plan {
   export type Rooms = Record<string, Room>;
 
   export interface Sessions {
-    conference: string;
     demo?: string;
+    event: string;
     ignore?: string[];
     intro?: string;
     openEarly: number;

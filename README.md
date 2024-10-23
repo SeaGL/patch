@@ -17,8 +17,8 @@ Populate environment variables:
     - `MATRIX_BASE_URL`: Homeserver base URL
     - `MATRIX_RATE_LIMIT`: Rate limit in hertz
     - `ISSUE_8895_COOLDOWN`: Seconds to wait before room creation ([matrix-org/synapse#8895])
-  - [OSEM]:
-    - `OSEM_RATE_LIMIT`: Rate limit in hertz
+  - [Pretalx]:
+    - `PRETALX_RATE_LIMIT`: Rate limit in hertz
   - [Sentry]:
     - `SENTRY_DSN` (Optional): Data Source Name of Sentry project. If unset, error reporting is not enabled.
 
@@ -38,7 +38,7 @@ yarn start
 [this Stack Exchange question]: https://webapps.stackexchange.com/q/131056/19769
 [matrix-org/synapse#8895]: https://github.com/matrix-org/synapse/issues/8895
 [Node.js]: https://nodejs.org/
-[OSEM]: https://osem.seagl.org/
+[Pretalx]: https://pretalx.seagl.org/
 [SeaGL]: https://seagl.org/
 [SeaGL Matrix space]: https://seagl.org/meet
 [Sentry]: https://sentry.io/
