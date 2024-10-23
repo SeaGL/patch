@@ -739,7 +739,7 @@ export default class extends Module {
       const room = await this.reconcileRoom(inheritedUsers, local, sortKey(index), {
         name: [
           session.beginning.toFormat("EEE HH:mm"),
-          session.roomName.replace(/Room (?=\d+)/, "R"),
+          session.roomName.replace(/^(?:Room )?(?=\d+$)/, "R"),
           "·",
           session.title,
         ].join(" "),
