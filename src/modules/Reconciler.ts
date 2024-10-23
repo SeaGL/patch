@@ -288,8 +288,9 @@ export default class extends Module {
   }
 
   private localToAlias(local: string): string {
-    return local.startsWith("SeaGL2022") && local.endsWith("seattlematrix.org")
-      ? `#${local.replace(/^SeaGL/, "")}:seagl.org`
+    const proxy = this.plan.aliasProxy;
+    return proxy && local.startsWith(proxy.prefix)
+      ? `#${local.replace(/^SeaGL/, "")}:${proxy.homeserver}`
       : `#${local}:${this.plan.homeserver}`;
   }
 

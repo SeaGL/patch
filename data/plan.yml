@@ -24,6 +24,9 @@ steward:
   id: "@seagl-bot:seattlematrix.org"
   name: Patch
   avatar: patch
+aliasProxy:
+  homeserver: seagl.org
+  prefix: SeaGL2023
 rooms:
   SeaGL2023:
     tag: seagl2023

@@ -5,6 +5,11 @@ import { assertEquals } from "typia";
 export type SessionGroupId = "CURRENT_SESSIONS" | "FUTURE_SESSIONS" | "PAST_SESSIONS";
 
 export namespace Plan {
+  export interface AliasProxy {
+    homeserver: string;
+    prefix: string;
+  }
+
   export type InheritUserPowerLevels = Record<string, { raiseTo?: number }>;
 
   export interface Room {
@@ -46,6 +51,7 @@ export namespace Plan {
 }
 
 export type Plan = {
+  aliasProxy?: Plan.AliasProxy;
   avatars: Record<string, string>;
   defaultRoomVersion: string;
   homeserver: string;
