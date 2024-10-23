@@ -22,16 +22,18 @@ Populate environment variables:
   - [Sentry]:
     - `SENTRY_DSN` (Optional): Data Source Name of Sentry project. If unset, error reporting is not enabled.
 
-Build the bot:
-
-```bash
-yarn build
-```
+`yarn install` will build the bot automatically.
 
 Start the bot:
 
 ```bash
 yarn start
+```
+
+To rebuild the bot:
+
+```bash
+yarn prepare
 ```
 
 [Matrix Client-Server API]: https://spec.matrix.org/v1.4/client-server-api/
