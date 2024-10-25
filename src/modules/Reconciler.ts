@@ -323,8 +323,13 @@ export default class extends Module {
     await this.reconcileState(room, { type: "m.room.avatar", content });
   }
 
-  private async reconcileChildhood(space: ListedSpace, room: Room, include = true) {
-    const { id, local: child, order, suggested = false } = room;
+  private async reconcileChildhood(
+    space: ListedSpace,
+    room: Room,
+    include = true,
+    suggest?: boolean,
+  ) {
+    const { id, local: child, order, suggested = suggest ?? false } = room;
     const actual = space.children[id]?.content;
     if (!include) return actual && (await this.removeFromSpace(space, id, child));
 
@@ -773,7 +778,7 @@ export default class extends Module {
     const [isFuture, isCurrent, isPast] = [!opened, opened && !ended, ended];
 
     if (future) await this.reconcileChildhood(future, room, isFuture);
-    if (current) await this.reconcileChildhood(current, room, isCurrent);
+    if (current) await this.reconcileChildhood(current, room, isCurrent, true);
     if (past) await this.reconcileChildhood(past, room, isPast);
 
     if (isCurrent) this.scheduleRegroup(room, session, session.end);
