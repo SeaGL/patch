@@ -504,12 +504,15 @@ export default class extends Module {
     const parentMemberships = parent && (await this.matrix.getRoomMembers(parent.id));
 
     for (const invitee of moderators) {
+      const childMembership = childMemberships.find((m) => m.membershipFor === invitee);
       if (
         (!parentMemberships ||
           parentMemberships.some(
             (m) => m.membershipFor === invitee && m.membership === "join",
           )) &&
-        !childMemberships.some((m) => m.membershipFor === invitee)
+        (!childMembership ||
+          (childMembership.membership === "leave" &&
+            childMembership.sender === this.plan.steward.id))
       )
         await this.tryInvite(child.id, child.local, invitee);
     }
@@ -891,10 +894,12 @@ export default class extends Module {
       }
     }
     for (const invitee of invitees) {
-      if (!memberships.some((m) => m.membershipFor === invitee)) {
-        this.info("🎟️ Invite", { room: local, invitee });
-        await this.tryInvite(room.id, invitee);
-      }
+      const membership = memberships.find((m) => m.membershipFor === invitee);
+      if (
+        !membership ||
+        (membership.membership === "leave" && membership.sender === this.plan.steward.id)
+      )
+        await this.tryInvite(room.id, local, invitee);
     }
   }
 
