@@ -58,6 +58,7 @@ export type Plan = {
   inheritUserPowerLevels?: Plan.InheritUserPowerLevels;
   jitsiDomain: string;
   powerLevels: PowerLevels;
+  roomAttendants?: Record<string, string>;
   rooms?: Plan.Rooms;
   sessions?: Plan.Sessions;
   steward: { avatar?: string; id: string; name: string };

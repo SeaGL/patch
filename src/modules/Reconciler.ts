@@ -26,7 +26,7 @@ import Module from "../lib/Module.js";
 import type { Plan, SessionGroupId } from "../lib/Plan.js";
 import * as Pretalx from "../lib/Pretalx.js";
 import type { Scheduled } from "../lib/scheduling.js";
-import { expect, maxDelay, populate, unimplemented } from "../lib/utilities.js";
+import { expect, maxDelay, optional, populate, unimplemented } from "../lib/utilities.js";
 import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
@@ -717,6 +717,13 @@ export default class extends Module {
         open: event.beginning.minus({ minutes: plan.openEarly }),
       }));
     sessions.sort(compareSessions);
+    const venueRooms = sessions.reduce(
+      (result, session) => {
+        result[session.roomId] ??= { name: session.roomName, children: [] };
+        return result;
+      },
+      {} as Record<string, { name: string; children: Room[] }>,
+    );
 
     let demoOffset: Duration | undefined;
     if (plan.demo) {
@@ -763,7 +770,17 @@ export default class extends Module {
         session.end = session.end.plus(demoOffset);
       }
 
-      if (room) await this.reconcileSessionGroups(room, session, now);
+      if (room) {
+        venueRooms[session.roomId]?.children.push(room);
+        await this.reconcileSessionGroups(room, session, now);
+      }
+    }
+
+    for (const [id, { children, name }] of Object.entries(venueRooms)) {
+      const tag = `pretalx-room-${id}`;
+      const local = `${plan.prefix}room-${id}`;
+      const invitees = optional(this.plan.roomAttendants?.[id]);
+      await this.reconcileView(local, { avatar: "room", name, tag }, children, invitees);
     }
   }
 
@@ -816,6 +833,67 @@ export default class extends Module {
   private async reconcileTopic(room: Room) {
     const content = room.topic && { topic: room.topic };
     if (content) await this.reconcileState(room, { type: "m.room.topic", content });
+  }
+
+  private async reconcileView(
+    local: string,
+    view: Plan.Room,
+    visible: Room[],
+    invitees: string[] = [],
+  ) {
+    // Space
+    const room = await this.reconcileRoom(undefined, local, view.name, view);
+    if (!room) return;
+
+    // Children
+    const space = await this.listSpace(await this.matrix.getSpace(room.id), local);
+    const actual = Object.keys(space.children);
+    const expected = new Set(visible.map((r) => r.id));
+    for (const id of actual) if (!expected.has(id)) await this.removeFromSpace(space, id);
+    for (const [index, { id, local: child }] of visible.entries()) {
+      const expected = { order: sortKey(index), suggested: true };
+      const actual = space.children[id]?.content;
+
+      if (actual) {
+        let changed = false;
+        mergeWith(actual, expected, (from, to, option) => {
+          if (typeof to === "object" || !(from || to) || from === to) return;
+
+          this.info("🏘️ Update childhood", { space: local, child, option, from, to });
+          changed = true;
+        });
+
+        if (changed) {
+          this.debug("🏘️ Set childhood", { space: local, child });
+          await space.addChildRoom(id, actual);
+        }
+      } else {
+        this.info("🏘️ Add to space", { space: local, child });
+        await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
+      }
+    }
+
+    // Invitations
+    this.debug("🚪 Get memberships", { room: local });
+    const memberships = await this.matrix.getRoomMembers(room.id);
+    for (const { membership, membershipFor: invitee, sender } of memberships) {
+      if (
+        membership === "invite" &&
+        sender === this.plan.steward.id &&
+        !invitees.includes(invitee)
+      ) {
+        this.info("🎟️ Withdraw invitation", { room: local, invitee });
+        await this.matrix.sendStateEvent(room.id, "m.room.member", invitee, {
+          membership: "leave",
+        });
+      }
+    }
+    for (const invitee of invitees) {
+      if (!memberships.some((m) => m.membershipFor === invitee)) {
+        this.info("🎟️ Invite", { room: local, invitee });
+        await this.tryInvite(room.id, invitee);
+      }
+    }
   }
 
   private async reconcileWidget(room: Room) {
