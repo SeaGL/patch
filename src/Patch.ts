@@ -69,8 +69,8 @@ export default class Patch extends TypedEmitter<Emissions> {
     await Promise.all(Patch.modules.map((M) => new M(this, this.#matrix).start()));
   }
 
-  public getCanonicalSpace(room: string): string | undefined {
-    return this.#reconciler.getParent(room);
+  public getPublicCanonicalSpace(room: string): string | undefined {
+    return this.#reconciler.getPublicParent(room);
   }
 
   public isControlRoom(room: string): boolean {

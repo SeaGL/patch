@@ -34,7 +34,7 @@ export default class extends Module {
     this.debug("🚪 Membership", { room, user, membership });
 
     if (membership === "join" || membership === "leave") {
-      const space = this.patch.getCanonicalSpace(room);
+      const space = this.patch.getPublicCanonicalSpace(room);
 
       if (space) {
         if (membership === "join") this.scheduleNudge(user, space, room);
