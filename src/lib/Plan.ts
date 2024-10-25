@@ -18,6 +18,7 @@ export namespace Plan {
     control?: boolean;
     destroy?: boolean;
     intro?: string;
+    inviteAttendants?: boolean;
     moderatorsOnly?: boolean;
     name: string;
     private?: boolean;

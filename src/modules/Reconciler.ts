@@ -76,6 +76,7 @@ export default class extends Module {
   #scheduledReconcile: Scheduled | undefined;
   #scheduledRegroups: Map<Room["id"], Scheduled>;
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
+  #sharedWithAttendants: Map<Room["id"], Room>;
 
   public constructor(
     patch: Patch,
@@ -90,6 +91,7 @@ export default class extends Module {
     this.#roomByTag = new Map();
     this.#scheduledRegroups = new Map();
     this.#sessionGroups = {};
+    this.#sharedWithAttendants = new Map();
   }
 
   public getPublicParent(child: string): string | undefined {
@@ -479,10 +481,14 @@ export default class extends Module {
   }
 
   private async reconcileInvitations(child: Room, parent?: Room) {
-    if (!child.private) return;
+    if (!(child.private || parent?.private)) return;
 
     this.debug("🛡️ List moderators", { room: (parent ?? child).local });
     const moderators = await this.getModerators((parent ?? child).id);
+
+    const extra = [];
+    if (child.inviteAttendants)
+      extra.push(...Object.values(this.plan.roomAttendants ?? {}));
 
     this.debug("🚪 Get memberships", { room: child.local });
     const childMemberships = await this.matrix.getRoomMembers(child.id);
@@ -491,7 +497,7 @@ export default class extends Module {
       if (
         membership === "invite" &&
         sender === this.plan.steward.id &&
-        !moderators.includes(invitee)
+        !(moderators.includes(invitee) || extra.includes(invitee))
       ) {
         this.info("🎟️ Withdraw invitation", { room: child.local, invitee });
         await this.matrix.sendStateEvent(child.id, "m.room.member", invitee, {
@@ -503,16 +509,26 @@ export default class extends Module {
     if (parent) this.debug("🚪 Get memberships", { space: parent.local });
     const parentMemberships = parent && (await this.matrix.getRoomMembers(parent.id));
 
-    for (const invitee of moderators) {
-      const childMembership = childMemberships.find((m) => m.membershipFor === invitee);
+    if (child.private) {
+      for (const invitee of moderators) {
+        const childMembership = childMemberships.find((m) => m.membershipFor === invitee);
+        if (
+          (!parentMemberships ||
+            parentMemberships.some(
+              (m) => m.membershipFor === invitee && m.membership === "join",
+            )) &&
+          (!childMembership ||
+            (childMembership.membership === "leave" &&
+              childMembership.sender === this.plan.steward.id))
+        )
+          await this.tryInvite(child.id, child.local, invitee);
+      }
+    }
+    for (const invitee of extra) {
+      const membership = childMemberships.find((m) => m.membershipFor === invitee);
       if (
-        (!parentMemberships ||
-          parentMemberships.some(
-            (m) => m.membershipFor === invitee && m.membership === "join",
-          )) &&
-        (!childMembership ||
-          (childMembership.membership === "leave" &&
-            childMembership.sender === this.plan.steward.id))
+        !membership ||
+        (membership.membership === "leave" && membership.sender === this.plan.steward.id)
       )
         await this.tryInvite(child.id, child.local, invitee);
     }
@@ -667,6 +683,9 @@ export default class extends Module {
     await this.reconcileIntro(room);
     await this.reconcileRedirect(room);
 
+    if (expected.inviteAttendants) this.#sharedWithAttendants.set(id, room);
+    else this.#sharedWithAttendants.delete(id);
+
     if (expected.children) {
       this.debug("🏘️ Get space", { local });
       const space = await this.matrix.getSpace(id);
@@ -785,7 +804,8 @@ export default class extends Module {
       const tag = `pretalx-room-${id}`;
       const local = `${plan.prefix}room-${id}`;
       const invitees = optional(this.plan.roomAttendants?.[id]);
-      await this.reconcileView(local, { avatar: "room", name, tag }, children, invitees);
+      const visible = [...this.#sharedWithAttendants.values(), ...children];
+      await this.reconcileView(local, { avatar: "room", name, tag }, visible, invitees);
     }
   }
 

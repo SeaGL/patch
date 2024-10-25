@@ -209,6 +209,7 @@ rooms:
             name: Orchestration
             topic: >-
               Ready your batons! The SeaGL 2024 control-center.
+            inviteAttendants: true
           SeaGL2024-Volunteers:
             tag: seagl2024-volunteers
             name: Volunteers
