@@ -270,14 +270,8 @@ export default class extends Module {
 
         if (
           !memberships.some((m) => m.membershipFor === user && m.membership !== "leave")
-        ) {
-          this.info("🔑 Invite space moderator to private room", {
-            space: room,
-            moderator: user,
-            room: child,
-          });
-          await this.tryInvite(child, user);
-        }
+        )
+          await this.tryInvite(child, child, user);
       }
     }
   }
@@ -486,14 +480,14 @@ export default class extends Module {
     this.debug("🚪 Get memberships", { room: child.local });
     const childMemberships = await this.matrix.getRoomMembers(child.id);
 
-    for (const { membership, membershipFor: recipient, sender } of childMemberships) {
+    for (const { membership, membershipFor: invitee, sender } of childMemberships) {
       if (
         membership === "invite" &&
         sender === this.plan.steward.id &&
-        !moderators.includes(recipient)
+        !moderators.includes(invitee)
       ) {
-        this.info("🔑 Withdraw invitation", { room: child.local, recipient });
-        await this.matrix.sendStateEvent(child.id, "m.room.member", recipient, {
+        this.info("🎟️ Withdraw invitation", { room: child.local, invitee });
+        await this.matrix.sendStateEvent(child.id, "m.room.member", invitee, {
           membership: "leave",
         });
       }
@@ -502,20 +496,15 @@ export default class extends Module {
     if (parent) this.debug("🚪 Get memberships", { space: parent.local });
     const parentMemberships = parent && (await this.matrix.getRoomMembers(parent.id));
 
-    for (const moderator of moderators) {
+    for (const invitee of moderators) {
       if (
         (!parentMemberships ||
           parentMemberships.some(
-            (m) => m.membershipFor === moderator && m.membership === "join",
+            (m) => m.membershipFor === invitee && m.membership === "join",
           )) &&
-        !childMemberships.some((m) => m.membershipFor === moderator)
-      ) {
-        this.info("🔑 Invite moderator to private room", {
-          moderator,
-          room: child.local,
-        });
-        await this.tryInvite(child.id, moderator);
-      }
+        !childMemberships.some((m) => m.membershipFor === invitee)
+      )
+        await this.tryInvite(child.id, child.local, invitee);
     }
   }
 
@@ -957,11 +946,12 @@ export default class extends Module {
     this.#scheduledRegroups.set(room.id, { at, timer: setTimeout(task, delay) });
   }
 
-  private async tryInvite(room: string, user: string) {
+  private async tryInvite(roomId: string, local: string, invitee: string) {
     try {
-      await this.matrix.inviteUser(user, room);
+      this.info("🎟️ Invite", { room: local, invitee });
+      await this.matrix.inviteUser(invitee, roomId);
     } catch (error) {
-      this.error("🔑 Failed to send invitation", { room, user, error });
+      this.error("🎟️ Failed to send invitation", { room: local, invitee, error });
     }
   }
 }
