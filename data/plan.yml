@@ -3,9 +3,19 @@ jitsiDomain: meet.seagl.org
 defaultRoomVersion: "10"
 timeZone: America/Los_Angeles
 avatars:
-  default: mxc://seattlematrix.org/KYhSbbzRiKcPHYxBsowvvQgJ
-  patch: mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx
-  room: mxc://seattlematrix.org/VMXxAOmOegYTuAfKUxtkksUl
+  logo-headset: mxc://seattlematrix.org/KYhSbbzRiKcPHYxBsowvvQgJ
+  sticker-pointing: mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx
+  symbol-bolt: mxc://seattlematrix.org/sbncWsKBpbPIJvCBuhRwxadf
+  symbol-clock: mxc://seattlematrix.org/RpXVMvMoCndIWeaQJzoCUGjd
+  symbol-cog: mxc://seattlematrix.org/mtDzVXHUtaLMyBRIWntrVCIL
+  symbol-dialog: mxc://seattlematrix.org/YStudgPKhOyeHzsnkePQEAQC
+  symbol-info: mxc://seattlematrix.org/QVjEUBPCNfxDCvKdxIqRmGRT
+  symbol-location: mxc://seattlematrix.org/VMXxAOmOegYTuAfKUxtkksUl
+  symbol-moon: mxc://seattlematrix.org/pUESbFSkZxSlqHwjOFwjvwcA
+  symbol-play: mxc://seattlematrix.org/orEuouEJkXVwagkcxyMHEDSn
+
+  default: logo-headset
+  room: symbol-location
 inheritUserPowerLevels:
   "#staff:seagl.org":
     raiseTo: 50
@@ -24,7 +34,7 @@ powerLevels:
 steward:
   id: "@seagl-bot:seattlematrix.org"
   name: Patch
-  avatar: patch
+  avatar: sticker-pointing
 aliasProxy:
   homeserver: seagl.org
   prefix: SeaGL2024
@@ -72,6 +82,7 @@ rooms:
         suggested: true
       SeaGL2024-CurrentSessions:
         tag: seagl2024-current-sessions
+        avatar: symbol-play
         name: Current Sessions
         topic: >-
           Sessions that are currently taking place
@@ -80,6 +91,7 @@ rooms:
         children: CURRENT_SESSIONS
       SeaGL2024-Hallway:
         tag: seagl2024-hallway
+        avatar: symbol-dialog
         name: Hallway
         topic: >-
           Off-Topic, Social, and Sponsor conversations (the "hallway track")
@@ -138,6 +150,7 @@ rooms:
               · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
       SeaGL2024-Information:
         tag: seagl2024-information
+        avatar: symbol-info
         name: Information
         topic: >-
           The rooms with all of the answers to your questions! Info rooms for speakers, sponsors, attendees, etc.
@@ -198,6 +211,7 @@ rooms:
               Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/code_of_conduct
       SeaGL2024-Restricted:
         tag: seagl2024-restricted
+        avatar: symbol-cog
         name: Restricted
         topic: >-
           Rooms that are only available to SeaGL 2024 staff and volunteers
@@ -228,6 +242,7 @@ rooms:
             control: true
       SeaGL2024-UpcomingSessions:
         tag: seagl2024-upcoming-sessions
+        avatar: symbol-clock
         name: Upcoming Sessions
         topic: >-
           Sessions which have not yet happened—join ahead of time and chat with other interested attendees!
@@ -235,6 +250,7 @@ rooms:
         children: FUTURE_SESSIONS
       SeaGL2024-CompletedSessions:
         tag: seagl2024-completed-sessions
+        avatar: symbol-moon
         name: Completed Sessions
         topic: >-
           Sessions that have been wrapped up!

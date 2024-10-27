@@ -1004,7 +1004,8 @@ export default class extends Module {
   }
 
   private resolveAvatar(name: string = "default"): string {
-    return expect(this.plan.avatars[name], `avatar ${name}`);
+    const result = expect(this.plan.avatars[name], `avatar ${name}`);
+    return result.startsWith("mxc://") ? result : this.resolveAvatar(result);
   }
 
   private resolveTag(tag: string): string | undefined {
