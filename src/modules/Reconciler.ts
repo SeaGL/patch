@@ -52,6 +52,13 @@ interface Session extends Pretalx.Talk {
 
 export type IntroEvent = IStateEvent<"org.seagl.patch.intro", { message?: string }>;
 
+export type InvitationReason = "nudge" | "private" | "static" | "view";
+
+export type InvitationsEvent = IStateEvent<
+  "org.seagl.patch.invitations",
+  Record<string, InvitationReason[]>
+>;
+
 export type RedirectEvent = IStateEvent<"org.seagl.patch.redirect", { message?: string }>;
 
 export type TagEvent = IStateEvent<"org.seagl.patch.tag", { tag?: string }>;
@@ -97,6 +104,14 @@ export default class extends Module {
     this.#sharedWithAttendants = new Map();
   }
 
+  public async addInvitations(
+    room: RoomID,
+    reason: InvitationReason,
+    invitees: Set<string>,
+  ) {
+    await this.reconcileInvitationsByReason(room, reason, invitees, "add");
+  }
+
   public getPublicParent(child: string): RoomID | undefined {
     return this.#publicSpaceByChild.get(child);
   }
@@ -113,6 +128,14 @@ export default class extends Module {
         await this.reconcileSessions(this.plan.sessions, inheritedUsers, now);
       this.debug("🔃 Completed reconciliation");
     });
+  }
+
+  public async removeInvitations(
+    room: RoomID,
+    reason: InvitationReason,
+    invitees: Set<string>,
+  ) {
+    await this.reconcileInvitationsByReason(room, reason, invitees, "remove");
   }
 
   public async start() {
@@ -265,20 +288,97 @@ export default class extends Module {
   ) {
     this.debug("🚪 Membership", { room, user, membership });
 
-    if (
-      membership === "join" &&
-      this.#privateChildrenByParent.has(room) &&
-      (await this.getModerators(room)).includes(user)
-    ) {
+    if (membership === "join" && this.#privateChildrenByParent.has(room)) {
       for (const child of this.#privateChildrenByParent.get(room)?.values() ?? []) {
-        const memberships = await this.matrix.getRoomMembers(child);
-
-        if (
-          !memberships.some((m) => m.membershipFor === user && m.membership !== "leave")
-        )
-          await this.tryInvite(child, user);
+        await this.reconcilePrivateInvitations(child, { id: room, local: room });
       }
     }
+  }
+
+  private async reconcileInvitationsByReason(
+    room: RoomID,
+    reason: InvitationReason,
+    invitees: Set<string>,
+    operation: "add" | "remove" | "set" = "set",
+  ) {
+    this.debug("🚪 Get memberships", { room: room.local });
+    const memberships = await this.matrix.getRoomMembers(room.id);
+
+    this.debug("🎟️ Get invitation reasons", { room: room.local });
+    const invitations =
+      (await this.matrix
+        .getRoomStateEvent<InvitationsEvent>(room.id, "org.seagl.patch.invitations")
+        .catch(orNone)) ?? {};
+
+    let changed = false;
+
+    if (operation === "remove" || operation == "set") {
+      for (const [invitee, reasons] of Object.entries(invitations)) {
+        if (
+          (operation === "remove" && invitees.has(invitee)) ||
+          (operation === "set" && !invitees.has(invitee))
+        ) {
+          const index = reasons.indexOf(reason);
+          if (index >= 0) {
+            this.info("🎟️ Remove invitation reason", {
+              room: room.local,
+              invitee,
+              reason,
+            });
+            if (reasons.length === 1) {
+              delete invitations[invitee];
+              const membership = memberships.find((m) => m.membershipFor === invitee);
+              if (
+                membership &&
+                membership.membership === "invite" &&
+                membership.sender === this.plan.steward.id
+              ) {
+                this.info("🎟️ Withdraw invitation", { room: room.local, invitee });
+                await this.matrix.sendStateEvent(room.id, "m.room.member", invitee, {
+                  membership: "leave",
+                });
+              }
+            } else {
+              reasons.splice(index, 1);
+            }
+            changed = true;
+          }
+        }
+      }
+    }
+
+    if (operation === "add" || operation == "set") {
+      for (const invitee of invitees) {
+        const reasons = invitations[invitee] ?? [];
+        if (!reasons.includes(reason)) {
+          this.info("🎟️ Add invitation reason", { room: room.local, invitee, reason });
+          reasons.push(reason);
+          if (reasons.length === 1) {
+            const membership = memberships.find((m) => m.membershipFor === invitee);
+            if (
+              !membership ||
+              (membership.membership === "leave" &&
+                membership.sender === this.plan.steward.id)
+            ) {
+              try {
+                this.info("🎟️ Invite", { room: room.local, invitee });
+                await this.matrix.inviteUser(invitee, room.id);
+              } catch (error) {
+                this.error("🎟️ Failed to invite", { room: room.local, invitee, error });
+              }
+            }
+          }
+          invitations[invitee] = reasons;
+          changed = true;
+        }
+      }
+    }
+
+    if (changed)
+      await this.reconcileState(room, {
+        type: "org.seagl.patch.invitations",
+        content: invitations,
+      });
   }
 
   private async listSpace(room: Room, space: Space): Promise<ListedSpace> {
@@ -484,60 +584,6 @@ export default class extends Module {
     });
   }
 
-  private async reconcileInvitations(child: Room, parent?: RoomID) {
-    if (!(child.private || parent?.private)) return;
-
-    this.debug("🛡️ List moderators", { room: (parent ?? child).local });
-    const moderators = await this.getModerators((parent ?? child).id);
-
-    const extra = [];
-    if (child.inviteAttendants)
-      extra.push(...Object.values(this.plan.roomAttendants ?? {}));
-
-    this.debug("🚪 Get memberships", { room: child.local });
-    const childMemberships = await this.matrix.getRoomMembers(child.id);
-
-    for (const { membership, membershipFor: invitee, sender } of childMemberships) {
-      if (
-        membership === "invite" &&
-        sender === this.plan.steward.id &&
-        !(moderators.includes(invitee) || extra.includes(invitee))
-      ) {
-        this.info("🎟️ Withdraw invitation", { room: child.local, invitee });
-        await this.matrix.sendStateEvent(child.id, "m.room.member", invitee, {
-          membership: "leave",
-        });
-      }
-    }
-
-    if (parent) this.debug("🚪 Get memberships", { space: parent.local });
-    const parentMemberships = parent && (await this.matrix.getRoomMembers(parent.id));
-
-    if (child.private) {
-      for (const invitee of moderators) {
-        const childMembership = childMemberships.find((m) => m.membershipFor === invitee);
-        if (
-          (!parentMemberships ||
-            parentMemberships.some(
-              (m) => m.membershipFor === invitee && m.membership === "join",
-            )) &&
-          (!childMembership ||
-            (childMembership.membership === "leave" &&
-              childMembership.sender === this.plan.steward.id))
-        )
-          await this.tryInvite(child, invitee);
-      }
-    }
-    for (const invitee of extra) {
-      const membership = childMemberships.find((m) => m.membershipFor === invitee);
-      if (
-        !membership ||
-        (membership.membership === "leave" && membership.sender === this.plan.steward.id)
-      )
-        await this.tryInvite(child, invitee);
-    }
-  }
-
   private async reconcileName(room: Room) {
     const content = { name: room.name };
     await this.reconcileState(room, { type: "m.room.name", content });
@@ -616,6 +662,29 @@ export default class extends Module {
 
     if (expected.initial_state)
       for (const event of expected.initial_state) await this.reconcileState(room, event);
+  }
+
+  private async reconcilePrivateInvitations(child: Room, parent?: RoomID) {
+    const invitees = new Set<string>();
+
+    if (child.private) {
+      if (parent) this.debug("🚪 Get memberships", { space: parent.local });
+      const parentMemberships = parent && (await this.matrix.getRoomMembers(parent.id));
+
+      this.debug("🛡️ List moderators", { room: (parent ?? child).local });
+      const moderators = await this.getModerators((parent ?? child).id);
+
+      for (const moderator in moderators)
+        if (
+          !parentMemberships ||
+          parentMemberships.some(
+            (m) => m.membership === "join" && m.membershipFor === moderator,
+          )
+        )
+          invitees.add(moderator);
+    }
+
+    await this.reconcileInvitationsByReason(child, "private", invitees);
   }
 
   private async reconcileProfile({ avatar, name }: Plan["steward"]) {
@@ -705,7 +774,9 @@ export default class extends Module {
     }
 
     await this.reconcileControlRoom(room);
-    await this.reconcileInvitations(room, parent);
+    await this.reconcileStaticInvitations(room);
+    await this.reconcilePrivateInvitations(room, parent);
+    await this.removeOrphanedInvitations(room);
 
     return room;
   }
@@ -807,7 +878,7 @@ export default class extends Module {
     for (const [id, { children, name }] of Object.entries(venueRooms)) {
       const tag = `pretalx-room-${id}`;
       const local = `${plan.prefix}room-${id}`;
-      const invitees = optional(this.plan.roomAttendants?.[id]);
+      const invitees = new Set(optional(this.plan.roomAttendants?.[id]));
       const visible = [...this.#sharedWithAttendants.values(), ...children];
       await this.reconcileView(local, { avatar: "room", name, tag }, visible, invitees);
     }
@@ -851,6 +922,13 @@ export default class extends Module {
     return false;
   }
 
+  private async reconcileStaticInvitations(room: Room) {
+    const invitees = new Set(
+      Object.values((room.inviteAttendants && this.plan.roomAttendants) || {}),
+    );
+    await this.reconcileInvitationsByReason(room, "static", invitees);
+  }
+
   private async reconcileTag(room: Room) {
     const changed = await this.reconcileState(room, {
       type: "org.seagl.patch.tag",
@@ -868,7 +946,7 @@ export default class extends Module {
     local: string,
     view: Plan.Room,
     visible: Room[],
-    invitees: string[] = [],
+    invitees: Set<string>,
   ) {
     // Space
     const room = await this.reconcileRoom(undefined, local, view.name, view);
@@ -903,28 +981,7 @@ export default class extends Module {
     }
 
     // Invitations
-    this.debug("🚪 Get memberships", { room: local });
-    const memberships = await this.matrix.getRoomMembers(room.id);
-    for (const { membership, membershipFor: invitee, sender } of memberships) {
-      if (
-        membership === "invite" &&
-        sender === this.plan.steward.id &&
-        !invitees.includes(invitee)
-      ) {
-        this.info("🎟️ Withdraw invitation", { room: local, invitee });
-        await this.matrix.sendStateEvent(room.id, "m.room.member", invitee, {
-          membership: "leave",
-        });
-      }
-    }
-    for (const invitee of invitees) {
-      const membership = memberships.find((m) => m.membershipFor === invitee);
-      if (
-        !membership ||
-        (membership.membership === "leave" && membership.sender === this.plan.steward.id)
-      )
-        await this.tryInvite(room, invitee);
-    }
+    await this.reconcileInvitationsByReason(room, "view", invitees);
   }
 
   private async reconcileWidget(room: Room) {
@@ -985,6 +1042,30 @@ export default class extends Module {
     if (privateChildren)
       if (privateChildren.delete(id))
         this.#privateChildrenByParent.set(space.roomId, privateChildren);
+  }
+
+  private async removeOrphanedInvitations(room: Room) {
+    this.debug("🎟️ Get invitation reasons", { room: room.local });
+    const invitations =
+      (await this.matrix
+        .getRoomStateEvent<InvitationsEvent>(room.id, "org.seagl.patch.invitations")
+        .catch(orNone)) ?? {};
+
+    this.debug("🚪 Get memberships", { room: room.local });
+    const memberships = await this.matrix.getRoomMembers(room.id);
+
+    for (const { membership, membershipFor: invitee, sender } of memberships) {
+      if (
+        membership === "invite" &&
+        sender == this.plan.steward.id &&
+        !(invitee in invitations)
+      ) {
+        this.info("🎟️ Withdraw orphaned invitation", { room: room.local, invitee });
+        await this.matrix.sendStateEvent(room.id, "m.room.member", invitee, {
+          membership: "leave",
+        });
+      }
+    }
   }
 
   private async replaceNotice(
@@ -1059,14 +1140,5 @@ export default class extends Module {
       this.reconcileSessionGroups(room, session, at);
     };
     this.#scheduledRegroups.set(room.id, { at, timer: setTimeout(task, delay) });
-  }
-
-  private async tryInvite(room: RoomID, invitee: string) {
-    try {
-      this.info("🎟️ Invite", { room: room.local, invitee });
-      await this.matrix.inviteUser(invitee, room.id);
-    } catch (error) {
-      this.error("🎟️ Failed to send invitation", { room: room.local, invitee, error });
-    }
   }
 }

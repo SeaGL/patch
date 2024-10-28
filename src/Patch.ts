@@ -10,7 +10,7 @@ import Commands from "./modules/Commands.js";
 import Concierge from "./modules/Concierge.js";
 import Feedback from "./modules/Feedback.js";
 import ReadReceipts from "./modules/ReadReceipts.js";
-import Reconciler, { RoomID } from "./modules/Reconciler.js";
+import Reconciler, { InvitationReason, RoomID } from "./modules/Reconciler.js";
 
 interface Config {
   accessToken: string;
@@ -73,12 +73,20 @@ export default class Patch extends TypedEmitter<Emissions> {
     return this.#reconciler.getPublicParent(room);
   }
 
+  public invite(room: RoomID, reason: InvitationReason, invitees: Set<string>) {
+    return this.#reconciler.addInvitations(room, reason, invitees);
+  }
+
   public isControlRoom(room: string): boolean {
     return !!this.controlRoom && room === this.controlRoom;
   }
 
   public async sync() {
     await this.#reconciler.reconcile();
+  }
+
+  public uninvite(room: RoomID, reason: InvitationReason, invitees: Set<string>) {
+    return this.#reconciler.removeInvitations(room, reason, invitees);
   }
 
   #alert =

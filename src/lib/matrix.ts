@@ -4,7 +4,12 @@ import type { MatrixError, PowerLevelsEventContent as PowerLevels } from "matrix
 import type { RoomCreateOptions } from "./Client.js";
 import type { Announcement } from "../commands/Announce.js";
 import type { QAEvent } from "../commands/QA.js";
-import type { IntroEvent, RedirectEvent, TagEvent } from "../modules/Reconciler.js";
+import type {
+  IntroEvent,
+  InvitationsEvent,
+  RedirectEvent,
+  TagEvent,
+} from "../modules/Reconciler.js";
 
 //
 // Events
@@ -93,6 +98,7 @@ export type StateEvent<T = unknown> = (
   | IStateEvent<"m.room.topic", { topic: string }>
   | IStateEvent<"org.seagl.jitsi", { disable?: boolean; id?: string }>
   | IntroEvent
+  | InvitationsEvent
   | QAEvent
   | RedirectEvent
   | TagEvent

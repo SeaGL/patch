@@ -103,18 +103,17 @@ export default class extends Module {
       return this.debug("🧭 No nudge", { user, space: space.local, membership });
 
     this.info("🧭 Nudge", { user, space: space.local });
-    await this.matrix.inviteUser(user, space.id);
+    await this.patch.invite(space, "nudge", new Set([user]));
   }
 
-  private unscheduleNudge(user: string, space: RoomID, child: string) {
+  private async unscheduleNudge(user: string, space: RoomID, child: string) {
     const key = `${space}/${user}`;
     const existing = this.#scheduledNudges.get(key);
-    if (!existing) return;
 
-    if (existing.children.delete(child))
+    if (existing?.children.delete(child))
       this.debug("🕓 Remove nudge trigger", { space: space.local, user, child });
 
-    if (existing.children.size === 0) {
+    if (existing?.children.size === 0) {
       this.debug("🕓 Unschedule nudge", {
         space: space.local,
         user,
@@ -123,5 +122,7 @@ export default class extends Module {
       clearTimeout(existing.timer);
       this.#scheduledNudges.delete(key);
     }
+
+    await this.patch.uninvite(space, "nudge", new Set([user]));
   }
 }
