@@ -1,5 +1,6 @@
 import { DateTime, Duration } from "luxon";
 import type { MembershipEvent } from "matrix-bot-sdk";
+import type { RoomID } from "./Reconciler.js";
 import type { StateEvent } from "../lib/matrix.js";
 import Module from "../lib/Module.js";
 import type { Scheduled } from "../lib/scheduling.js";
@@ -18,11 +19,11 @@ export default class extends Module {
   }
 
   private async getMembership(
-    room: string,
+    room: RoomID,
     user: string,
   ): Promise<MembershipEvent["membership"] | undefined> {
-    this.debug("🚪 Get memberships", { room });
-    const memberships = await this.matrix.getRoomMembers(room);
+    this.debug("🚪 Get memberships", { room: room.local });
+    const memberships = await this.matrix.getRoomMembers(room.id);
 
     return memberships.find((m) => m.membershipFor === user)?.membership;
   }
@@ -43,7 +44,7 @@ export default class extends Module {
     }
   }
 
-  private scheduleNudge(user: string, space: string, child: string) {
+  private scheduleNudge(user: string, space: RoomID, child: string) {
     const key = `${space}/${user}`;
     const existing = this.#scheduledNudges.get(key);
 
@@ -51,26 +52,44 @@ export default class extends Module {
     const delay = nudgeDelay.toMillis();
 
     if (existing) {
-      this.debug("🕓 Reschedule nudge", { space, user, child, at: at.toISO() });
+      this.debug("🕓 Reschedule nudge", {
+        space: space.local,
+        user,
+        child,
+        at: at.toISO(),
+      });
       clearTimeout(existing.timer);
       existing.at = at;
       existing.children.add(child);
       existing.timer = setTimeout(() => {
         this.#scheduledNudges.delete(key);
 
-        this.debug("🕓 Run scheduled nudge", { space, user, at: at.toISO() });
+        this.debug("🕓 Run scheduled nudge", {
+          space: space.local,
+          user,
+          at: at.toISO(),
+        });
         this.tryNudge(user, space);
       }, delay);
       this.#scheduledNudges.set(key, existing);
     } else {
-      this.debug("🕓 Schedule nudge", { space, user, child, at: at.toISO() });
+      this.debug("🕓 Schedule nudge", {
+        space: space.local,
+        user,
+        child,
+        at: at.toISO(),
+      });
       const scheduled: ScheduledNudge = {
         at,
         children: new Set([child]),
         timer: setTimeout(() => {
           this.#scheduledNudges.delete(key);
 
-          this.debug("🕓 Run scheduled nudge", { space, user, at: at.toISO() });
+          this.debug("🕓 Run scheduled nudge", {
+            space: space.local,
+            user,
+            at: at.toISO(),
+          });
           this.tryNudge(user, space);
         }, delay),
       };
@@ -78,24 +97,29 @@ export default class extends Module {
     }
   }
 
-  private async tryNudge(user: string, space: string) {
+  private async tryNudge(user: string, space: RoomID) {
     const membership = await this.getMembership(space, user);
-    if (membership) return this.debug("🧭 No nudge", { user, space, membership });
+    if (membership)
+      return this.debug("🧭 No nudge", { user, space: space.local, membership });
 
-    this.info("🧭 Nudge", { user, space });
-    await this.matrix.inviteUser(user, space);
+    this.info("🧭 Nudge", { user, space: space.local });
+    await this.matrix.inviteUser(user, space.id);
   }
 
-  private unscheduleNudge(user: string, space: string, child: string) {
+  private unscheduleNudge(user: string, space: RoomID, child: string) {
     const key = `${space}/${user}`;
     const existing = this.#scheduledNudges.get(key);
     if (!existing) return;
 
     if (existing.children.delete(child))
-      this.debug("🕓 Remove nudge trigger", { space, user, child });
+      this.debug("🕓 Remove nudge trigger", { space: space.local, user, child });
 
     if (existing.children.size === 0) {
-      this.debug("🕓 Unschedule nudge", { space, user, at: existing.at.toISO() });
+      this.debug("🕓 Unschedule nudge", {
+        space: space.local,
+        user,
+        at: existing.at.toISO(),
+      });
       clearTimeout(existing.timer);
       this.#scheduledNudges.delete(key);
     }

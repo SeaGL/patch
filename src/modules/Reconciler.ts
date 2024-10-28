@@ -31,10 +31,13 @@ import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
 
-interface Room extends Plan.Room {
+interface Room extends Plan.Room, RoomID {
+  order: string;
+}
+
+export interface RoomID {
   id: string;
   local: string;
-  order: string;
 }
 
 interface ListedSpace extends Space {
@@ -70,13 +73,13 @@ const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, 
 
 export default class extends Module {
   #limiter: Bottleneck;
-  #privateChildrenByParent: Map<string, Set<string>>;
-  #publicSpaceByChild: Map<string, string>;
-  #roomByTag: Map<string, string>;
+  #privateChildrenByParent: Map<RoomID["id"], Map<RoomID["id"], Room>>;
+  #publicSpaceByChild: Map<RoomID["id"], RoomID>;
+  #roomByTag: Map<string, RoomID["id"]>;
   #scheduledReconcile: Scheduled | undefined;
-  #scheduledRegroups: Map<Room["id"], Scheduled>;
+  #scheduledRegroups: Map<RoomID["id"], Scheduled>;
   #sessionGroups: { [id in SessionGroupId]?: ListedSpace };
-  #sharedWithAttendants: Map<Room["id"], Room>;
+  #sharedWithAttendants: Map<RoomID["id"], Room>;
 
   public constructor(
     patch: Patch,
@@ -94,7 +97,7 @@ export default class extends Module {
     this.#sharedWithAttendants = new Map();
   }
 
-  public getPublicParent(child: string): string | undefined {
+  public getPublicParent(child: string): RoomID | undefined {
     return this.#publicSpaceByChild.get(child);
   }
 
@@ -205,11 +208,11 @@ export default class extends Module {
   }
 
   private async getNotice(
-    room: string,
+    room: RoomID,
     id: string,
   ): Promise<MessageEvent<"m.room.message"> | undefined> {
-    this.debug("🪧 Get notice", { room, id });
-    return await this.matrix.getEvent(room, id).catch(orNone);
+    this.debug("🪧 Get notice", { room: room.local, id });
+    return await this.matrix.getEvent(room.id, id).catch(orNone);
   }
 
   private getPowerLevels(inherited: PowerLevels["users"], room: Plan.Room): PowerLevels {
@@ -233,10 +236,10 @@ export default class extends Module {
     };
   }
 
-  private async getRootMessage(room: string, id: string): Promise<string> {
-    this.debug("💬 Get message", { room, id });
+  private async getRootMessage(room: RoomID, id: string): Promise<string> {
+    this.debug("💬 Get message", { room: room.local, id });
     const message: MessageEvent<"m.room.message"> | undefined = await this.matrix
-      .getEvent(room, id)
+      .getEvent(room.id, id)
       .catch(orNone);
 
     const relation = message?.content["m.relates_to"];
@@ -252,7 +255,7 @@ export default class extends Module {
         .catch(orNone)
     )?.tag;
 
-    this.debug("🔖 Tag", { room, tag });
+    this.debug("🔖 Tag", { room: room, tag });
     return tag;
   }
 
@@ -267,13 +270,13 @@ export default class extends Module {
       this.#privateChildrenByParent.has(room) &&
       (await this.getModerators(room)).includes(user)
     ) {
-      for (const child of this.#privateChildrenByParent.get(room) ?? []) {
+      for (const child of this.#privateChildrenByParent.get(room)?.values() ?? []) {
         const memberships = await this.matrix.getRoomMembers(child);
 
         if (
           !memberships.some((m) => m.membershipFor === user && m.membership !== "leave")
         )
-          await this.tryInvite(child, child, user);
+          await this.tryInvite(child, user);
       }
     }
   }
@@ -356,9 +359,10 @@ export default class extends Module {
       await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
     }
     if (space.room.private) this.#publicSpaceByChild.delete(id);
-    else this.#publicSpaceByChild.set(id, space.roomId);
-    const privateChildren = this.#privateChildrenByParent.get(space.roomId) ?? new Set();
-    privateChildren[room.private ? "add" : "delete"](id);
+    else this.#publicSpaceByChild.set(id, { id: space.room.id, local: space.room.local });
+    const privateChildren = this.#privateChildrenByParent.get(space.roomId) ?? new Map();
+    if (room.private) privateChildren.set(room.id, room);
+    else privateChildren.delete(room.id);
     this.#privateChildrenByParent.set(space.roomId, privateChildren);
   }
 
@@ -480,7 +484,7 @@ export default class extends Module {
     });
   }
 
-  private async reconcileInvitations(child: Room, parent?: Room) {
+  private async reconcileInvitations(child: Room, parent?: RoomID) {
     if (!(child.private || parent?.private)) return;
 
     this.debug("🛡️ List moderators", { room: (parent ?? child).local });
@@ -521,7 +525,7 @@ export default class extends Module {
             (childMembership.membership === "leave" &&
               childMembership.sender === this.plan.steward.id))
         )
-          await this.tryInvite(child.id, child.local, invitee);
+          await this.tryInvite(child, invitee);
       }
     }
     for (const invitee of extra) {
@@ -530,7 +534,7 @@ export default class extends Module {
         !membership ||
         (membership.membership === "leave" && membership.sender === this.plan.steward.id)
       )
-        await this.tryInvite(child.id, child.local, invitee);
+        await this.tryInvite(child, invitee);
     }
   }
 
@@ -540,7 +544,7 @@ export default class extends Module {
   }
 
   private async reconcileNotice(
-    { id: room }: Room,
+    room: RoomID,
     id: string | undefined,
     expected: { html?: string; text: string } | undefined,
     redactionReason: string,
@@ -556,7 +560,7 @@ export default class extends Module {
     if (actual) {
       return await this.replaceNotice(room, id, expected);
     } else {
-      this.info("🪧 Notice", { room, body: expected });
+      this.info("🪧 Notice", { room: room.local, body: expected });
       let content: MessageEvent<"m.room.message">["content"];
       if (expected.html) {
         content = {
@@ -571,7 +575,7 @@ export default class extends Module {
           body: expected.text,
         };
       }
-      return await this.matrix.sendMessage(room, content);
+      return await this.matrix.sendMessage(room.id, content);
     }
   }
 
@@ -828,7 +832,7 @@ export default class extends Module {
   }
 
   private async reconcileState(
-    { id, local: room }: Room,
+    { id, local: room }: RoomID,
     expected: StateEventInput,
   ): Promise<boolean> {
     const { type, state_key: key, content: to } = expected;
@@ -919,7 +923,7 @@ export default class extends Module {
         !membership ||
         (membership.membership === "leave" && membership.sender === this.plan.steward.id)
       )
-        await this.tryInvite(room.id, local, invitee);
+        await this.tryInvite(room, invitee);
     }
   }
 
@@ -966,11 +970,11 @@ export default class extends Module {
     });
   }
 
-  private async redactNotice(room: string, id: string, reason: string): Promise<string> {
+  private async redactNotice(room: RoomID, id: string, reason: string): Promise<string> {
     const root = await this.getRootMessage(room, id);
 
-    this.info("🪧 Redact notice", { room, id, root, reason });
-    return await this.matrix.redactEvent(room, root, reason);
+    this.info("🪧 Redact notice", { room: room.local, id, root, reason });
+    return await this.matrix.redactEvent(room.id, root, reason);
   }
 
   private async removeFromSpace(space: ListedSpace, id: string, local?: string) {
@@ -984,14 +988,14 @@ export default class extends Module {
   }
 
   private async replaceNotice(
-    room: string,
+    room: RoomID,
     id: string,
     { html, text }: { html?: string; text: string },
   ): Promise<string> {
     const root = await this.getRootMessage(room, id);
 
-    this.info("🪧 Replace notice", { room, id, root, text, html });
-    return await this.matrix.replaceMessage(room, root, {
+    this.info("🪧 Replace notice", { room: room.local, id, root, text, html });
+    return await this.matrix.replaceMessage(room.id, root, {
       msgtype: "m.notice",
       body: text,
       ...(html ? { format: "org.matrix.custom.html", formatted_body: html } : {}),
@@ -1057,12 +1061,12 @@ export default class extends Module {
     this.#scheduledRegroups.set(room.id, { at, timer: setTimeout(task, delay) });
   }
 
-  private async tryInvite(roomId: string, local: string, invitee: string) {
+  private async tryInvite(room: RoomID, invitee: string) {
     try {
-      this.info("🎟️ Invite", { room: local, invitee });
-      await this.matrix.inviteUser(invitee, roomId);
+      this.info("🎟️ Invite", { room: room.local, invitee });
+      await this.matrix.inviteUser(invitee, room.id);
     } catch (error) {
-      this.error("🎟️ Failed to send invitation", { room: local, invitee, error });
+      this.error("🎟️ Failed to send invitation", { room: room.local, invitee, error });
     }
   }
 }

@@ -10,7 +10,7 @@ import Commands from "./modules/Commands.js";
 import Concierge from "./modules/Concierge.js";
 import Feedback from "./modules/Feedback.js";
 import ReadReceipts from "./modules/ReadReceipts.js";
-import Reconciler from "./modules/Reconciler.js";
+import Reconciler, { RoomID } from "./modules/Reconciler.js";
 
 interface Config {
   accessToken: string;
@@ -69,7 +69,7 @@ export default class Patch extends TypedEmitter<Emissions> {
     await Promise.all(Patch.modules.map((M) => new M(this, this.#matrix).start()));
   }
 
-  public getPublicCanonicalSpace(room: string): string | undefined {
+  public getPublicCanonicalSpace(room: string): RoomID | undefined {
     return this.#reconciler.getPublicParent(room);
   }
 
