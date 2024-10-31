@@ -142,12 +142,6 @@ rooms:
             widget:
               name: SeaGL 2024 Sponsors
               custom: https://attend.seagl.org/widgets/sponsors.html
-          SeaGL2024-CareerExpo:
-            tag: seagl2024-career-expo
-            name: Career Expo
-            topic: >-
-              Looking for work? Looking to hire? Looking for help with your resume? Let us know!
-              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
       SeaGL2024-Information:
         tag: seagl2024-information
         avatar: symbol-info
@@ -230,10 +224,6 @@ rooms:
             topic: >-
               Operational room for all SeaGL 2024 volunteers
               · Please join this room if you are volunteering with SeaGL 2024.
-          SeaGL2024-CareerExpoInternal:
-            tag: seagl2024-career-expo-internal
-            name: Career Expo Internal
-            topic: Organizing room for the Career Expo
           SeaGL2024-BotControl:
             tag: seagl2024-bot-control
             name: Bot administration
