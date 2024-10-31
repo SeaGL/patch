@@ -52,7 +52,7 @@ interface Session extends Pretalx.Talk {
 
 export type IntroEvent = IStateEvent<"org.seagl.patch.intro", { message?: string }>;
 
-export type InvitationReason = "nudge" | "private" | "static" | "view";
+export type InvitationReason = "attendant" | "nudge" | "private" | "static" | "view";
 
 export type InvitationsEvent = IStateEvent<
   "org.seagl.patch.invitations",
@@ -899,6 +899,11 @@ export default class extends Module {
     if (future) await this.reconcileChildhood(future, room, isFuture);
     if (current) await this.reconcileChildhood(current, room, isCurrent, true);
     if (past) await this.reconcileChildhood(past, room, isPast);
+
+    const invitees = new Set(
+      optional(current && this.plan.roomAttendants?.[session.roomId]),
+    );
+    await this.reconcileInvitationsByReason(room, "attendant", invitees);
 
     if (isCurrent) this.scheduleRegroup(room, session, session.end);
     if (isFuture) this.scheduleRegroup(room, session, session.open);
