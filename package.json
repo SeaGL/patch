@@ -12,6 +12,7 @@
     "@sentry/node": "^7.41.0",
     "@sentry/tracing": "^7.41.0",
     "bottleneck": "^2.19.5",
+    "deep-freeze-strict": "^1.1.1",
     "html-to-text": "^9.0.4",
     "js-yaml": "^4.1.0",
     "lodash.escape": "^4.0.1",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@tsconfig/node18-strictest-esm": "^1.0.1",
+    "@types/deep-freeze-strict": "^1.1.2",
     "@types/html-to-text": "^9.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash.escape": "^4.0.7",

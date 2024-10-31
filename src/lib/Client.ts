@@ -1,4 +1,5 @@
 import Bottleneck from "bottleneck";
+import deepFreeze from "deep-freeze-strict";
 import { htmlToText } from "html-to-text"; // As used by MatrixClient
 import {
   getRequestFn,
@@ -251,6 +252,7 @@ export default class Client extends MatrixClient {
   private setCache(room: string, event: StateEvent) {
     const key = `${event.type}/${event.state_key}`;
 
+    deepFreeze(event);
     this.#cache.set(room, (this.#cache.get(room) ?? new Map()).set(key, event));
   }
 }

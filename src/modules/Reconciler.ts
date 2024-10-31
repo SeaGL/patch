@@ -306,9 +306,11 @@ export default class extends Module {
 
     this.debug("🎟️ Get invitation reasons", { room: room.local });
     const invitations =
-      (await this.matrix
-        .getRoomStateEvent<InvitationsEvent>(room.id, "org.seagl.patch.invitations")
-        .catch(orNone)) ?? {};
+      structuredClone(
+        await this.matrix
+          .getRoomStateEvent<InvitationsEvent>(room.id, "org.seagl.patch.invitations")
+          .catch(orNone),
+      ) ?? {};
 
     let changed = false;
 
