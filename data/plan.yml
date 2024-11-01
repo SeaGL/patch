@@ -248,6 +248,14 @@ rooms:
           · Recordings, from this year and past, will be available on the SeaGL website after the event.
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         children: PAST_SESSIONS
+      SeaGL2024-UnscheduledSessions:
+        tag: seagl2024-unscheduled-sessions
+        avatar: symbol-archive
+        name: Unscheduled Sessions
+        topic: >-
+          Sessions that are not currently scheduled
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        children: UNSCHEDULED_SESSIONS
 sessions:
   event: "2024"
   openEarly: 10 # minutes

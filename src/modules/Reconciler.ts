@@ -26,7 +26,14 @@ import Module from "../lib/Module.js";
 import type { Plan, SessionGroupId } from "../lib/Plan.js";
 import * as Pretalx from "../lib/Pretalx.js";
 import type { Scheduled } from "../lib/scheduling.js";
-import { expect, maxDelay, optional, populate, unimplemented } from "../lib/utilities.js";
+import {
+  expect,
+  maxDelay,
+  optional,
+  populate,
+  present,
+  unimplemented,
+} from "../lib/utilities.js";
 import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
@@ -46,8 +53,10 @@ interface ListedSpace extends Space {
 }
 
 interface Session extends Pretalx.Talk {
-  day: number;
-  open: DateTime;
+  scheduled?: NonNullable<Pretalx.Talk["scheduled"]> & {
+    day: number;
+    open: DateTime;
+  };
 }
 
 export type IntroEvent = IStateEvent<"org.seagl.patch.intro", { message?: string }>;
@@ -70,12 +79,22 @@ const widgetLayout = {
   widgets: { "org.seagl.patch": { container: "top", height: 25, width: 100, index: 0 } },
 };
 
-const compareSessions = (a: Session, b: Session): number =>
-  a.beginning !== b.beginning
-    ? a.beginning.valueOf() - b.beginning.valueOf()
-    : a.end !== b.end
-      ? a.end.valueOf() - b.end.valueOf()
-      : a.title.localeCompare(b.title);
+const compareSessions = (a: Session, b: Session): number => {
+  const sa = a.scheduled;
+  const sb = b.scheduled;
+
+  return sa && sb
+    ? sa.beginning !== sb.beginning
+      ? sa.beginning.valueOf() - sb.beginning.valueOf()
+      : sa.end !== sb.end
+        ? sa.end.valueOf() - sb.end.valueOf()
+        : a.title.localeCompare(b.title)
+    : !sa && !sb
+      ? a.title.localeCompare(b.title)
+      : sa
+        ? -1
+        : 1;
+};
 const sortKey = (index: number): string => String(10 * (1 + index)).padStart(4, "0");
 
 export default class extends Module {
@@ -491,6 +510,7 @@ export default class extends Module {
     local: string,
     expected: Plan.Room,
     parent?: Room,
+    create: boolean = true,
   ): Promise<[string | undefined, boolean]> {
     const alias = this.localToAlias(local);
 
@@ -529,9 +549,11 @@ export default class extends Module {
       }
 
       return [undefined, false];
+    } else if (existing) {
+      return [existing, false];
+    } else if (!create) {
+      return [undefined, false];
     } else {
-      if (existing) return [existing, false];
-
       this.info("🏠 Create room", { local });
       const isPrivate = Boolean(expected.private);
       const isSpace = Boolean(expected.children);
@@ -727,12 +749,14 @@ export default class extends Module {
     order: string,
     expected: Plan.Room,
     parent?: Room,
+    create: boolean = true,
   ): Promise<Room | undefined> {
     const [id, created] = await this.reconcileExistence(
       inheritedUsers,
       local,
       expected,
       parent,
+      create,
     );
 
     if (!id) {
@@ -809,18 +833,27 @@ export default class extends Module {
 
     this.debug("📅 Get sessions", { event: plan.event });
     const talks = await Pretalx.getTalks(plan.event);
-    const startOfDay = DateTime.min(...talks.map((e) => e.beginning)).startOf("day");
+    const beginnings = talks.map((e) => e.scheduled?.beginning).filter(present);
+    const startOfDay =
+      beginnings.length > 0 ? DateTime.min(...beginnings).startOf("day") : undefined;
     const sessions = talks
       .filter((e) => !ignore.has(e.id))
-      .map((event) => ({
-        ...event,
-        day: event.beginning.startOf("day").diff(startOfDay, "days").days,
-        open: event.beginning.minus({ minutes: plan.openEarly }),
+      .map(({ scheduled, ...rest }) => ({
+        ...rest,
+        ...(startOfDay &&
+          scheduled && {
+            scheduled: {
+              ...scheduled,
+              day: scheduled.beginning.startOf("day").diff(startOfDay, "days").days,
+              open: scheduled.beginning.minus({ minutes: plan.openEarly }),
+            },
+          }),
       }));
     sessions.sort(compareSessions);
     const venueRooms = sessions.reduce(
-      (result, session) => {
-        result[session.roomId] ??= { name: session.roomName, children: [] };
+      (result, { scheduled }) => {
+        if (scheduled)
+          result[scheduled.roomId] ??= { name: scheduled.roomName, children: [] };
         return result;
       },
       {} as Record<string, { name: string; children: Room[] }>,
@@ -837,42 +870,61 @@ export default class extends Module {
     }
 
     for (const [index, session] of sessions.entries()) {
+      const { scheduled } = session;
       const suffix = plan.suffixes?.[session.id] ?? `session-${session.id}`;
       const redirect = plan.redirects?.[session.id];
-      const values = { room: session.roomName, title: session.title, url: session.url };
+      const values = {
+        room: scheduled?.roomName ?? "Not scheduled",
+        title: session.title,
+        url: session.url,
+      };
       const intro = populate(values, plan.intro);
       const topic = populate(values, plan.topic);
-      const widget = redirect ? undefined : plan.widgets?.[session.roomId]?.[session.day];
+      const widget =
+        scheduled && !redirect
+          ? plan.widgets?.[scheduled.roomId]?.[scheduled.day]
+          : undefined;
 
       const local = `${plan.prefix}${suffix}`;
-      const room = await this.reconcileRoom(inheritedUsers, local, sortKey(index), {
-        name: [
-          session.beginning.toFormat("EEE HH:mm"),
-          session.roomName.replace(/^(?:Room )?(?=\d+$)/, "R"),
-          "·",
-          session.title,
-        ].join(" "),
-        tag: `pretalx-talk-${session.id}`,
-        ...(intro ? { intro } : {}),
-        ...(redirect ? { redirect } : {}),
-        ...(topic ? { topic } : {}),
-        ...(widget ? { widget } : {}),
-      });
+      const room = await this.reconcileRoom(
+        inheritedUsers,
+        local,
+        sortKey(index),
+        {
+          name: [
+            ...(scheduled
+              ? [
+                  scheduled.beginning.toFormat("EEE HH:mm"),
+                  scheduled.roomName.replace(/^(?:Room )?(?=\d+$)/, "R"),
+                ]
+              : ["Not scheduled"]),
+            "·",
+            session.title,
+          ].join(" "),
+          tag: `pretalx-talk-${session.id}`,
+          ...(intro ? { intro } : {}),
+          ...(redirect ? { redirect } : {}),
+          ...(topic ? { topic } : {}),
+          ...(widget ? { widget } : {}),
+        },
+        undefined,
+        !!scheduled,
+      );
 
-      if (demoOffset) {
-        const to = session.beginning.plus(demoOffset);
+      if (demoOffset && scheduled) {
+        const to = scheduled.beginning.plus(demoOffset);
         this.debug("📅 Override session time", {
           id: session.id,
-          from: session.beginning.toISO(),
+          from: scheduled.beginning.toISO(),
           to: to.toISO(),
         });
-        session.open = session.open.plus(demoOffset);
-        session.beginning = to;
-        session.end = session.end.plus(demoOffset);
+        scheduled.open = scheduled.open.plus(demoOffset);
+        scheduled.beginning = to;
+        scheduled.end = scheduled.end.plus(demoOffset);
       }
 
       if (room) {
-        venueRooms[session.roomId]?.children.push(room);
+        if (scheduled) venueRooms[scheduled.roomId]?.children.push(room);
         await this.reconcileSessionGroups(room, session, now);
       }
     }
@@ -891,22 +943,29 @@ export default class extends Module {
       CURRENT_SESSIONS: current,
       FUTURE_SESSIONS: future,
       PAST_SESSIONS: past,
+      UNSCHEDULED_SESSIONS: unscheduled,
     } = this.#sessionGroups;
+    const { scheduled } = session;
 
-    const [opened, ended] = [session.open <= now, session.end <= now];
-    const [isFuture, isCurrent, isPast] = [!opened, opened && !ended, ended];
+    let [isFuture, isCurrent, isPast, isUnscheduled] = [false, false, false, !scheduled];
+
+    if (scheduled) {
+      const [opened, ended] = [scheduled.open <= now, scheduled.end <= now];
+      [isFuture, isCurrent, isPast] = [!opened, opened && !ended, ended];
+    }
 
     if (future) await this.reconcileChildhood(future, room, isFuture);
     if (current) await this.reconcileChildhood(current, room, isCurrent, true);
     if (past) await this.reconcileChildhood(past, room, isPast);
+    if (unscheduled) await this.reconcileChildhood(unscheduled, room, isUnscheduled);
 
     const invitees = new Set(
-      optional(current && this.plan.roomAttendants?.[session.roomId]),
+      optional(scheduled && current && this.plan.roomAttendants?.[scheduled.roomId]),
     );
     await this.reconcileInvitationsByReason(room, "attendant", invitees);
 
-    if (isCurrent) this.scheduleRegroup(room, session, session.end);
-    if (isFuture) this.scheduleRegroup(room, session, session.open);
+    if (scheduled && isCurrent) this.scheduleRegroup(room, session, scheduled.end);
+    if (scheduled && isFuture) this.scheduleRegroup(room, session, scheduled.open);
   }
 
   private async reconcileState(
