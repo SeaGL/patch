@@ -40,10 +40,10 @@ aliasProxy:
   homeserver: seagl.org
   prefix: SeaGL2024
 roomAttendants:
-  1: "@attendant-1:2024.seagl.org" # Lyceum
-  2: "@attendant-2:2024.seagl.org" # 332
-  3: "@attendant-3:2024.seagl.org" # 334
-  4: "@attendant-4:2024.seagl.org" # 340
+  1: "@lyceum:2024.seagl.org"
+  2: "@room-332:2024.seagl.org"
+  3: "@room-334:2024.seagl.org"
+  4: "@room-340:2024.seagl.org"
 rooms:
   SeaGL2024:
     tag: seagl2024
