@@ -18,11 +18,12 @@ export namespace Plan {
 
   export interface Room {
     avatar?: string;
-    children?: Rooms | SessionGroupId;
+    children?: SessionGroupId | Child[];
     control?: boolean;
     destroy?: boolean;
     intro?: string;
     inviteAttendants?: boolean;
+    local: string;
     moderatorsOnly?: boolean;
     name: string;
     private?: boolean;
@@ -34,7 +35,7 @@ export namespace Plan {
     widget?: Widget;
   }
 
-  export type Rooms = Record<string, Room>;
+  export type Child = Room;
 
   export interface Sessions {
     demo?: string;
@@ -64,7 +65,7 @@ export type Plan = {
   jitsiDomain: string;
   powerLevels: PowerLevels;
   roomAttendants?: Record<string, string>;
-  rooms?: Plan.Rooms;
+  rooms?: Plan.Child[];
   sessions?: Plan.Sessions;
   steward: { avatar?: string; id: string; name: string };
   timeZone: string;

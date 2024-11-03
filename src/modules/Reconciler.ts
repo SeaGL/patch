@@ -38,6 +38,8 @@ import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
 
+type Child = Room;
+
 interface Room extends Plan.Room, RoomID {
   order: string;
 }
@@ -451,14 +453,13 @@ export default class extends Module {
 
   private async reconcileChildhood(
     space: ListedSpace,
-    room: Room,
+    child: Child,
     include = true,
     suggest?: boolean,
   ) {
-    const { local } = space.room;
-    const { id, local: child, order, suggested = suggest ?? false } = room;
+    const { id, order, suggested = suggest ?? false } = child;
     const actual = space.children[id]?.content;
-    if (!include) return actual && (await this.removeFromSpace(space, id, child));
+    if (!include) return actual && (await this.removeFromSpace(space, child));
 
     const expected = { order, suggested };
 
@@ -467,32 +468,38 @@ export default class extends Module {
       mergeWith(actual, expected, (from, to, option) => {
         if (typeof to === "object" || !(from || to) || from === to) return;
 
-        this.info("🏘️ Update childhood", { space: local, child, option, from, to });
+        this.info("🏘️ Update childhood", {
+          space: space.room.local,
+          child: child.local,
+          option,
+          from,
+          to,
+        });
         changed = true;
       });
 
       if (changed) {
-        this.debug("🏘️ Set childhood", { space: local, child });
+        this.debug("🏘️ Set childhood", { space: space.room.local, child: child.local });
         await space.addChildRoom(id, actual);
       }
     } else {
-      this.info("🏘️ Add to space", { space: local, child });
+      this.info("🏘️ Add to space", { space: space.room.local, child: child.local });
       await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
     }
     if (space.room.private) this.#publicSpaceByChild.delete(id);
     else this.#publicSpaceByChild.set(id, { id: space.room.id, local: space.room.local });
     const privateChildren = this.#privateChildrenByParent.get(space.roomId) ?? new Map();
-    if (room.private) privateChildren.set(room.id, room);
-    else privateChildren.delete(room.id);
+    if (child.private) privateChildren.set(child.id, child);
+    else privateChildren.delete(child.id);
     this.#privateChildrenByParent.set(space.roomId, privateChildren);
   }
 
-  private async reconcileChildren(space: ListedSpace, expected: Room[]) {
+  private async reconcileChildren(space: ListedSpace, expected: Child[]) {
     const actual = Object.keys(space.children);
     const ids = new Set(expected.map((r) => r.id));
 
     for (const a of actual) if (!ids.has(a)) await this.removeFromSpace(space, a);
-    for (const room of expected) await this.reconcileChildhood(space, room);
+    for (const child of expected) await this.reconcileChildhood(space, child);
   }
 
   private async reconcileControlRoom(room: Room) {
@@ -507,12 +514,11 @@ export default class extends Module {
 
   private async reconcileExistence(
     inheritedUsers: PowerLevels["users"],
-    local: string,
     expected: Plan.Room,
     parent?: Room,
     create: boolean = true,
   ): Promise<[string | undefined, boolean]> {
-    const alias = this.localToAlias(local);
+    const alias = this.localToAlias(expected.local);
 
     const existingByTag = expected.tag && this.resolveTag(expected.tag);
     const existingByAlias = await this.resolveAlias(alias);
@@ -554,7 +560,7 @@ export default class extends Module {
     } else if (!create) {
       return [undefined, false];
     } else {
-      this.info("🏠 Create room", { local });
+      this.info("🏠 Create room", { alias: expected.local });
       const isPrivate = Boolean(expected.private);
       const isSpace = Boolean(expected.children);
       const avatar = this.resolveAvatar(expected.avatar);
@@ -566,7 +572,7 @@ export default class extends Module {
         mergeWithMatrixState<RoomCreateOptions, Partial<RoomCreateOptions>>(
           {
             room_version: this.plan.defaultRoomVersion,
-            room_alias_name: local,
+            room_alias_name: expected.local,
             name: expected.name,
             power_level_content_override: this.getPowerLevels(inheritedUsers, expected),
             initial_state: [
@@ -745,7 +751,6 @@ export default class extends Module {
 
   private async reconcileRoom(
     inheritedUsers: PowerLevels["users"],
-    local: string,
     order: string,
     expected: Plan.Room,
     parent?: Room,
@@ -753,7 +758,6 @@ export default class extends Module {
   ): Promise<Room | undefined> {
     const [id, created] = await this.reconcileExistence(
       inheritedUsers,
-      local,
       expected,
       parent,
       create,
@@ -766,11 +770,11 @@ export default class extends Module {
       return undefined;
     }
 
-    const room = { ...expected, id, local, order };
+    const room = { ...expected, id, order };
 
     if (!created) {
       await this.reconcileTag(room);
-      await this.reconcileAlias(room, this.localToAlias(local));
+      await this.reconcileAlias(room, this.localToAlias(expected.local));
       await this.reconcilePowerLevels(inheritedUsers, room);
       await this.reconcilePrivacy(room, parent);
       await this.reconcileAvatar(room);
@@ -786,7 +790,7 @@ export default class extends Module {
     else this.#sharedWithAttendants.delete(id);
 
     if (expected.children) {
-      this.debug("🏘️ Get space", { local });
+      this.debug("🏘️ Get space", { alias: expected.local });
       const space = await this.matrix.getSpace(id);
 
       if (typeof expected.children === "string") {
@@ -809,19 +813,19 @@ export default class extends Module {
 
   private async reconcileRooms(
     inheritedUsers: PowerLevels["users"],
-    expected: Plan.Rooms,
+    expected: Plan.Child[],
     parent?: Room,
-  ): Promise<Room[]> {
-    const rooms = [];
+  ): Promise<Child[]> {
+    const children = [];
 
-    for (const [index, [local, plan]] of Object.entries(expected).entries()) {
+    for (const [index, plan] of expected.entries()) {
       const order = sortKey(index);
-      const room = await this.reconcileRoom(inheritedUsers, local, order, plan, parent);
 
-      if (room) rooms.push(room);
+      const room = await this.reconcileRoom(inheritedUsers, order, plan, parent);
+      if (room) children.push(room);
     }
 
-    return rooms;
+    return children;
   }
 
   private async reconcileSessions(
@@ -888,9 +892,9 @@ export default class extends Module {
       const local = `${plan.prefix}${suffix}`;
       const room = await this.reconcileRoom(
         inheritedUsers,
-        local,
         sortKey(index),
         {
+          local,
           name: [
             ...(scheduled
               ? [
@@ -934,7 +938,7 @@ export default class extends Module {
       const local = `${plan.prefix}room-${id}`;
       const invitees = new Set(optional(this.plan.roomAttendants?.[id]));
       const visible = [...this.#sharedWithAttendants.values(), ...children];
-      await this.reconcileView(local, { avatar: "room", name, tag }, visible, invitees);
+      await this.reconcileView({ avatar: "room", local, name, tag }, visible, invitees);
     }
   }
 
@@ -1008,41 +1012,38 @@ export default class extends Module {
     if (content) await this.reconcileState(room, { type: "m.room.topic", content });
   }
 
-  private async reconcileView(
-    local: string,
-    view: Plan.Room,
-    visible: Room[],
-    invitees: Set<string>,
-  ) {
+  private async reconcileView(view: Plan.Room, visible: Room[], invitees: Set<string>) {
     // Space
-    const room = await this.reconcileRoom(undefined, local, view.name, view);
+    const room = await this.reconcileRoom(undefined, view.name, view);
     if (!room) return;
 
     // Children
-    const space = await this.listSpace(room, await this.matrix.getSpace(room.id));
-    const actual = Object.keys(space.children);
+    const space = view.local;
+    const listed = await this.listSpace(room, await this.matrix.getSpace(room.id));
+    const actual = Object.keys(listed.children);
     const expected = new Set(visible.map((r) => r.id));
-    for (const id of actual) if (!expected.has(id)) await this.removeFromSpace(space, id);
+    for (const id of actual)
+      if (!expected.has(id)) await this.removeFromSpace(listed, id);
     for (const [index, { id, local: child }] of visible.entries()) {
       const expected = { order: sortKey(index), suggested: true };
-      const actual = space.children[id]?.content;
+      const actual = listed.children[id]?.content;
 
       if (actual) {
         let changed = false;
         mergeWith(actual, expected, (from, to, option) => {
           if (typeof to === "object" || !(from || to) || from === to) return;
 
-          this.info("🏘️ Update childhood", { space: local, child, option, from, to });
+          this.info("🏘️ Update childhood", { space, child, option, from, to });
           changed = true;
         });
 
         if (changed) {
-          this.debug("🏘️ Set childhood", { space: local, child });
-          await space.addChildRoom(id, actual);
+          this.debug("🏘️ Set childhood", { space, child });
+          await listed.addChildRoom(id, actual);
         }
       } else {
-        this.info("🏘️ Add to space", { space: local, child });
-        await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
+        this.info("🏘️ Add to space", { space, child });
+        await listed.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
       }
     }
 
@@ -1100,8 +1101,11 @@ export default class extends Module {
     return await this.matrix.redactEvent(room.id, root, reason);
   }
 
-  private async removeFromSpace(space: ListedSpace, id: string, local?: string) {
-    this.info("🏘️ Remove from space", { space: space.room.local, child: local ?? id });
+  private async removeFromSpace(space: ListedSpace, child: Child | string) {
+    const id = typeof child === "string" ? child : child.id;
+    const local = typeof child === "string" ? child : child.local;
+
+    this.info("🏘️ Remove from space", { space: space.room.local, child: local });
     await space.removeChildRoom(id);
     this.#publicSpaceByChild.delete(id);
     const privateChildren = this.#privateChildrenByParent.get(space.roomId);

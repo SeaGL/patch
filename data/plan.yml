@@ -45,16 +45,16 @@ roomAttendants:
   3: "@room-334:2024.seagl.org"
   4: "@room-340:2024.seagl.org"
 rooms:
-  SeaGL2024:
-    tag: seagl2024
+  - tag: seagl2024
+    local: SeaGL2024
     name: SeaGL 2024
     topic: >-
       SeaGL, the Seattle GNU/Linux Conference
       · November 8ᵗʰ & 9ᵗʰ, 2024
       · #SeaGL2024
     children:
-      SeaGL2024-Welcome:
-        tag: seagl2024-welcome
+      - tag: seagl2024-welcome
+        local: SeaGL2024-Welcome
         name: Welcome
         topic: >-
           Introductions and orientation
@@ -69,8 +69,8 @@ rooms:
         widget:
           name: Welcome to SeaGL 2024
           custom: https://attend.seagl.org/widgets/welcome.html
-      SeaGL2024-Announcements:
-        tag: seagl2024-announcements
+      - tag: seagl2024-announcements
+        local: SeaGL2024-Announcements
         name: Announcements
         topic: >-
           Timely conference updates and announcements
@@ -81,8 +81,8 @@ rooms:
           This the place for timely conference updates and announcements.
         moderatorsOnly: true
         suggested: true
-      SeaGL2024-CurrentSessions:
-        tag: seagl2024-current-sessions
+      - tag: seagl2024-current-sessions
+        local: SeaGL2024-CurrentSessions
         avatar: symbol-play
         name: Current Sessions
         topic: >-
@@ -90,8 +90,8 @@ rooms:
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         suggested: true
         children: CURRENT_SESSIONS
-      SeaGL2024-Hallway:
-        tag: seagl2024-hallway
+      - tag: seagl2024-hallway
+        local: SeaGL2024-Hallway
         avatar: symbol-dialog
         name: Hallway
         topic: >-
@@ -103,8 +103,8 @@ rooms:
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
         children:
-          SeaGL2024-Lobby:
-            tag: seagl2024-lobby
+          - tag: seagl2024-lobby
+            local: SeaGL2024-Lobby
             name: Lobby
             topic: >-
               Mingle and chat with other attendees between session
@@ -114,8 +114,8 @@ rooms:
               This the place to mingle and chat with other attendees between sessions.
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
             suggested: true
-          SeaGL2024-Social:
-            tag: seagl2024-social
+          - tag: seagl2024-social
+            local: SeaGL2024-Social
             name: Social
             topic: >-
               Socialize and chat with other attendees about whatever
@@ -129,8 +129,8 @@ rooms:
             widget:
               name: Video Conference
               jitsi: { id: SeaGL2024_Social, name: SeaGL 2024 Social }
-          SeaGL2024-Sponsors:
-            tag: seagl2024-sponsors
+          - tag: seagl2024-sponsors
+            local: SeaGL2024-Sponsors
             name: Sponsors
             topic: >-
               Meet the wonderful folks who make this conference possible
@@ -143,8 +143,8 @@ rooms:
             widget:
               name: SeaGL 2024 Sponsors
               custom: https://attend.seagl.org/widgets/sponsors.html
-      SeaGL2024-Information:
-        tag: seagl2024-information
+      - tag: seagl2024-information
+        local: SeaGL2024-Information
         avatar: symbol-info
         name: Information
         topic: >-
@@ -152,8 +152,8 @@ rooms:
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         suggested: true
         children:
-          SeaGL2024-InfoBooth:
-            tag: seagl2024-info-booth
+          - tag: seagl2024-info-booth
+            local: SeaGL2024-InfoBooth
             name: Info Booth
             topic: >-
               Have a question? Not sure where to look? We'll point you in the right direction!
@@ -163,8 +163,8 @@ rooms:
               Have a question? Not sure where to look? We'll point you in the right direction!
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
             suggested: true
-          SeaGL2024-BotHelp:
-            tag: seagl2024-bot-help
+          - tag: seagl2024-bot-help
+            local: SeaGL2024-BotHelp
             name: Bot Help
             topic: >-
               Information about and help for Patch, the SeaGL seagull bot
@@ -173,8 +173,8 @@ rooms:
               # Bot Help
               This the place for information about and help with Patch, the SeaGL seagull bot.
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
-          SeaGL2024-SpeakerHelp:
-            tag: seagl2024-speaker-help
+          - tag: seagl2024-speaker-help
+            local: SeaGL2024-SpeakerHelp
             name: Speaker Help
             topic: >-
               Need help with your talk? Have a question about your session? We're here to help!
@@ -183,8 +183,8 @@ rooms:
               # Speaker Help
               Need help with your talk? Have a question about your session? We're here to help!
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
-          SeaGL2024-SponsorHelp:
-            tag: seagl2024-sponsor-help
+          - tag: seagl2024-sponsor-help
+            local: SeaGL2024-SponsorHelp
             name: Sponsor Help
             topic: >-
               Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
@@ -193,8 +193,8 @@ rooms:
               # Sponsor Help
               Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
-          SeaGL2024-Volunteering:
-            tag: seagl2024-volunteering
+          - tag: seagl2024-volunteering
+            local: SeaGL2024-Volunteering
             name: Volunteering
             topic: >-
               Do you want to help out SeaGL today (or in the future)? Let us know!
@@ -204,8 +204,8 @@ rooms:
               Do you want to help out SeaGL today (or in the future)? Let us know!
               More info on the SeaGL site: https://seagl.org/get_involved.html or by sending a quick email to participate@seagl.org
               Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/code_of_conduct
-      SeaGL2024-Restricted:
-        tag: seagl2024-restricted
+      - tag: seagl2024-restricted
+        local: SeaGL2024-Restricted
         avatar: symbol-cog
         name: Restricted
         topic: >-
@@ -213,34 +213,34 @@ rooms:
           · Inviting someone to this space will allow them to join some of the rooms within.
         private: true
         children:
-          SeaGL2024-Orchestration:
-            tag: seagl2024-orchestration
+          - tag: seagl2024-orchestration
+            local: SeaGL2024-Orchestration
             name: Orchestration
             topic: >-
               Ready your batons! The SeaGL 2024 control-center.
             inviteAttendants: true
-          SeaGL2024-Volunteers:
-            tag: seagl2024-volunteers
+          - tag: seagl2024-volunteers
+            local: SeaGL2024-Volunteers
             name: Volunteers
             topic: >-
               Operational room for all SeaGL 2024 volunteers
               · Please join this room if you are volunteering with SeaGL 2024.
-          SeaGL2024-BotControl:
-            tag: seagl2024-bot-control
+          - tag: seagl2024-bot-control
+            local: SeaGL2024-BotControl
             name: Bot administration
             topic: Control room for Patch
             private: true
             control: true
-      SeaGL2024-UpcomingSessions:
-        tag: seagl2024-upcoming-sessions
+      - tag: seagl2024-upcoming-sessions
+        local: SeaGL2024-UpcomingSessions
         avatar: symbol-clock
         name: Upcoming Sessions
         topic: >-
           Sessions which have not yet happened—join ahead of time and chat with other interested attendees!
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         children: FUTURE_SESSIONS
-      SeaGL2024-CompletedSessions:
-        tag: seagl2024-completed-sessions
+      - tag: seagl2024-completed-sessions
+        local: SeaGL2024-CompletedSessions
         avatar: symbol-moon
         name: Completed Sessions
         topic: >-
@@ -248,8 +248,8 @@ rooms:
           · Recordings, from this year and past, will be available on the SeaGL website after the event.
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         children: PAST_SESSIONS
-      SeaGL2024-UnscheduledSessions:
-        tag: seagl2024-unscheduled-sessions
+      - tag: seagl2024-unscheduled-sessions
+        local: SeaGL2024-UnscheduledSessions
         avatar: symbol-archive
         name: Unscheduled Sessions
         topic: >-
