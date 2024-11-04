@@ -58,12 +58,12 @@ rooms:
         name: Welcome
         topic: >-
           Introductions and orientation
-          · Join sessions you are interested in attending and #SeaGL2024-Lobby for general discussion.
+          · Join sessions you are interested in attending and #SeaGL2024-Social for mingling and discussion.
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         intro: |
           # Welcome
           This the place for introductions and orientation.
-          Consider joining some of the sessions you are interested in attending and [#2024-Lobby:seagl.org](https://matrix.to/#/#2024-Lobby:seagl.org) for general discussion.
+          Consider joining some of the sessions you are interested in attending and [#2024-Social:seagl.org](https://matrix.to/#/#2024-Social:seagl.org) for mingling and chat with other attendees.
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
         widget:
@@ -103,26 +103,15 @@ rooms:
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
         children:
-          - tag: seagl2024-lobby
-            local: SeaGL2024-Lobby
-            name: Lobby
-            topic: >-
-              Mingle and chat with other attendees between sessions
-              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
-            intro: |
-              # Lobby
-              This the place to mingle and chat with other attendees between sessions.
-              Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
-            suggested: true
           - tag: seagl2024-social
             local: SeaGL2024-Social
             name: Social
             topic: >-
-              Socialize and chat with other attendees about whatever
+              Mingle and chat with other attendees between sessions and throughout the conference
               · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
             intro: |
               # Social
-              This the place to socialize and chat with other attendees about whatever.
+              This the place to mingle and chat with other attendees between sessions and throughout the conference.
               Here's a link if you want to join the video meeting outside of the attend portal: https://meet.seagl.org/SeaGL2024_Social
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
             suggested: true
