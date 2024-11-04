@@ -889,7 +889,8 @@ export default class extends Module {
 
     for (const [index, session] of sessions.entries()) {
       const { scheduled } = session;
-      const suffix = plan.suffixes?.[session.id] ?? `session-${session.id}`;
+      const suffix = plan.suffixes?.[session.id];
+      if (!suffix) this.warn("🏷️ Missing alias suffix", { session: session.url });
       const redirect = plan.redirects?.[session.id];
       const values = {
         room: scheduled?.roomName ?? "Not scheduled",
@@ -903,7 +904,7 @@ export default class extends Module {
           ? plan.widgets?.[scheduled.roomId]?.[scheduled.day]
           : undefined;
 
-      const local = `${plan.prefix}${suffix}`;
+      const local = `${plan.prefix}${suffix ?? `session-${session.id}`}`;
       const room = await this.reconcileRoom(
         inheritedUsers,
         sortKey(index),
