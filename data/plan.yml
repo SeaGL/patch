@@ -73,12 +73,12 @@ rooms:
         local: SeaGL2024-Announcements
         name: Announcements
         topic: >-
-          Timely conference updates and announcements
+          Logistical conference updates and announcements
           · SeaGL (the Seattle GNU/Linux Conference) November 8ᵗʰ & 9ᵗʰ, 2024
           · #SeaGL2024
         intro: |
           # Announcements
-          This the place for timely conference updates and announcements.
+          This the place for conference logistical updates and announcements.
         moderatorsOnly: true
         suggested: true
       - tag: seagl2024-current-sessions
@@ -107,7 +107,7 @@ rooms:
             local: SeaGL2024-Lobby
             name: Lobby
             topic: >-
-              Mingle and chat with other attendees between session
+              Mingle and chat with other attendees between sessions
               · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
             intro: |
               # Lobby
@@ -171,13 +171,13 @@ rooms:
               · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
             intro: |
               # Bot Help
-              This the place for information about and help with Patch, the SeaGL seagull bot.
+              This the place for information about and help with Patch, the SeaGL Matrix bot.
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
           - tag: seagl2024-speaker-help
             local: SeaGL2024-SpeakerHelp
             name: Speaker Help
             topic: >-
-              Need help with your talk? Have a question about your session? We're here to help!
+              Have a question about your session? We're here to help! For time-sensitive emergencies, use the phone number in your speaker info email
               · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
             intro: |
               # Speaker Help
@@ -187,7 +187,7 @@ rooms:
             local: SeaGL2024-SponsorHelp
             name: Sponsor Help
             topic: >-
-              Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
+              Are you a sponsor in need of assistance? Join here for help - and thank you!
               · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
             intro: |
               # Sponsor Help
@@ -245,8 +245,8 @@ rooms:
         avatar: symbol-moon
         name: Completed Sessions
         topic: >-
-          Sessions that have been wrapped up!
-          · Recordings, from this year and past, will be available on the SeaGL website after the event.
+          Sessions that have wrapped up!
+          · Recordings, from this year and past, will be posted to seagl.org/archive
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         children: PAST_SESSIONS
       - tag: seagl2024-unscheduled-sessions
@@ -306,7 +306,7 @@ sessions:
     ZU7MDV: FediTest
     ZUZURG: Observability
   topic: >-
-    A link to session details can be found as the first post of the channel.
+    The session details link can be found as the first post of the channel
     · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
   intro: |
     # $TITLE
