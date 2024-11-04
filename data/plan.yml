@@ -73,12 +73,12 @@ rooms:
         local: SeaGL2024-Announcements
         name: Announcements
         topic: >-
-          Logistical conference updates and announcements
+          Conference updates and announcements
           · SeaGL (the Seattle GNU/Linux Conference) November 8ᵗʰ & 9ᵗʰ, 2024
           · #SeaGL2024
         intro: |
           # Announcements
-          This the place for conference logistical updates and announcements.
+          This the place for conference updates and announcements.
         moderatorsOnly: true
         suggested: true
       - tag: seagl2024-current-sessions
@@ -187,7 +187,7 @@ rooms:
             local: SeaGL2024-SponsorHelp
             name: Sponsor Help
             topic: >-
-              Are you a sponsor in need of assistance? Join here for help - and thank you!
+              Are you a sponsor in need of assistance? Join here for help—and thank you!
               · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
             intro: |
               # Sponsor Help
@@ -246,7 +246,7 @@ rooms:
         name: Completed Sessions
         topic: >-
           Sessions that have wrapped up!
-          · Recordings, from this year and past, will be posted to seagl.org/archive
+          · Recordings, from this year and past, will be posted to https://seagl.org/archive
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         children: PAST_SESSIONS
       - tag: seagl2024-unscheduled-sessions
