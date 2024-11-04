@@ -417,10 +417,7 @@ export default class extends Module {
   }
 
   private localToAlias(local: string): string {
-    const proxy = this.plan.aliasProxy;
-    return proxy && local.startsWith(proxy.prefix)
-      ? `#${local.replace(/^SeaGL/, "")}:${proxy.homeserver}`
-      : `#${local}:${this.plan.homeserver}`;
+    return `#${local}:${this.plan.homeserver}`;
   }
 
   private async reconcileAlias(room: Room, expected: string) {
@@ -437,20 +434,20 @@ export default class extends Module {
       }
     }
 
-    const content = await this.matrix
-      .getRoomStateEvent<
-        StateEvent<"m.room.canonical_alias">
-      >(room.id, "m.room.canonical_alias")
-      .catch(orNone);
+    const proxy = this.plan.aliasProxy;
+    const useProxy = proxy && expected.startsWith(`#${proxy.prefix}`);
 
-    const [from, to] = [content?.alias, expected];
-    if (from !== to) {
-      this.info("🏷️ Update canonical alias", { room: room.local, from, to });
-      this.reconcileState(room, {
-        type: "m.room.canonical_alias",
-        content: { ...content, alias: to },
-      });
-    }
+    this.reconcileState(room, {
+      type: "m.room.canonical_alias",
+      content: {
+        alias: useProxy
+          ? expected
+              .replace(/(?<=#)SeaGL/, "")
+              .replace(`:${this.plan.homeserver}`, `:${proxy.homeserver}`)
+          : expected,
+        ...(useProxy ? { alt_aliases: [expected] } : {}),
+      },
+    });
   }
 
   private async reconcileAvatar(room: Room) {
