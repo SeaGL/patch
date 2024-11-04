@@ -58,12 +58,12 @@ rooms:
         name: Welcome
         topic: >-
           Introductions and orientation
-          · Join sessions you are interested in attending and #SeaGL2024-Lobby for general discussion.
+          · Join sessions you are interested in attending.
           · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
         intro: |
           # Welcome
           This the place for introductions and orientation.
-          Consider joining some of the sessions you are interested in attending and [#2024-Lobby:seagl.org](https://matrix.to/#/#2024-Lobby:seagl.org) for general discussion.
+          Consider joining some of the sessions you are interested in attending.
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
         widget:
@@ -103,17 +103,6 @@ rooms:
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
         children:
-          - tag: seagl2024-lobby
-            local: SeaGL2024-Lobby
-            name: Lobby
-            topic: >-
-              Mingle and chat with other attendees between sessions
-              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
-            intro: |
-              # Lobby
-              This the place to mingle and chat with other attendees between sessions.
-              Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
-            suggested: true
           - tag: seagl2024-social
             local: SeaGL2024-Social
             name: Social
