@@ -204,16 +204,16 @@ rooms:
         children:
           - tag: seagl2024-orchestration
             local: SeaGL2024-Orchestration
-            name: Orchestration
+            name: On-site orchestration
             topic: >-
-              Ready your batons! The SeaGL 2024 control-center.
+              Ready your batons! The SeaGL 2024 control-center. Use this room to communicate time-sensitive information.
             inviteAttendants: true
           - tag: seagl2024-volunteers
             local: SeaGL2024-Volunteers
             name: Volunteers
             topic: >-
               Operational room for all SeaGL 2024 volunteers
-              · Please join this room if you are volunteering with SeaGL 2024.
+              · Please join this room if you are volunteering with SeaGL 2024. Don't use this for time-sensitive information.
           - tag: seagl2024-bot-control
             local: SeaGL2024-BotControl
             name: Bot administration
