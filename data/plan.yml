@@ -231,6 +231,7 @@ rooms:
             topic: Control room for Patch
             private: true
             control: true
+          - "#audit:2024.seagl.org"
       - tag: seagl2024-upcoming-sessions
         local: SeaGL2024-UpcomingSessions
         avatar: symbol-clock
