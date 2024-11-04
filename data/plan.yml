@@ -260,6 +260,8 @@ rooms:
 sessions:
   event: "2024"
   openEarly: 10 # minutes
+  redirects:
+    EQXCUM: SeaGL2024-Social # Presentation Roulette
   prefix: SeaGL2024-
   suffixes:
     7QPK9S: CullingSeagullRecords
