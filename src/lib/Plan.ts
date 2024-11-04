@@ -35,7 +35,7 @@ export namespace Plan {
     widget?: Widget;
   }
 
-  export type Child = Room;
+  export type Child = Room | string;
 
   export interface Sessions {
     demo?: string;

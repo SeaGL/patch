@@ -38,7 +38,14 @@ import type Patch from "../Patch.js";
 
 const md = new MarkdownIt();
 
-type Child = Room;
+type Child = Inclusion | Room;
+
+interface Inclusion {
+  alias: string;
+  id: string;
+  order: string;
+  suggested?: boolean;
+}
 
 interface Room extends Plan.Room, RoomID {
   order: string;
@@ -458,6 +465,7 @@ export default class extends Module {
     suggest?: boolean,
   ) {
     const { id, order, suggested = suggest ?? false } = child;
+    const local = "local" in child ? child.local : child.alias;
     const actual = space.children[id]?.content;
     if (!include) return actual && (await this.removeFromSpace(space, child));
 
@@ -470,7 +478,7 @@ export default class extends Module {
 
         this.info("🏘️ Update childhood", {
           space: space.room.local,
-          child: child.local,
+          child: local,
           option,
           from,
           to,
@@ -479,17 +487,18 @@ export default class extends Module {
       });
 
       if (changed) {
-        this.debug("🏘️ Set childhood", { space: space.room.local, child: child.local });
+        this.debug("🏘️ Set childhood", { space: space.room.local, child: local });
         await space.addChildRoom(id, actual);
       }
     } else {
-      this.info("🏘️ Add to space", { space: space.room.local, child: child.local });
-      await space.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
+      const via = optional(id.split(":", 2)[1]);
+      this.info("🏘️ Add to space", { space: space.room.local, child: local, via });
+      await space.addChildRoom(id, { via, ...expected });
     }
     if (space.room.private) this.#publicSpaceByChild.delete(id);
     else this.#publicSpaceByChild.set(id, { id: space.room.id, local: space.room.local });
     const privateChildren = this.#privateChildrenByParent.get(space.roomId) ?? new Map();
-    if (child.private) privateChildren.set(child.id, child);
+    if ("private" in child && child.private) privateChildren.set(child.id, child);
     else privateChildren.delete(child.id);
     this.#privateChildrenByParent.set(space.roomId, privateChildren);
   }
@@ -818,11 +827,16 @@ export default class extends Module {
   ): Promise<Child[]> {
     const children = [];
 
-    for (const [index, plan] of expected.entries()) {
+    for (const [index, child] of expected.entries()) {
       const order = sortKey(index);
 
-      const room = await this.reconcileRoom(inheritedUsers, order, plan, parent);
-      if (room) children.push(room);
+      if (typeof child === "string") {
+        const id = await this.resolveAlias(child);
+        if (id) children.push({ alias: child, id, order });
+      } else {
+        const room = await this.reconcileRoom(inheritedUsers, order, child, parent);
+        if (room) children.push(room);
+      }
     }
 
     return children;
@@ -1103,7 +1117,8 @@ export default class extends Module {
 
   private async removeFromSpace(space: ListedSpace, child: Child | string) {
     const id = typeof child === "string" ? child : child.id;
-    const local = typeof child === "string" ? child : child.local;
+    const local =
+      typeof child === "string" ? child : "local" in child ? child.local : child.alias;
 
     this.info("🏘️ Remove from space", { space: space.room.local, child: local });
     await space.removeChildRoom(id);
