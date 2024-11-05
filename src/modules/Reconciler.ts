@@ -493,7 +493,8 @@ export default class extends Module {
       await space.addChildRoom(id, { via, ...expected });
     }
     if (space.room.private) this.#publicSpaceByChild.delete(id);
-    else this.#publicSpaceByChild.set(id, { id: space.room.id, local: space.room.local });
+    else if (!this.#publicSpaceByChild.has(id))
+      this.#publicSpaceByChild.set(id, { id: space.room.id, local: space.room.local });
     const privateChildren = this.#privateChildrenByParent.get(space.roomId) ?? new Map();
     if ("private" in child && child.private) privateChildren.set(child.id, child);
     else privateChildren.delete(child.id);
