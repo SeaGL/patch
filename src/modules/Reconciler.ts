@@ -758,46 +758,51 @@ export default class extends Module {
   private async reconcileRoom(
     inheritedUsers: PowerLevels["users"],
     order: string,
-    expected: Plan.Room,
+    expected: Plan.Room | Room,
     parent?: Room,
     create: boolean = true,
   ): Promise<Room | undefined> {
-    const [id, created] = await this.reconcileExistence(
-      inheritedUsers,
-      expected,
-      parent,
-      create,
-    );
+    let room: Room;
+    if ("id" in expected) {
+      room = expected;
+    } else {
+      const [id, created] = await this.reconcileExistence(
+        inheritedUsers,
+        expected,
+        parent,
+        create,
+      );
 
-    if (!id) {
-      if (typeof expected.children === "object")
-        await this.reconcileRooms(inheritedUsers, expected.children);
+      if (!id) {
+        if (typeof expected.children === "object")
+          await this.reconcileRooms(inheritedUsers, expected.children);
 
-      return undefined;
+        return undefined;
+      }
+
+      room = { ...expected, id, order };
+
+      if (!created) {
+        await this.reconcileTag(room);
+        await this.reconcileAlias(room, this.localToAlias(expected.local));
+        await this.reconcilePowerLevels(inheritedUsers, room);
+        await this.reconcilePrivacy(room, parent);
+        await this.reconcileAvatar(room);
+        await this.reconcileName(room);
+        await this.reconcileTopic(room);
+      }
+
+      await this.reconcileWidget(room);
+      await this.reconcileIntro(room);
+      await this.reconcileRedirect(room);
+
+      if (expected.inviteAttendants) this.#sharedWithAttendants.set(id, room);
+      else this.#sharedWithAttendants.delete(id);
     }
-
-    const room = { ...expected, id, order };
-
-    if (!created) {
-      await this.reconcileTag(room);
-      await this.reconcileAlias(room, this.localToAlias(expected.local));
-      await this.reconcilePowerLevels(inheritedUsers, room);
-      await this.reconcilePrivacy(room, parent);
-      await this.reconcileAvatar(room);
-      await this.reconcileName(room);
-      await this.reconcileTopic(room);
-    }
-
-    await this.reconcileWidget(room);
-    await this.reconcileIntro(room);
-    await this.reconcileRedirect(room);
-
-    if (expected.inviteAttendants) this.#sharedWithAttendants.set(id, room);
-    else this.#sharedWithAttendants.delete(id);
 
     if (expected.children) {
       this.debug("🏘️ Get space", { alias: expected.local });
-      const space = await this.matrix.getSpace(id);
+      const space = await this.matrix.getSpace(room.id);
 
       if (typeof expected.children === "string") {
         this.#sessionGroups[expected.children] = await this.listSpace(room, space);
@@ -809,10 +814,12 @@ export default class extends Module {
       }
     }
 
-    await this.reconcileControlRoom(room);
-    await this.reconcileStaticInvitations(room);
-    await this.reconcilePrivateInvitations(room, parent);
-    await this.removeOrphanedInvitations(room);
+    if (!("id" in expected)) {
+      await this.reconcileControlRoom(room);
+      await this.reconcileStaticInvitations(room);
+      await this.reconcilePrivateInvitations(room, parent);
+      await this.removeOrphanedInvitations(room);
+    }
 
     return room;
   }
@@ -949,7 +956,10 @@ export default class extends Module {
       const tag = `pretalx-room-${id}`;
       const local = `${plan.prefix}room-${id}`;
       const invitees = new Set(optional(this.plan.roomAttendants?.[id]));
-      const children = [...this.#sharedWithAttendants.values(), ...roomChildren];
+      const children: Room[] = [
+        ...this.#sharedWithAttendants.values(),
+        ...roomChildren,
+      ].map((r) => ({ ...r, suggested: true }));
       await this.reconcileView({ avatar: "room", local, name, tag, children }, invitees);
     }
   }
@@ -1024,46 +1034,10 @@ export default class extends Module {
     if (content) await this.reconcileState(room, { type: "m.room.topic", content });
   }
 
-  private async reconcileView(
-    view: Omit<Plan.Room, "children"> & { children: RoomID[] },
-    invitees: Set<string>,
-  ) {
+  private async reconcileView(view: Plan.Room, invitees: Set<string>) {
     // Space
-    const room = await this.reconcileRoom(undefined, view.name, {
-      ...view,
-      children: [],
-    });
+    const room = await this.reconcileRoom(undefined, view.name, view);
     if (!room) return;
-
-    // Children
-    const space = view.local;
-    const listed = await this.listSpace(room, await this.matrix.getSpace(room.id));
-    const actual = Object.keys(listed.children);
-    const expected = new Set(view.children.map((r) => r.id));
-    for (const id of actual)
-      if (!expected.has(id)) await this.removeFromSpace(listed, id);
-    for (const [index, { id, local: child }] of view.children.entries()) {
-      const expected = { order: sortKey(index), suggested: true };
-      const actual = listed.children[id]?.content;
-
-      if (actual) {
-        let changed = false;
-        mergeWith(actual, expected, (from, to, option) => {
-          if (typeof to === "object" || !(from || to) || from === to) return;
-
-          this.info("🏘️ Update childhood", { space, child, option, from, to });
-          changed = true;
-        });
-
-        if (changed) {
-          this.debug("🏘️ Set childhood", { space, child });
-          await listed.addChildRoom(id, actual);
-        }
-      } else {
-        this.info("🏘️ Add to space", { space, child });
-        await listed.addChildRoom(id, { via: [this.plan.homeserver], ...expected });
-      }
-    }
 
     // Invitations
     await this.reconcileInvitationsByReason(room, "view", invitees);
