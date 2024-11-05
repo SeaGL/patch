@@ -463,7 +463,7 @@ export default class extends Module {
   ) {
     const { id, order, suggested = suggest ?? false } = child;
     const local = "local" in child ? child.local : child.alias;
-    const actual = space.children[id]?.content;
+    const actual = structuredClone(space.children[id]?.content);
     if (!include) return actual && (await this.removeFromSpace(space, child));
 
     const expected = { order, suggested };
@@ -665,12 +665,14 @@ export default class extends Module {
     const expected = this.getPowerLevels(inheritedUsers, room);
 
     this.debug("🛡️ Get power levels", { room: room.local });
-    const actual = expect(
-      await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
-        room.id,
-        "m.room.power_levels",
+    const actual = structuredClone(
+      expect(
+        await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
+          room.id,
+          "m.room.power_levels",
+        ),
+        "power levels",
       ),
-      "power levels",
     );
     let changed = false;
 
