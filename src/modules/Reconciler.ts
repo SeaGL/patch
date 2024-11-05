@@ -568,7 +568,7 @@ export default class extends Module {
     } else {
       this.info("🏠 Create room", { alias: expected.local });
       const isPrivate = Boolean(expected.private);
-      const isSpace = Boolean(expected.children);
+      const isSpace = present(expected.children);
       const avatar = this.resolveAvatar(expected.avatar);
       const tagEvent = expected.tag && {
         type: "org.seagl.patch.tag" as const,
@@ -945,12 +945,12 @@ export default class extends Module {
       }
     }
 
-    for (const [id, { children, name }] of Object.entries(venueRooms)) {
+    for (const [id, { children: roomChildren, name }] of Object.entries(venueRooms)) {
       const tag = `pretalx-room-${id}`;
       const local = `${plan.prefix}room-${id}`;
       const invitees = new Set(optional(this.plan.roomAttendants?.[id]));
-      const visible = [...this.#sharedWithAttendants.values(), ...children];
-      await this.reconcileView({ avatar: "room", local, name, tag }, visible, invitees);
+      const children = [...this.#sharedWithAttendants.values(), ...roomChildren];
+      await this.reconcileView({ avatar: "room", local, name, tag, children }, invitees);
     }
   }
 
@@ -1024,19 +1024,25 @@ export default class extends Module {
     if (content) await this.reconcileState(room, { type: "m.room.topic", content });
   }
 
-  private async reconcileView(view: Plan.Room, visible: Room[], invitees: Set<string>) {
+  private async reconcileView(
+    view: Omit<Plan.Room, "children"> & { children: RoomID[] },
+    invitees: Set<string>,
+  ) {
     // Space
-    const room = await this.reconcileRoom(undefined, view.name, view);
+    const room = await this.reconcileRoom(undefined, view.name, {
+      ...view,
+      children: [],
+    });
     if (!room) return;
 
     // Children
     const space = view.local;
     const listed = await this.listSpace(room, await this.matrix.getSpace(room.id));
     const actual = Object.keys(listed.children);
-    const expected = new Set(visible.map((r) => r.id));
+    const expected = new Set(view.children.map((r) => r.id));
     for (const id of actual)
       if (!expected.has(id)) await this.removeFromSpace(listed, id);
-    for (const [index, { id, local: child }] of visible.entries()) {
+    for (const [index, { id, local: child }] of view.children.entries()) {
       const expected = { order: sortKey(index), suggested: true };
       const actual = listed.children[id]?.content;
 
