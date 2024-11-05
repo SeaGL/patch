@@ -710,7 +710,7 @@ export default class extends Module {
       this.debug("🛡️ List moderators", { room: (parent ?? child).local });
       const moderators = await this.getModerators((parent ?? child).id);
 
-      for (const moderator in moderators)
+      for (const moderator of moderators)
         if (
           !parentMemberships ||
           parentMemberships.some(
