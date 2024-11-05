@@ -236,7 +236,7 @@ export default class extends Module {
           .map((m) => [m.membershipFor, defaultLevel]),
       );
 
-      this.info("🛡️ Inherit user power levels", { room, explicit, implicit, raiseTo });
+      this.debug("🛡️ Inherit user power levels", { room, explicit, implicit, raiseTo });
       for (const [user, level] of Object.entries({ ...implicit, ...explicit }))
         users[user] = Math.min(99, Math.max(users[user] ?? 0, level, raiseTo));
     }
