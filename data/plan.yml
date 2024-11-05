@@ -22,14 +22,16 @@ inheritUserPowerLevels:
     raiseTo: 50
 powerLevels:
   events:
-    m.room.avatar: 50
-    m.room.canonical_alias: 50
+    m.room.avatar: 99
+    m.room.canonical_alias: 99
     m.room.encryption: 99
     m.room.history_visibility: 99
-    m.room.name: 50
+    m.room.name: 99
     m.room.power_levels: 99
     m.room.server_acl: 99
     m.room.tombstone: 99
+    m.room.topic: 99
+    m.space.child: 99
   users:
     steward: 100
 steward:
