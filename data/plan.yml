@@ -3,6 +3,7 @@ jitsiDomain: meet.seagl.org
 defaultRoomVersion: "10"
 timeZone: America/Los_Angeles
 avatars:
+  conference-2024: mxc://seattlematrix.org/xOwLbJdYKlwCOqVOoAiOKXfH
   logo-headset: mxc://seattlematrix.org/KYhSbbzRiKcPHYxBsowvvQgJ
   sticker-pointing: mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx
   symbol-archive: mxc://seattlematrix.org/xFlDeCKMhUiwUvZtIrPMYJTu
@@ -49,6 +50,7 @@ roomAttendants:
 rooms:
   - tag: seagl2024
     local: SeaGL2024
+    avatar: conference-2024
     name: SeaGL 2024
     topic: >-
       SeaGL, the Seattle GNU/Linux Conference
