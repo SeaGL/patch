@@ -329,10 +329,10 @@ export default class extends Module {
     invitees: Set<string>,
     operation: "add" | "remove" | "set" = "set",
   ) {
-    this.debug("🚪 Get memberships", { room: room.local });
+    this.debug("🚪 Get memberships", { reason, room: room.local });
     const memberships = await this.matrix.getRoomMembers(room.id);
 
-    this.debug("🎟️ Get invitation reasons", { room: room.local });
+    this.debug("🎟️ Get invitation reasons", { reason, room: room.local });
     const invitations =
       structuredClone(
         await this.matrix
