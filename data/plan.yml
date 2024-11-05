@@ -173,6 +173,11 @@ rooms:
             intro: |
               # Speaker Help
               Need help with your talk? Have a question about your session? We're here to help!
+
+              **This room is not monitored in real time during the event**.
+              For urgent questions, call the A/V & Devops chair at the phone number provided in your speaker info email, sent October 11th.
+              All SeaGL volunteers and staff also have this number.
+
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
           - tag: seagl2024-sponsor-help
             local: SeaGL2024-SponsorHelp
