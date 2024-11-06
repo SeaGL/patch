@@ -7,7 +7,11 @@ import { optional } from "./utilities.js";
 const oneLine = { breakLength: Infinity, compact: true, depth: Infinity };
 
 export default class Logger implements ILogger {
-  constructor(readonly overrides: Record<string, LogLevel> = {}) {}
+  readonly #plain: boolean;
+
+  constructor(readonly overrides: Record<string, LogLevel> = {}) {
+    this.#plain = !process.stdout.isTTY;
+  }
 
   public trace = this.#handler(LogLevel.TRACE, console.trace, chalk.dim);
   public debug = this.#handler(LogLevel.DEBUG, console.debug, chalk.dim);
@@ -20,10 +24,11 @@ export default class Logger implements ILogger {
       const override = this.overrides[module];
       if (override && !override.includes(level)) return;
 
-      const timestamp = DateTime.now().toISO();
-      const inspection = data && chalk.dim(inspect(data, oneLine));
+      const time = DateTime.now().toISO();
+      const detail = data && inspect(data, oneLine);
 
-      log(color(timestamp), color(message), ...optional(inspection));
+      if (this.#plain) log(level.toString(), message, ...optional(detail));
+      else log(color(time), color(message), ...optional(detail && chalk.dim(detail)));
     };
   }
 }
