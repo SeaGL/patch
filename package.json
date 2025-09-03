@@ -42,8 +42,9 @@
     "typescript": "^4.8.3"
   },
   "scripts": {
-    "prebuild": "rm -rf ./dist",
-    "build": "./node_modules/.bin/ttsc",
+    "build": "echo -e '\\033[0;31m`yarn build` is deprecated; use `yarn prepare` instead\\033[0m' >&2 && yarn prepare",
+    "preprepare": "rm -rf ./dist",
+    "prepare": "./node_modules/.bin/ttsc",
     "start": "node ./dist/src/main.js"
   },
   "prettier": {
