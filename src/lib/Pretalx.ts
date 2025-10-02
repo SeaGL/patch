@@ -6,7 +6,7 @@ const origin = "https://pretalx.seagl.org";
 const minTime = 1000 / Number(env("PRETALX_RATE_LIMIT"));
 
 const limiter = new Bottleneck({ maxConcurrent: 1, minTime });
-const fetch = limiter.wrap(unlimited);
+const fetch: typeof unlimited = limiter.wrap(unlimited);
 
 // Reference: https://docs.pretalx.org/api/fundamentals/#pagination
 interface PaginatedResponse<T = {}> {
@@ -53,6 +53,7 @@ export const getTalks = async (event: string): Promise<Talk[]> => {
   const url = `${origin}/api/events/${event}/talks/?limit=100`;
   for await (const page of pages<TalksResponse>(url))
     for (const { code, slot, state, title } of page)
+      // XXX: if you set PRETALX_API_KEY, it will return unscheduled social events that don't have a slot defined
       talks.push({
         id: code,
         title,
@@ -77,7 +78,10 @@ async function* pages<Response extends PaginatedResponse>(
 ): AsyncGenerator<Response["results"]> {
   let next: string | null = url;
   do {
-    const response = (await (await fetch(next)).json()) as Response;
+    const authHeader = process.env["PRETALX_API_KEY"] ? {
+      "Authorization": `Token ${process.env["PRETALX_API_KEY"]}`
+    } : {};
+    const response = (await (await fetch(next, { headers: authHeader })).json()) as Response;
     next = response.next;
     yield response.results;
   } while (next);

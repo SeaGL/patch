@@ -19,6 +19,7 @@ Populate environment variables:
     - `ISSUE_8895_COOLDOWN`: Seconds to wait before room creation ([matrix-org/synapse#8895])
   - [Pretalx]:
     - `PRETALX_RATE_LIMIT`: Rate limit in hertz
+    - `PRETALX_API_KEY`: API key to authenticate Pretalx requests (optional, only useful if you want to generate Matrix rooms before the schedule is published - this also probably won't work out of the box)
   - [Sentry]:
     - `SENTRY_DSN` (Optional): Data Source Name of Sentry project. If unset, error reporting is not enabled.
 
