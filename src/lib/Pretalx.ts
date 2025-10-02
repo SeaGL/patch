@@ -26,15 +26,14 @@ export interface Talk {
   };
 }
 
-// Reference: https://docs.pretalx.org/api/resources/talks/
+// Reference: https://docs.pretalx.org/api/resources/#tag/submissions
 type TalksResponse = PaginatedResponse<{
   code: string;
-  slot?: {
-    end: string;
-    room: { en: string };
-    room_id: number;
+  slots: Array<{
     start: string;
-  };
+    end: string;
+    room: { name: { en: string }, id: number };
+  }>;
   state:
     | "accepted"
     | "canceled"
@@ -50,24 +49,27 @@ type TalksResponse = PaginatedResponse<{
 export const getTalks = async (event: string): Promise<Talk[]> => {
   const talks: Talk[] = [];
 
-  const url = `${origin}/api/events/${event}/talks/?limit=100`;
+  const url = `${origin}/api/events/${event}/submissions/?state=confirmed&expand=slots,slots.room`;
   for await (const page of pages<TalksResponse>(url))
-    for (const { code, slot, state, title } of page)
+    for (const { code, slots, state, title } of page) {
+      // TODO: handle there being more than one slot
+      const slot = slots[0];
       talks.push({
         id: code,
         title,
         url: `${origin}/${event}/talk/${code}/`,
-        ...(slot && state === "confirmed"
+        ...(slot
           ? {
               scheduled: {
                 beginning: DateTime.fromISO(slot.start),
                 end: DateTime.fromISO(slot.end),
-                roomId: slot.room_id.toString(),
-                roomName: slot.room.en,
+                roomId: slot.room.id.toString(),
+                roomName: slot.room.name.en,
               },
             }
           : {}),
       });
+    }
 
   return talks;
 };
