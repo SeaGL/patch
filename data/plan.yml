@@ -45,9 +45,9 @@ steward:
   name: Patch (AJ test)
   avatar: sticker-pointing
 # TODO restore for prod
-aliasProxy:
-  homeserver: strugee.net
-  prefix: SeaGL2025-draft
+#aliasProxy:
+  #homeserver: strugee.net
+  #prefix: SeaGL2025-draft
 # TODO fix for prod
 # roomAttendants:
 #   1: "@lyceum:2025.seagl.org"
