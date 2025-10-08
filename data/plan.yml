@@ -226,8 +226,10 @@ sessions:
   event: "2025"
   openEarly: 10 # minutes
   redirects:
-    # TODO
-    EQXCUM: SeaGL2025-Social # Presentation Roulette
+    B9BMJW: SeaGL2025-Hallway # Big Time Brewery social
+    WDTPWZ: SeaGL2025-Hallway # Ada's book sale
+    LTHRNX: SeaGL2025-Hallway # DiscoTech workshop
+    DALKJT: SeaGL2025-Hallway # Ada's social
   prefix: SeaGL2025-draft-
   suffixes:
     3GKV8X: ObservabilityRoundup # Magical Mystery Tour: A Roundup of Observability Datastores
@@ -276,6 +278,8 @@ sessions:
     T7Q7QN: Pkgconf15YearsLater # pkgconf: 15 years later
     VD9V3K: LocalOfflineAI # Local Offline AI
     VLM7AS: SelfHostingSimplified # Your Email, Your Rules: Self-Hosting Simplified
+    VZMBEW: PatchManagement # Patch management / BareMetal as a service on Linux ( RedHat / Suse / tbd other ) Windows ?Vmware ?
+
     WDYNZF: Chapel # Productive parallel programming from laptops to supercomputers with Chapel
     XE8TL3: CommunityPhotoHosting # Resist Tech Monopolies: Community Photo Hosting
     YCPRXG: ChromebookReplacement # Building a Chromebook replacement with NixOS
