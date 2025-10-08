@@ -51,7 +51,7 @@ export const getTalks = async (event: string): Promise<Talk[]> => {
 
   const url = `${origin}/api/events/${event}/submissions/?state=confirmed&expand=slots,slots.room`;
   for await (const page of pages<TalksResponse>(url))
-    for (const { code, slots, state, title } of page) {
+    for (const { code, slots, title } of page) {
       // TODO: handle there being more than one slot
       const slot = slots[0];
       talks.push({
