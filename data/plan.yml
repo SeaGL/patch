@@ -279,12 +279,11 @@ sessions:
     VD9V3K: LocalOfflineAI # Local Offline AI
     VLM7AS: SelfHostingSimplified # Your Email, Your Rules: Self-Hosting Simplified
     VZMBEW: PatchManagement # Patch management / BareMetal as a service on Linux ( RedHat / Suse / tbd other ) Windows ?Vmware ?
-
     WDYNZF: Chapel # Productive parallel programming from laptops to supercomputers with Chapel
     XE8TL3: CommunityPhotoHosting # Resist Tech Monopolies: Community Photo Hosting
     YCPRXG: ChromebookReplacement # Building a Chromebook replacement with NixOS
     ZWPRGU: BeyondScratch # Beyond Scratch - Playing with No-Code Visual Programming
-    ZZRGMW: First6MonthsOfStillOS # First 6 Months of stillOS
+    ZZRGMW: StillOS # Linux Doesn't Resonate With The Mainstream - stillOS
 
   topic: >-
     The session details link can be found as the first post of the channel
