@@ -1,9 +1,12 @@
-homeserver: seattlematrix.org
+# TODO fix for prod
+homeserver: strugee.net
+# TODO deal with...?
 jitsiDomain: meet.seagl.org
+# TODO room-specific version override, and make this v12
 defaultRoomVersion: "10"
 timeZone: America/Los_Angeles
 avatars:
-  conference-2024: mxc://seattlematrix.org/xOwLbJdYKlwCOqVOoAiOKXfH
+  conference-2025: mxc://seattlematrix.org/fJOlsPjqQQvLSOmryXBAjKQB
   logo-headset: mxc://seattlematrix.org/KYhSbbzRiKcPHYxBsowvvQgJ
   sticker-pointing: mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx
   symbol-archive: mxc://seattlematrix.org/xFlDeCKMhUiwUvZtIrPMYJTu
@@ -18,9 +21,10 @@ avatars:
 
   default: logo-headset
   room: symbol-location
-inheritUserPowerLevels:
-  "#staff:seagl.org":
-    raiseTo: 50
+# TODO reenable for prod
+#inheritUserPowerLevels:
+#  "#staff:seagl.org":
+#    raiseTo: 50
 powerLevels:
   events:
     m.room.avatar: 99
@@ -36,9 +40,282 @@ powerLevels:
   users:
     steward: 100
 steward:
-  id: "@seagl-bot:seattlematrix.org"
-  name: Patch
+  # TODO update for prod
+  id: "@patch-test:strugee.net"
+  name: Patch (AJ test)
   avatar: sticker-pointing
-aliasProxy:
-  homeserver: seagl.org
-  prefix: SeaGL2024
+# TODO restore for prod
+#aliasProxy:
+  #homeserver: strugee.net
+  #prefix: SeaGL2025-draft
+# TODO provision these accounts for prod
+# roomAttendants:
+#   8: "@room-145:2025.seagl.org"
+#   9: "@room-332:2025.seagl.org"
+#   10: "@room-334:2025.seagl.org"
+#   11: "@room-340:2025.seagl.org"
+rooms:
+  - tag: seagl2025
+    local: SeaGL2025
+    avatar: conference-2025
+    # TODO fix for prod
+    name: SeaGL 2025 DRAFT
+    topic: >-
+      SeaGL, the Seattle GNU/Linux Conference
+      · November 7ᵗʰ & 8ᵗʰ, 2025
+      · #SeaGL2025
+    children:
+      - tag: seagl2025-announcements
+        local: SeaGL2025-Announcements
+        name: Announcements
+        topic: >-
+          Conference updates and announcements
+          · SeaGL (the Seattle GNU/Linux Conference) November 7ᵗʰ & 8ᵗʰ, 2025
+          · #SeaGL2025
+        intro: |
+          # Announcements
+          This the place for conference updates and announcements.
+        moderatorsOnly: true
+        suggested: true
+      - tag: seagl2025-hallway
+        local: SeaGL2025-Hallway
+        name: Hallway
+        topic: >-
+          Mingle and chat with other attendees between sessions and throughout the conference, aka the "hallway track"
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        intro: |
+          # Hallway
+          This the place to mingle and chat with other attendees at the conference, aka the "hallway track". Introduce yourself here, and then consider joining rooms for some of the sessions you're interested in!
+          Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+        suggested: true
+        # TODO bring back for prod
+        # TODO do we need a welcome widget like the old Welcome room?
+        #widget:
+        #  name: Video Conference
+        #  jitsi: { id: SeaGL2025_Social, name: SeaGL 2025 Social }
+      - tag: seagl2025-current-sessions
+        local: SeaGL2025-CurrentSessions
+        avatar: symbol-play
+        name: Current Sessions
+        topic: >-
+          Sessions that are currently taking place
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        suggested: true
+        children: CURRENT_SESSIONS
+      - tag: seagl2025-information
+        local: SeaGL2025-Information
+        avatar: symbol-info
+        name: Information
+        topic: >-
+          The rooms with all of the answers to your questions! Info rooms for speakers, sponsors, attendees, etc.
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        suggested: true
+        children:
+          - tag: seagl2025-info-booth
+            local: SeaGL2025-InfoBooth
+            name: Info Booth
+            topic: >-
+              Have a question? Not sure where to look? We'll point you in the right direction!
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Info Booth
+              Have a question? Not sure where to look? We'll point you in the right direction!
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+            suggested: true
+          - tag: seagl2025-bot-help
+            local: SeaGL2025-BotHelp
+            name: Bot Help
+            topic: >-
+              Information about and help for Patch, the SeaGL seagull bot
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Bot Help
+              This the place for information about and help with Patch, the SeaGL Matrix bot.
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+          - tag: seagl2025-speaker-help
+            local: SeaGL2025-SpeakerHelp
+            name: Speaker Help
+            topic: >-
+              Have a question about your session? We're here to help! For time-sensitive emergencies, use the phone number in your speaker info email
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Speaker Help
+              Need help with your talk? Have a question about your session? We're here to help!
+
+              **This room is not monitored in real time during the event**.
+              For urgent questions, call the A/V & Devops chair at the phone number provided in your speaker info email, sent October 11th.
+              All SeaGL volunteers and staff also have this number.
+
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+          - tag: seagl2025-sponsor-help
+            local: SeaGL2025-SponsorHelp
+            name: Sponsor Help
+            topic: >-
+              Are you a sponsor in need of assistance? Join here for help—and thank you!
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Sponsor Help
+              Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
+              Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+          - tag: seagl2025-volunteering
+            local: SeaGL2025-Volunteering
+            name: Volunteering
+            topic: >-
+              Do you want to help out SeaGL today (or in the future)? Let us know!
+              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+            intro: |
+              # Volunteering
+              Do you want to help out SeaGL today (or in the future)? Let us know!
+              More info on the SeaGL site: https://seagl.org/get_involved.html or by sending a quick email to participate@seagl.org
+              Please note, the SeaGL Code of Conduct is in effect and can be found here: https://seagl.org/code_of_conduct
+      - tag: seagl2025-restricted
+        local: SeaGL2025-Restricted
+        avatar: symbol-cog
+        name: Restricted
+        topic: >-
+          Rooms that are only available to SeaGL 2025 staff and volunteers
+          · Inviting someone to this space will allow them to join some of the rooms within.
+        private: true
+        children:
+          - tag: seagl2025-orchestration
+            local: SeaGL2025-Orchestration
+            name: On-site orchestration
+            topic: >-
+              Ready your batons! The SeaGL 2025 control-center. Use this room to communicate time-sensitive information.
+            inviteAttendants: true
+          - tag: seagl2025-volunteers
+            local: SeaGL2025-Volunteers
+            name: Volunteers
+            topic: >-
+              Operational room for all SeaGL 2025 volunteers
+              · Please join this room if you are volunteering with SeaGL 2025. Don't use this for time-sensitive information.
+          - tag: seagl2025-bot-control
+            local: SeaGL2025-BotControl
+            name: Bot administration
+            topic: Control room for Patch
+            private: true
+            control: true
+          - "#audit:2025.seagl.org"
+      - tag: seagl2025-upcoming-sessions
+        local: SeaGL2025-UpcomingSessions
+        avatar: symbol-clock
+        name: Upcoming Sessions
+        topic: >-
+          Sessions which have not yet happened—join ahead of time and chat with other interested attendees!
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        children: FUTURE_SESSIONS
+      - tag: seagl2025-completed-sessions
+        local: SeaGL2025-CompletedSessions
+        avatar: symbol-moon
+        name: Completed Sessions
+        topic: >-
+          Sessions that have wrapped up!
+          · Recordings, from this year and past, will be posted to https://seagl.org/archive
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        children: PAST_SESSIONS
+      - tag: seagl2025-unscheduled-sessions
+        local: SeaGL2025-UnscheduledSessions
+        avatar: symbol-archive
+        name: Unscheduled Sessions
+        topic: >-
+          Sessions that are not currently scheduled
+          · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+        children: UNSCHEDULED_SESSIONS
+sessions:
+  event: "2025"
+  openEarly: 10 # minutes
+  redirects:
+    B9BMJW: SeaGL2025-Hallway # Big Time Brewery social
+    WDTPWZ: SeaGL2025-Hallway # Ada's book sale
+    LTHRNX: SeaGL2025-Hallway # DiscoTech workshop
+    DALKJT: SeaGL2025-Hallway # Ada's social
+  prefix: SeaGL2025-draft-
+  suffixes:
+    3GKV8X: ObservabilityRoundup # Magical Mystery Tour: A Roundup of Observability Datastores
+    3ZJJA3: DevelopingOnNextcloud # Developing on Nextcloud in 2025: What's New?
+    88THX7: FreeTheSocialWeb # Free the Social Web
+    8KQGXX: OpenTofu # Intro to OpenTofu: Open Source IaC Overview
+    8KSBXV: OpenSourceHardwareChallenges # Challenges When Building Open Source Hardware
+    9DPTWS: GrepByExample # grep by example
+    9JEFYQ: RiverHasRoots # The River Has Roots: Lessons in Open Source
+    9PWA3Q: TheCLIRenaissance # The CLI Renaissance: Why Command Lines Matter in the Age of AI and the Promise of MCP
+    A7EBVC: ThrowingBitsOnTheWire # Throwing bits on the wire: An introduction to network programming
+    APBLKK: WhatDoYouThinkAboutAI # What do you think about AI? – The question people keep asking
+    BLZ7ZK: KalpaDesktop # Kalpa Desktop, the openSUSE based desktop that "Just Works™"
+    BV33RQ: OpenTrainingForOpenResearch # Open training for Open research: the Digital Research Academy
+    BXX88L: CoopCloud # Coop-Cloud: Democrtically built and governed cloud
+    CVEEAA: ProjectCaua # Project Caua Unleashed!
+    D7VANS: WhatsADataLake # What's a Data Lake and What Does It Mean For My Open Source Analytics Stack?
+    DFQ38B: AIRCTLProject #LearnPracticalSkillsTODAYToPrepareForAIIncidentResponseWithTheAIRCTLProject # Learn practical skills TODAY to prepare for AI Incident Response with the AIRCTL Project
+    DU8YUQ: DualityOfPython # Duality of Python
+    DYCBJX: BusinessOnOpenSource # Build a Great Business on Open Source without Selling Your Soul
+    EDV7EZ: MigratingToServerless # Migrating Distributed Systems Infrastructure to Serverless: Methodology and Insights
+    ETZQ8V: BiasInAI # “Hidden in Plain Sight: Addressing Data Bias in AI-Driven Systems”
+    EWCUGD: PhysicalTheatre # Physical Theatre, made using open source tooling
+    FE3E7R: ObservabilityForFrontend # Observability is for the Frontend, Too!
+    FNRU7M: WhatIsFree # What Is Free May Never Die
+    GYGWNZ: ApachePinotJourney # How Contributing to Apache Pinot Shaped My Developer Journey (And Why OSS is Worth It)
+    HM7MSP: SBOMsSecurityErrata # No More Mystery Brownies: SBOMs, security errata, and the recipe for safer software
+    HMNXFY: KernelBackportAutomation # Kernel backport automation and validation in CentOS/RHEL
+    HT9NCW: BrowserIsntWorking # My browser isn't working!  Now what do I do?
+    JCCBUJ: TimeSeriesDatabases # Exploring Data Analysis in Time Series Databases
+    KFGUTN: FullCircle # Full Circle:  From Programmer to Lawyer to Open Program Office Manager
+    KMCCEQ: LetsCreateOurOwnTechJobs # Let's create our own tech jobs together following open source principles
+    LFQS3C: SSHCertificates # SSH Certificates: All the Trust, None of the Fuss
+    LSJMPH: GNULinuxLovesAll # GNU/Linux Loves All
+    LTQLAW: DreadedDateTime # The Dreaded DateTime - A Lesson in Simplicity
+    NZUCYJ: SeattleCommunityNetworkStack # The Seattle Community Network Stack
+    P8SE9B: WikidataAndTaxonomies # Words, words, words, you fishmonger: Using Wikidata to Reconcile Taxonomies
+    PETMRE: 10YearsOfReproducibleBuilds # 10 years of Reproducible Builds
+    PSBSUU: ProvingMyMarriage # How I used open-source tools to prove my marriage to the US Government
+    PY8QLS: SerialConfig # Serial Config: Generating Applications for Embedded Interactivity
+    QANHFC: FediPact # FediPact: Why?
+    QAZYWP: 2025FLOSSResearchRoundup # Today I Learned.... The 2025 FLOSS Research Roundup
+    QR89R9: EvaluatingFOSSProjects # Evaluating FOSS Projects; applying Habermas' Theory of Communicative Action'
+    QXWX7X: WhatIsFreeSoftware # What is Free Software?
+    SVTBXG: CathedralAndBizarreII # The Cathedral and the Bizarre II: Branches of Faith or, Committing Code Not Sins
+    T7Q7QN: Pkgconf15YearsLater # pkgconf: 15 years later
+    VD9V3K: LocalOfflineAI # Local Offline AI
+    VLM7AS: SelfHostingSimplified # Your Email, Your Rules: Self-Hosting Simplified
+    VZMBEW: PatchManagement # Patch management / BareMetal as a service on Linux ( RedHat / Suse / tbd other ) Windows ?Vmware ?
+    WDYNZF: Chapel # Productive parallel programming from laptops to supercomputers with Chapel
+    XE8TL3: CommunityPhotoHosting # Resist Tech Monopolies: Community Photo Hosting
+    YCPRXG: ChromebookReplacement # Building a Chromebook replacement with NixOS
+    ZWPRGU: BeyondScratch # Beyond Scratch - Playing with No-Code Visual Programming
+    ZZRGMW: StillOS # Linux Doesn't Resonate With The Mainstream - stillOS
+
+  topic: >-
+    The session details link can be found as the first post of the channel
+    · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+  intro: |
+    # $TITLE
+
+    Details: $URL
+
+    Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+
+    ## Q & A commands
+
+    Attendees:
+
+      - `!ask <question>`: Add a question to the list
+
+    Moderator:
+
+      - `!qa`: Show the list of questions
+      - `!qa-asked <number>`: Mark a question as asked
+      - `!qa-clear`: Clear the list of questions
+  # TODO add these back once their content is online
+  #widgets:
+  #  8: # 145
+  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-1.html }
+  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-2-room-1.html }
+  #  9: # 332
+  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-2.html }
+  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-2-room-2.html }
+  #  10: # 334
+  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-3.html }
+  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-2-room-3.html }
+  #  11: # 340
+  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-4.html }
+  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-2-room-4.html }
