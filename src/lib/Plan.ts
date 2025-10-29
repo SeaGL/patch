@@ -29,6 +29,7 @@ export namespace Plan {
     private?: boolean;
     readOnly?: boolean;
     redirect?: string;
+    roomVersion?: string;
     suggested?: boolean;
     tag?: string;
     topic?: string;

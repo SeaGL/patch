@@ -578,7 +578,7 @@ export default class extends Module {
       const created = await this.matrix.createRoom(
         mergeWithMatrixState<RoomCreateOptions, Partial<RoomCreateOptions>>(
           {
-            room_version: this.plan.defaultRoomVersion,
+            room_version: expected.roomVersion ?? this.plan.defaultRoomVersion,
             room_alias_name: expected.local,
             name: expected.name,
             power_level_content_override: this.getPowerLevels(inheritedUsers, expected),
