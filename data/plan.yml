@@ -1,7 +1,6 @@
 homeserver: seattlematrix.org
 jitsiDomain: meet.seagl.org
-# TODO room-specific version override, and make this v12
-defaultRoomVersion: "10"
+defaultRoomVersion: "12"
 timeZone: America/Los_Angeles
 avatars:
   conference-2025: mxc://seattlematrix.org/fJOlsPjqQQvLSOmryXBAjKQB
@@ -58,6 +57,7 @@ rooms:
       SeaGL, the Seattle GNU/Linux Conference
       · November 7ᵗʰ & 8ᵗʰ, 2025
       · #SeaGL2025
+    roomVersion: "11"
     children:
       - tag: seagl2025-announcements
         local: SeaGL2025-Announcements
@@ -116,6 +116,7 @@ rooms:
               Have a question? Not sure where to look? We'll point you in the right direction!
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
             suggested: true
+            roomVersion: "11"
           - tag: seagl2025-bot-help
             local: SeaGL2025-BotHelp
             name: Bot Help
