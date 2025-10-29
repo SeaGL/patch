@@ -55,7 +55,6 @@ steward:
 #   10: "@room-334:2025.seagl.org"
 #   11: "@room-340:2025.seagl.org"
 rooms:
-# TODO this tag is what it calls the permanent ID
   - tag: seagl2025
     local: SeaGL2025
     avatar: conference-2025
