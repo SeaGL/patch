@@ -48,12 +48,12 @@ steward:
 #aliasProxy:
   #homeserver: strugee.net
   #prefix: SeaGL2025-draft
-# TODO fix for prod
+# TODO provision these accounts for prod
 # roomAttendants:
-#   1: "@lyceum:2025.seagl.org"
-#   2: "@room-332:2025.seagl.org"
-#   3: "@room-334:2025.seagl.org"
-#   4: "@room-340:2025.seagl.org"
+#   8: "@room-145:2025.seagl.org"
+#   9: "@room-332:2025.seagl.org"
+#   10: "@room-334:2025.seagl.org"
+#   11: "@room-340:2025.seagl.org"
 rooms:
 # TODO this tag is what it calls the permanent ID
   - tag: seagl2025
@@ -308,15 +308,15 @@ sessions:
       - `!qa-clear`: Clear the list of questions
   # TODO
   widgets:
-    1: # Lyceum
+    8: # 145
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-1.html }
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-2-room-1.html }
-    2: # 332
+    9: # 332
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-2.html }
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-2-room-2.html }
-    3: # 334
+    10: # 334
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-3.html }
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-2-room-3.html }
-    4: # 340
+    11: # 340
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-1-room-4.html }
       - { name: Live Stream, custom: https://attend.seagl.org/widgets/day-2-room-4.html }
