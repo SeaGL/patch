@@ -1,9 +1,6 @@
-# TODO fix for prod
-homeserver: strugee.net
-# TODO deal with...?
+homeserver: seattlematrix.org
 jitsiDomain: meet.seagl.org
-# TODO room-specific version override, and make this v12
-defaultRoomVersion: "10"
+defaultRoomVersion: "12"
 timeZone: America/Los_Angeles
 avatars:
   conference-2025: mxc://seattlematrix.org/fJOlsPjqQQvLSOmryXBAjKQB
@@ -21,10 +18,9 @@ avatars:
 
   default: logo-headset
   room: symbol-location
-# TODO reenable for prod
-#inheritUserPowerLevels:
-#  "#staff:seagl.org":
-#    raiseTo: 50
+inheritUserPowerLevels:
+  "#staff:seagl.org":
+    raiseTo: 50
 powerLevels:
   events:
     m.room.avatar: 99
@@ -40,14 +36,12 @@ powerLevels:
   users:
     steward: 100
 steward:
-  # TODO update for prod
-  id: "@patch-test:strugee.net"
-  name: Patch (AJ test)
+  id: "@seagl-bot:seattlematrix.org"
+  name: Patch
   avatar: sticker-pointing
-# TODO restore for prod
-#aliasProxy:
-  #homeserver: strugee.net
-  #prefix: SeaGL2025-draft
+aliasProxy:
+  homeserver: seagl.org
+  prefix: SeaGL2025
 # TODO provision these accounts for prod
 # roomAttendants:
 #   8: "@room-145:2025.seagl.org"
@@ -58,8 +52,7 @@ rooms:
   - tag: seagl2025
     local: SeaGL2025
     avatar: conference-2025
-    # TODO fix for prod
-    name: SeaGL 2025 DRAFT
+    name: SeaGL 2025
     topic: >-
       SeaGL, the Seattle GNU/Linux Conference
       · November 7ᵗʰ & 8ᵗʰ, 2025
@@ -88,7 +81,7 @@ rooms:
           This the place to mingle and chat with other attendees at the conference, aka the "hallway track". Introduce yourself here, and then consider joining rooms for some of the sessions you're interested in!
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
-        # TODO bring back for prod
+        # TODO bring back when we have Jitsi set up
         # TODO do we need a welcome widget like the old Welcome room?
         #widget:
         #  name: Video Conference
@@ -122,6 +115,7 @@ rooms:
               Have a question? Not sure where to look? We'll point you in the right direction!
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
             suggested: true
+            roomVersion: "11"
           - tag: seagl2025-bot-help
             local: SeaGL2025-BotHelp
             name: Bot Help
