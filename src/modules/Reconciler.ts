@@ -267,7 +267,7 @@ export default class extends Module {
   }
 
   private getPowerLevels(inherited: PowerLevels["users"], room: Plan.Room): PowerLevels {
-    return {
+    const powerLevels = {
       ...this.plan.powerLevels,
       events: {
         ...this.plan.powerLevels.events,
@@ -285,6 +285,18 @@ export default class extends Module {
           ? { events_default: 99 }
           : {}),
     };
+
+    // XXX this roomVersion snippet is duplicated in room creation code, which is... icky
+    const roomVersion = room.roomVersion ?? this.plan.defaultRoomVersion;
+    // TODO: this conditional should also check that we're actually the room creator
+    // Also, a v11 child of a v12 space won't inherit properly using this code I think
+    if (Number.parseInt(roomVersion) > 11 && powerLevels.users.hasOwnProperty(this.plan.steward.id)) {
+	// XXX this appears twice per room in the logs
+        this.warn("🙈 Dropping steward power level directive, which is invalid starting in room version 12", { room: room.local });
+	delete powerLevels.users[this.plan.steward.id];
+    }
+
+    return powerLevels;
   }
 
   private async getRootMessage(room: RoomID, id: string): Promise<string> {
