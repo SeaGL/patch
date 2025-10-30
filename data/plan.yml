@@ -223,7 +223,7 @@ sessions:
     WDTPWZ: SeaGL2025-Hallway # Ada's book sale
     LTHRNX: SeaGL2025-Hallway # DiscoTech workshop
     DALKJT: SeaGL2025-Hallway # Ada's social
-  prefix: SeaGL2025-draft-
+  prefix: SeaGL2025-
   suffixes:
     3GKV8X: ObservabilityRoundup # Magical Mystery Tour: A Roundup of Observability Datastores
     3ZJJA3: DevelopingOnNextcloud # Developing on Nextcloud in 2025: What's New?
