@@ -57,7 +57,6 @@ rooms:
       SeaGL, the Seattle GNU/Linux Conference
       · November 7ᵗʰ & 8ᵗʰ, 2025
       · #SeaGL2025
-    roomVersion: "11"
     children:
       - tag: seagl2025-announcements
         local: SeaGL2025-Announcements
