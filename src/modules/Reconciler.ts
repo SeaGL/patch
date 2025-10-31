@@ -479,7 +479,15 @@ export default class extends Module {
     const actual = structuredClone(space.children[id]?.content);
     if (!include) return actual && (await this.removeFromSpace(space, child));
 
-    const expected = { order, suggested };
+    // TODO I just put [] here to get TypeScript to shut the fuck up about expected's type when we assign to via below
+    // (And then I *still* had to cast it away from never[]... there's gotta be a better way??)
+    const expected = { order, suggested, via: [] as string[] };
+
+    // `via` MUST have at least one value or the child is not considered part of the space,
+    // but room v12 changes the ID format that this split relies on.
+    // TODO is there any reason to not *always* just use this.plan.homeserver?
+    const via = [id.split(":", 2)[1] ?? this.plan.homeserver];
+    expected.via = via;
 
     if (actual) {
       let changed = false;
@@ -501,12 +509,8 @@ export default class extends Module {
         await space.addChildRoom(id, actual);
       }
     } else {
-      // `via` MUST have at least one value or the child is not considered part of the space,
-      // but room v12 changes the ID format that this split relies on.
-      // TODO is there any reason to not *always* just use this.plan.homeserver?
-      const via = [id.split(":", 2)[1] ?? this.plan.homeserver];
       this.info("🏘️ Add to space", { space: space.room.local, child: local, via });
-      await space.addChildRoom(id, { via, ...expected });
+      await space.addChildRoom(id, expected);
     }
     if (space.room.private) this.#publicSpaceByChild.delete(id);
     else if (!this.#publicSpaceByChild.has(id))
