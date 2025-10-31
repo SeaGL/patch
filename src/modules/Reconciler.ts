@@ -501,7 +501,10 @@ export default class extends Module {
         await space.addChildRoom(id, actual);
       }
     } else {
-      const via = optional(id.split(":", 2)[1]);
+      // `via` MUST have at least one value or the child is not considered part of the space,
+      // but room v12 changes the ID format that this split relies on.
+      // TODO is there any reason to not *always* just use this.plan.homeserver?
+      const via = [id.split(":", 2)[1] ?? this.plan.homeserver];
       this.info("🏘️ Add to space", { space: space.room.local, child: local, via });
       await space.addChildRoom(id, { via, ...expected });
     }
