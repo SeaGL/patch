@@ -81,11 +81,10 @@ rooms:
           This the place to mingle and chat with other attendees at the conference, aka the "hallway track". Introduce yourself here, and then consider joining rooms for some of the sessions you're interested in!
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
-        # TODO bring back when we have Jitsi set up
-        # TODO do we need a welcome widget like the old Welcome room?
-        #widget:
-        #  name: Video Conference
-        #  jitsi: { id: SeaGL2025_Social, name: SeaGL 2025 Social }
+        # TODO this is the social room now - how to integrate Jitsi??
+        widget:
+          name: Welcome to SeaGL 2025
+          custom: https://attend.seagl.org/widgets/seagl/hallway.html
       - tag: seagl2025-current-sessions
         local: SeaGL2025-CurrentSessions
         avatar: symbol-play
