@@ -300,17 +300,16 @@ sessions:
       - `!qa`: Show the list of questions
       - `!qa-asked <number>`: Mark a question as asked
       - `!qa-clear`: Clear the list of questions
-  # TODO add these back once their content is online
-  #widgets:
-  #  8: # 145
-  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-1.html }
-  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-1.html }
-  #  9: # 332
-  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-2.html }
-  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-2.html }
-  #  10: # 334
-  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-3.html }
-  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-3.html }
-  #  11: # 340
-  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-4.html }
-  #    - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-4.html }
+  widgets:
+   8: # 145
+     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-1.html }
+     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-1.html }
+   9: # 332
+     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-2.html }
+     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-2.html }
+   10: # 334
+     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-3.html }
+     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-3.html }
+   11: # 340
+     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-4.html }
+     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-4.html }
