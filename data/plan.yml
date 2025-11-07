@@ -78,6 +78,9 @@ rooms:
         intro: |
           # Hallway
           This the place to mingle and chat with other attendees at the conference, aka the "hallway track". Introduce yourself here, and then consider joining rooms for some of the sessions you're interested in!
+
+          [Video Call Social](https://meet.seagl.org/SeaGL2025_Social)
+
           Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
         suggested: true
         # TODO this is the social room now - how to integrate Jitsi??
