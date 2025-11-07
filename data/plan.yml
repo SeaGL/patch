@@ -42,12 +42,11 @@ steward:
 aliasProxy:
   homeserver: seagl.org
   prefix: SeaGL2025
-# TODO provision these accounts for prod
-# roomAttendants:
-#   8: "@room-145:2025.seagl.org"
-#   9: "@room-332:2025.seagl.org"
-#   10: "@room-334:2025.seagl.org"
-#   11: "@room-340:2025.seagl.org"
+roomAttendants:
+  8: "@room-145:2025.seagl.org"
+  9: "@room-332:2025.seagl.org"
+  10: "@room-334:2025.seagl.org"
+  11: "@room-340:2025.seagl.org"
 rooms:
   - tag: seagl2025
     local: SeaGL2025
