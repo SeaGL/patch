@@ -22,7 +22,7 @@
     "markdown-it": "^13.0.1",
     "matrix-bot-sdk": "^0.6.2",
     "node-fetch": "^3.2.10",
-    "tsafe": "^1.0.1",
+    "tsafe": "^1.6.0",
     "typia": "^3.3.6"
   },
   "devDependencies": {
