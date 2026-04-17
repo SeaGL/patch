@@ -190,7 +190,6 @@ rooms:
             topic: Control room for Patch
             private: true
             control: true
-          - "#audit:2025.seagl.org"
       - tag: seagl2025-upcoming-sessions
         local: SeaGL2025-UpcomingSessions
         avatar: symbol-clock
