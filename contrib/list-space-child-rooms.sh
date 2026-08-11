@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
+
+# This script will retrieve all *regular* rooms that are part of a space.
+# That means talk rooms and statically specified rooms (e.g. "Info Desk"),
+# but not rooms that are functioning as the root of a (sub)space.
+#
+# You get a stream of JSON objects that you can filter with jq. For example,
+# you might want to:
+#
+#     ./list-space-child-rooms.sh | jq .room_id | xargs -n 1 curl ...
+
 set -Eeuxo pipefail
 
 # Reference: https://spec.matrix.org/latest/client-server-api/
@@ -14,8 +24,7 @@ api() {
 root_space_id="$1"
 
 # Validate credentials
-# # TODO reenable
-#[[ "$(api get 'v3/account/whoami' | jq --raw-output '.user_id')" == '@seagl-bot:seattlematrix.org' ]]
+[[ "$(api get 'v3/account/whoami' | jq --raw-output '.user_id')" == '@seagl-bot:seattlematrix.org' ]]
 
 # Spits out sequences of JSON objects. jq handles this fine, as a stream of documents.
 recurse_paginate() {
