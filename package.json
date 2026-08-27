@@ -9,7 +9,7 @@
     "node": "18"
   },
   "dependencies": {
-    "@sentry/node": "^7.41.0",
+    "@sentry/node": "^7.51.2",
     "@sentry/tracing": "^7.41.0",
     "bottleneck": "^2.19.5",
     "deep-freeze-strict": "^1.1.1",
