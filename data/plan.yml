@@ -144,16 +144,6 @@ rooms:
               All SeaGL volunteers and staff also have this number.
 
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
-          - tag: seagl2026-sponsor-help
-            local: SeaGL2026-SponsorHelp
-            name: Sponsor Help
-            topic: >-
-              Are you a sponsor in need of assistance? Join here for help—and thank you!
-              · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
-            intro: |
-              # Sponsor Help
-              Are you a sponsor in need of assistance? Firstly, Thank You! How can we help?
-              Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
           - tag: seagl2026-volunteering
             local: SeaGL2026-Volunteering
             name: Volunteering
