@@ -1,8 +1,9 @@
 {
-  "extends": "@tsconfig/node18-strictest-esm/tsconfig.json",
+  "extends": ["@tsconfig/node22/tsconfig.json", "@tsconfig/strictest/tsconfig.json"],
 
   "compilerOptions": {
     "module": "esnext", // TS2821
+    "moduleResolution": "bundler",
     "outDir": "dist",
     "plugins": [{ "transform": "typia/lib/transform" }],
     "resolveJsonModule": true
