@@ -116,7 +116,6 @@ rooms:
               Have a question? Not sure where to look? We'll point you in the right direction!
               Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
             suggested: true
-            roomVersion: "11"
           - tag: seagl2025-bot-help
             local: SeaGL2025-BotHelp
             name: Bot Help
