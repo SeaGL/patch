@@ -13,7 +13,7 @@
     "@sentry/tracing": "^7.41.0",
     "bottleneck": "^2.19.5",
     "deep-freeze-strict": "^1.1.1",
-    "html-to-text": "^9.0.4",
+    "html-to-text": "^10.0.1",
     "js-yaml": "^4.1.0",
     "lodash.escape": "^4.0.1",
     "lodash.isequal": "^4.5.0",
