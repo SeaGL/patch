@@ -1,15 +1,15 @@
 import { readFileSync } from "fs";
 export { default as escapeHtml } from "lodash.escape";
-import { DEFAULT_SCHEMA, load, Type } from "js-yaml";
+import { CORE_SCHEMA, load, defineScalarTag } from "js-yaml";
 import MarkdownIt from "markdown-it";
 import _fetch from "node-fetch"; // Pending DefinitelyTyped/DefinitelyTyped#60924
 import { userAgent } from "./version.js";
 
 const md = new MarkdownIt();
-const schema = DEFAULT_SCHEMA.extend([
-  new Type("!md", {
-    kind: "scalar",
-    construct: (m) => md[m.includes("\n") ? "render" : "renderInline"](m),
+const schema = CORE_SCHEMA.withTags([
+  defineScalarTag("!md", {
+    resolve: (m) => md[m.includes("\n") ? "render" : "renderInline"](m),
+    identify: () => false,
   }),
 ]);
 
