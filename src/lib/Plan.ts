@@ -72,12 +72,25 @@ export type Plan = {
   timeZone: string;
 };
 
+const supportedRoomVersions = ["12"];
+
+const checkRoomVersion = (rooms: SessionGroupId | Plan.Child[]) => {
+  for (let room of rooms) {
+    if (typeof room === "string") return;
+
+    if (room.roomVersion && !supportedRoomVersions.includes(room.roomVersion)) {
+      throw new Error("Unsupported room version " + room.roomVersion);
+    }
+
+    if (room.children) checkRoomVersion(room.children);
+  }
+};
+
 export const parsePlan = (yaml: string): Plan => {
   const plan = assertEquals<Plan>(load(yaml));
 
-  const { users } = plan.powerLevels;
-  if (!(users?.["steward"] === 100)) throw new Error("Insufficient steward power level");
-  delete Object.assign(users, { [plan.steward.id]: users["steward"] })["steward"];
+  if (!supportedRoomVersions.includes(plan.defaultRoomVersion)) throw new Error("Unsupported default room version " + plan.defaultRoomVersion);
+  if (plan.rooms) checkRoomVersion(plan.rooms);
 
   return plan;
 };
