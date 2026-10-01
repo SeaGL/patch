@@ -34,8 +34,7 @@ powerLevels:
     m.room.tombstone: 99
     m.room.topic: 99
     m.space.child: 99
-  users:
-    steward: 100
+  users: {}
 steward:
   id: "@seagl-bot:seattlematrix.org"
   name: Patch
