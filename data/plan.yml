@@ -210,15 +210,59 @@ rooms:
 sessions:
   event: "2026"
   openEarly: 10 # minutes
-  # TODO: configure this once we have social rooms settled
-  # redirects:
-  #  B9BMJW: SeaGL2025-Hallway # Big Time Brewery social
-  #  WDTPWZ: SeaGL2025-Hallway # Ada's book sale
-  #  LTHRNX: SeaGL2025-Hallway # DiscoTech workshop
-  #  DALKJT: SeaGL2025-Hallway # Ada's social
+  redirects:
+    JTFWJK: SeaGL2026-FridayKeynotes # Building my own infrastructure when free is costing more than you think
+    HTMWCX: SeaGL2026-SaturdayKeynotes # Keynote: Bradley Kuhn
+    BLMHFL: SeaGL2026-Hallway # Social at Big Time Brewery
   prefix: SeaGL2026-
   suffixes:
-    # TODO
+    7KCHEN: KalpaDesktop # Kalpa Desktop, Trying to provide the best of both worlds?
+    7ML7A8: OffGridInterNeighborhoodNetworks # Off-Grid Inter-Neighborhood Networks
+    7QPE7N: ArtOfTheFork # Art of the Fork: Reclaiming Community Trust
+    97YMUS: Engineerspeak # Engineerspeak - Translation Skills Between Teams
+    9ARKBD: BuildingAMobileTUIEnvironment # Building a mobile TUI environment
+    9H9VZB: TransactionalSystemsInFedora # Transactional Systems in the Fedora Ecosystem
+    9WFVJB: PaintedWolfCode # Painted Wolf Code: Local-First AI Coding
+    AAER9Y: TowardsUnderstandableSoftware # Towards Understandable Software
+    ANUBN3: LearningAnAncientLanguage # Learning an Ancient Language with an Ancient Text Editor
+    DEKVE9: EWasteToEmpowerment # From E-Waste to Empowerment: The Story of The Computer Upcycle Project
+    ELD8HD: Mapbattle # Mapbattle: how RTM is building a community around OSM
+    FPTRLD: NetworkInfrastructureAt10KSnapshottedVMScale # Network Infrastructure at 10K+ Snapshotted VM Scale
+    GJUD9U: ScanMyBrainrot # Scan My Brainrot
+    GQZEUY: TheSmallWebIsHuge # The Small Web Is Huge
+    HANBXQ: RefiningTheLinuxElevatorPitch # Refining the Linux Elevator Pitch
+    J3DHQX: SaturdayKeynotes # Keynote: Luis Felipe R. Murillo
+    L9SWK7: DeferredCompilationBasisForADistribution # Deferred Compilation as the Basis for a Linux Distribution
+    LXPAAJ: SignetHardwarePasswordManager # Signet Hardware Password Manager
+    LYXQ8H: DebianGUISince2003 # Using Debian-Linux Desktop GUI since 2003: a user tour
+    MAJNGL: SovereignAI # Sovereign AI: Running Useful, Self-Hosted Agents on Modest Hardware
+    NBZRNK: MastodonFediverseBeginnersGuide # A Beginner's Guide To Mastodon And The Fediverse!
+    P7BGWG: WhyLinuxReleasesTakeSoLong # Linux’s secret sauce. Why Linux Releases Take So Long.
+    PAPGUT: AsciiDoc # AsciiDoc: plain text for fancy output
+    PQ9AJ7: ParanoidsGuideSelfHostingUsingNspawn # A Paranoid’s Guide to Resource Efficient Self Hosting using nspawn
+    PY7UXH: ShareTheDeadEndsToo # Share the dead ends too: a hands on argument for sharing your failures
+    Q7WBAS: ChoosingADistro # Choosing a Distro
+    QASBMG: 2026FLOSSResearchRoundup # Today I learned....  The 2026 FLOSS Research Roundup
+    RLWVJU: PrivacyFirstAILearningInYourHomelab # Privacy-First AI Learning in Your Own Homelab
+    RZGP8K: SecurityShootout # Security shoot-out: LTS vs regular release systems
+    S3AADB: AlternateTechnologicalFutures # Alternate Technological Futures; What We Sacrifice at the Altar of AI
+    SG7B3F: FunctionalProgramming101 # Functional Programming 101
+    # TODO destroy old alias room
+    TGRTZU: FridayKeynotes # The mv Command Doesn't Move Things & Other Stuff New Users Don't Know
+    TUEC9T: WhatIsAFlightComputer # What is a flight computer, anyway?
+    UC3VVG: BadgeFed # BadgeFed: Open, Decentralized Badges via ActivityPub
+    UFFNQ9: InvisibleNewcomer # The Invisible Newcomer: Rebuilding OSS Governance post AI
+    V7RKJW: StarterFinisher # Be a Starter, Not a Finisher: For Yourself and For the World
+    V7VWRF: TricycleRidersToMuscleCarDrivers # Tricycle Riders to Muscle Car Drivers: Tech Docs for Everyone
+    VECMJR: SimpleScalablePrivacy # Simple Scalable Privacy: Unleashing OpenWRT, Pi-hole, Unbound, & Bind9
+    VWDXGN: BeginnersGuideToManPages # Beyond --help: A Beginner's Guide to Man Pages
+    WADZHG: ChasingPerfection # Chasing perfection: websites that pass all the tests
+    WPLG8R: ContributingToOpenHospital # Contributing to OpenHospital: A Team's First Open Source Experience
+    WTMAS8: BootstrappingSparrowOnPOWER9 # Bootstrapping Sparrow on POWER9 with GNU Guix
+    WZLRPK: DubiousComputersBadColocation # Dubious Computers in Bad Colocation
+    X9BRZY: OpensourceKubernetesOperators # Building Production Environments with open-source Kubernetes Operators
+    Y8SEUY: CustomerDiscoveryInterviewsDemo # A live interactive demo of customer discovery interviews
+    ZBH9WX: ToolAssistedSpeech # Tool-Assisted Speech: DIY Speech Synth for AAC and Affirmation
 
   topic: >-
     The session details link can be found as the first post of the channel
