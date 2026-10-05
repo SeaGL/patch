@@ -3,8 +3,7 @@ jitsiDomain: meet.seagl.org
 defaultRoomVersion: "12"
 timeZone: America/Los_Angeles
 avatars:
-  # TODO upload a 2026 version
-  conference-2026: mxc://seattlematrix.org/fJOlsPjqQQvLSOmryXBAjKQB
+  conference-2026: mxc://seattlematrix.org/ypAgvAvVjkndAKzpbUAgvxhu
   logo-headset: mxc://seattlematrix.org/KYhSbbzRiKcPHYxBsowvvQgJ
   sticker-pointing: mxc://seattlematrix.org/HdtuUcOVpqBKkjYnNWqLWYRx
   symbol-archive: mxc://seattlematrix.org/xFlDeCKMhUiwUvZtIrPMYJTu
