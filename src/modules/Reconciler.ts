@@ -911,8 +911,8 @@ export default class extends Module {
         title: session.title,
         url: session.url,
       };
-      const intro = populate(values, plan.intro);
-      const topic = populate(values, plan.topic);
+      const intro = plan.customIntro?.[session.id] ?? populate(values, plan.intro);
+      const topic = plan.customTopic?.[session.id] ?? populate(values, plan.topic);
       const widget =
         scheduled && !redirect
           ? plan.widgets?.[scheduled.roomId]?.[scheduled.day]
@@ -932,7 +932,7 @@ export default class extends Module {
                 ]
               : ["Not scheduled"]),
             "·",
-            session.title,
+            plan.customName?.[session.id] || session.title,
           ].join(" "),
           tag: `pretalx-talk-${session.id}`,
           ...(intro ? { intro } : {}),
