@@ -39,6 +39,9 @@ export namespace Plan {
   export type Child = Room | string;
 
   export interface Sessions {
+    customIntro?: Record<string, string>;
+    customName?: Record<string, string>;
+    customTopic?: Record<string, string>;
     demo?: string;
     event: string;
     ignore?: string[];
