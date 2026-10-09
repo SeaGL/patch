@@ -258,6 +258,13 @@ sessions:
         - `!qa`: Show the list of questions
         - `!qa-asked <number>`: Mark a question as asked
         - `!qa-clear`: Clear the list of questions
+  customTopic:
+    J3DHQX: >-
+      Both keynotes' details links can be found as the first post of the channel
+      · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
+    TGRTZU: >-
+      Both keynotes' details links can be found as the first post of the channel
+      · Please note, the SeaGL Code of Conduct is in effect in all conference spaces.
   suffixes:
     7KCHEN: KalpaDesktop # Kalpa Desktop, Trying to provide the best of both worlds?
     7ML7A8: OffGridInterNeighborhoodNetworks # Off-Grid Inter-Neighborhood Networks
