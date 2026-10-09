@@ -209,10 +209,55 @@ sessions:
   event: "2026"
   openEarly: 10 # minutes
   redirects:
-    JTFWJK: SeaGL2026-FridayKeynotes # Building my own infrastructure when free is costing more than you think
-    HTMWCX: SeaGL2026-SaturdayKeynotes # Keynote: Bradley Kuhn
     BLMHFL: SeaGL2026-Hallway # Social at Big Time Brewery
+  ignore:
+    # Don't create rooms for the *second* keynote each day
+    - JTFWJK # Building my own infrastructure when free is costing more than you think
+    - HTMWCX # Keynote: Bradley Kuhn
   prefix: SeaGL2026-
+  customName:
+    J3DHQX: Saturday Keynotes
+    TGRTZU: Friday Keynotes
+  customIntro:
+    J3DHQX: |
+      # Saturday Keynotes
+      Keynote by Luis Felipe R. Murillo: https://pretalx.seagl.org/2026/talk/J3DHQX/
+
+      Keynote by Bradley Kuhn: https://pretalx.seagl.org/2026/talk/HTMWCX/
+
+      Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+
+      ## Q & A commands
+
+      Attendees:
+
+        - `!ask <question>`: Add a question to the list
+
+      Moderator:
+
+        - `!qa`: Show the list of questions
+        - `!qa-asked <number>`: Mark a question as asked
+        - `!qa-clear`: Clear the list of questions
+    TGRTZU: |
+      # Friday Keynotes
+
+      "The mv Command Doesn't Move Things & Other Stuff New Users Don't Know" by Toby Betts: https://pretalx.seagl.org/2026/talk/TGRTZU/
+
+      "Building my own infrastructure when free is costing more than you think" by Mariatta: https://pretalx.seagl.org/2026/talk/JTFWJK/
+
+      Please note, the SeaGL [Code of Conduct](https://seagl.org/code_of_conduct) is in effect here and all conference spaces.
+
+      ## Q & A commands
+
+      Attendees:
+
+        - `!ask <question>`: Add a question to the list
+
+      Moderator:
+
+        - `!qa`: Show the list of questions
+        - `!qa-asked <number>`: Mark a question as asked
+        - `!qa-clear`: Clear the list of questions
   suffixes:
     7KCHEN: KalpaDesktop # Kalpa Desktop, Trying to provide the best of both worlds?
     7ML7A8: OffGridInterNeighborhoodNetworks # Off-Grid Inter-Neighborhood Networks
