@@ -245,7 +245,6 @@ sessions:
     RZGP8K: SecurityShootout # Security shoot-out: LTS vs regular release systems
     S3AADB: AlternateTechnologicalFutures # Alternate Technological Futures; What We Sacrifice at the Altar of AI
     SG7B3F: FunctionalProgramming101 # Functional Programming 101
-    # TODO destroy old alias room
     TGRTZU: FridayKeynotes # The mv Command Doesn't Move Things & Other Stuff New Users Don't Know
     TUEC9T: WhatIsAFlightComputer # What is a flight computer, anyway?
     UC3VVG: BadgeFed # BadgeFed: Open, Decentralized Badges via ActivityPub
