@@ -86,7 +86,7 @@ rooms:
         # TODO this is the social room now - how to integrate Jitsi??
         widget:
           name: Welcome to SeaGL 2026
-          custom: https://attend.seagl.org/widgets/seagl/hallway.html
+          custom: https://seagl.org/matrix-widgets/2026/hallway
       - tag: seagl2026-current-sessions
         local: SeaGL2026-CurrentSessions
         avatar: symbol-play
@@ -335,13 +335,13 @@ sessions:
       - `!qa-asked <number>`: Mark a question as asked
       - `!qa-clear`: Clear the list of questions
   widgets:
-   # TODO double-check these URLs
+   # TODO do we need two each?
    15: # 250
-     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-1.html }
-     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-1.html }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/15.html }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/15.html }
    14: # 332
-     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-2.html }
-     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-2.html }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/14.html }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/14.html }
    50: # 340
-     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-1-room-3.html }
-     - { name: Live Stream, custom: https://attend.seagl.org/widgets/seagl/day-2-room-3.html }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/50.html }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/50.html }
