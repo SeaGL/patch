@@ -911,8 +911,8 @@ export default class extends Module {
         title: session.title,
         url: session.url,
       };
-      const intro = plan.customIntro?.[session.id] ?? populate(values, plan.intro);
-      const topic = plan.customTopic?.[session.id] ?? populate(values, plan.topic);
+      const intro = populate(values, plan.customIntro?.[session.id] ?? plan.intro);
+      const topic = populate(values, plan.customTopic?.[session.id] ?? plan.topic);
       const widget =
         scheduled && !redirect
           ? plan.widgets?.[scheduled.roomId]?.[scheduled.day]
