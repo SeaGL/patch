@@ -337,11 +337,11 @@ sessions:
   widgets:
    # TODO do we need two each?
    15: # 250
-     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/15 }
-     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/15 }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/room-15 }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/room-15 }
    14: # 332
-     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/14 }
-     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/14 }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/room-14 }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/room-14 }
    50: # 340
-     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/50 }
-     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/50 }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/room-50 }
+     - { name: Live Stream, custom: https://seagl.org/matrix-widgets/2026/room-50 }
