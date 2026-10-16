@@ -84,6 +84,7 @@ export type TagEvent = IStateEvent<"org.seagl.patch.tag", { tag?: string }>;
 
 const jitsiUrl =
   "https://app.element.io/jitsi.html?confId=$conferenceId#conferenceDomain=$domain&conferenceId=$conferenceId&displayName=$matrix_display_name&avatarUrl=$matrix_avatar_url&userId=$matrix_user_id&roomId=$matrix_room_id&theme=$theme&roomName=$roomName";
+const readableRoomVersions = new Set(["7", "8", "9", "10", "11", "12"]);
 const reconcilePeriod = Duration.fromObject({ hours: 1 });
 const widgetLayout = {
   widgets: { "org.seagl.patch": { container: "top", height: 25, width: 100, index: 0 } },
@@ -220,8 +221,10 @@ export default class extends Module {
 
     for (const [room, { raiseTo = 0 }] of Object.entries(plan)) {
       const id = await this.matrix.resolveRoom(room);
+      const version = await this.getRoomVersion({ id, local: room });
 
-      await this.getRoomVersion({ id, local: room }); // Emit warning if unrecognized
+      if (!readableRoomVersions.has(version))
+        this.warn("🛡️ Inheriting from unsupported room version", { room, version });
 
       this.debug("🛡️ Get power levels", { room });
       const { users: explicit = {}, users_default: defaultLevel = 0 } = expect(
@@ -239,7 +242,8 @@ export default class extends Module {
           .map((m) => [m.membershipFor, defaultLevel]),
       );
 
-      this.debug("🛡️ Inherit user power levels", { room, explicit, implicit, raiseTo });
+      const debug = { room, version, explicit, implicit, raiseTo };
+      this.debug("🛡️ Inherit user power levels", debug);
       for (const [user, level] of Object.entries({ ...implicit, ...explicit }))
         users[user] = Math.min(99, Math.max(users[user] ?? 0, level, raiseTo));
     }
@@ -305,12 +309,7 @@ export default class extends Module {
       room.id,
       "m.room.create",
     );
-    const version = create?.room_version ?? "1";
-
-    if (!is<RoomVersion>(version))
-      this.warn("🏠 Unrecognized room version", { room: room.local, version });
-
-    return version;
+    return create?.room_version ?? "1";
   }
 
   private async getRootMessage(room: RoomID, id: string): Promise<string> {
@@ -866,6 +865,9 @@ export default class extends Module {
 
   private async reconcileRoomVersion(room: RoomID, expected: RoomVersion) {
     const actual = await this.getRoomVersion(room);
+
+    if (!is<RoomVersion>(actual))
+      this.warn("🏠 Unrecognized room version", { room: room.local, version: actual });
 
     if (actual !== expected)
       this.warn("🏠 Room upgrade required", { room: room.local, expected, actual });
