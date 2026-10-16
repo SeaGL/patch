@@ -794,7 +794,6 @@ export default class extends Module {
 
       if (!created) {
         await this.reconcileTag(room);
-        await this.reconcileAlias(room, this.localToAlias(expected.local));
         await this.reconcilePowerLevels(inheritedUsers, room);
         await this.reconcilePrivacy(room, parent);
         await this.reconcileAvatar(room);
@@ -802,6 +801,7 @@ export default class extends Module {
         await this.reconcileTopic(room);
       }
 
+      await this.reconcileAlias(room, this.localToAlias(expected.local));
       await this.reconcileWidget(room);
       await this.reconcileIntro(room);
       await this.reconcileRedirect(room);
