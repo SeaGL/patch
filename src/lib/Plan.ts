@@ -2,7 +2,7 @@ import { load } from "js-yaml";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import { assertEquals } from "typia";
 
-type RoomVersion = "12";
+export type RoomVersion = "12";
 
 export type SessionGroupId =
   | "CURRENT_SESSIONS"

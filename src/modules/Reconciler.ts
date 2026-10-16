@@ -10,6 +10,7 @@ import type {
 } from "matrix-bot-sdk";
 import MarkdownIt from "markdown-it";
 import { assert, Equals } from "tsafe";
+import { is } from "typia";
 import type Client from "../lib/Client.js";
 import type { RoomCreateOptions } from "../lib/Client.js";
 import {
@@ -23,7 +24,7 @@ import {
   StateEventInput,
 } from "../lib/matrix.js";
 import Module from "../lib/Module.js";
-import type { Plan, SessionGroupId } from "../lib/Plan.js";
+import type { Plan, RoomVersion, SessionGroupId } from "../lib/Plan.js";
 import * as Pretalx from "../lib/Pretalx.js";
 import type { Scheduled } from "../lib/scheduling.js";
 import {
@@ -220,6 +221,8 @@ export default class extends Module {
     for (const [room, { raiseTo = 0 }] of Object.entries(plan)) {
       const id = await this.matrix.resolveRoom(room);
 
+      await this.getRoomVersion({ id, local: room }); // Emit warning if unrecognized
+
       this.debug("🛡️ Get power levels", { room });
       const { users: explicit = {}, users_default: defaultLevel = 0 } = expect(
         await this.matrix.getRoomStateEvent<StateEvent<"m.room.power_levels">>(
@@ -285,6 +288,20 @@ export default class extends Module {
           ? { events_default: 99 }
           : {}),
     };
+  }
+
+  private async getRoomVersion(room: RoomID): Promise<string> {
+    this.debug("🏠 Get room version", { room: room.local });
+    const create = await this.matrix.getRoomStateEvent<StateEvent<"m.room.create">>(
+      room.id,
+      "m.room.create",
+    );
+    const version = create?.room_version ?? "1";
+
+    if (!is<RoomVersion>(version))
+      this.warn("🏠 Unrecognized room version", { room: room.local, version });
+
+    return version;
   }
 
   private async getRootMessage(room: RoomID, id: string): Promise<string> {
@@ -794,6 +811,10 @@ export default class extends Module {
 
       if (!created) {
         await this.reconcileTag(room);
+        await this.reconcileRoomVersion(
+          room,
+          expected.roomVersion ?? this.plan.defaultRoomVersion,
+        );
         await this.reconcilePowerLevels(inheritedUsers, room);
         await this.reconcilePrivacy(room, parent);
         await this.reconcileAvatar(room);
@@ -832,6 +853,13 @@ export default class extends Module {
     }
 
     return room;
+  }
+
+  private async reconcileRoomVersion(room: RoomID, expected: RoomVersion) {
+    const actual = await this.getRoomVersion(room);
+
+    if (actual !== expected)
+      this.warn("🏠 Room upgrade required", { room: room.local, expected, actual });
   }
 
   private async reconcileRooms(
