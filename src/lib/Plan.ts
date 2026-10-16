@@ -2,6 +2,8 @@ import { load } from "js-yaml";
 import type { PowerLevelsEventContent as PowerLevels } from "matrix-bot-sdk";
 import { assertEquals } from "typia";
 
+export type RoomVersion = "12";
+
 export type SessionGroupId =
   | "CURRENT_SESSIONS"
   | "FUTURE_SESSIONS"
@@ -29,7 +31,7 @@ export namespace Plan {
     private?: boolean;
     readOnly?: boolean;
     redirect?: string;
-    roomVersion?: string;
+    roomVersion?: RoomVersion;
     suggested?: boolean;
     tag?: string;
     topic?: string;
@@ -63,7 +65,7 @@ export namespace Plan {
 export type Plan = {
   aliasProxy?: Plan.AliasProxy;
   avatars: Record<string, string>;
-  defaultRoomVersion: string;
+  defaultRoomVersion: RoomVersion;
   homeserver: string;
   inheritUserPowerLevels?: Plan.InheritUserPowerLevels;
   jitsiDomain: string;
@@ -75,25 +77,6 @@ export type Plan = {
   timeZone: string;
 };
 
-const supportedRoomVersions = ["12"];
-
-const checkRoomVersion = (rooms: SessionGroupId | Plan.Child[]) => {
-  for (let room of rooms) {
-    if (typeof room === "string") return;
-
-    if (room.roomVersion && !supportedRoomVersions.includes(room.roomVersion)) {
-      throw new Error("Unsupported room version " + room.roomVersion);
-    }
-
-    if (room.children) checkRoomVersion(room.children);
-  }
-};
-
 export const parsePlan = (yaml: string): Plan => {
-  const plan = assertEquals<Plan>(load(yaml));
-
-  if (!supportedRoomVersions.includes(plan.defaultRoomVersion)) throw new Error("Unsupported default room version " + plan.defaultRoomVersion);
-  if (plan.rooms) checkRoomVersion(plan.rooms);
-
-  return plan;
+  return assertEquals<Plan>(load(yaml));
 };

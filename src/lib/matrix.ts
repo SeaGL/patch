@@ -75,6 +75,7 @@ export type StateEvent<T = unknown> = (
     >
   | IStateEvent<"m.room.avatar", { url: string }>
   | IStateEvent<"m.room.canonical_alias", { alias: string; alt_aliases?: string[] }>
+  | IStateEvent<"m.room.create", { room_version?: string }>
   | IStateEvent<"m.room.guest_access", { guest_access: "can_join" | "forbidden" }>
   | IStateEvent<
       "m.room.history_visibility",
