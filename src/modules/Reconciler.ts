@@ -155,7 +155,7 @@ export default class extends Module {
       if (this.plan.rooms) await this.reconcileRooms(inheritedUsers, this.plan.rooms);
       if (this.plan.sessions)
         await this.reconcileSessions(this.plan.sessions, inheritedUsers, now);
-      this.debug("🔃 Completed reconciliation");
+      this.info("🔃 Completed reconciliation");
     });
   }
 
