@@ -270,6 +270,18 @@ export default class extends Module {
   }
 
   private getPowerLevels(inherited: PowerLevels["users"], room: Plan.Room): PowerLevels {
+    const users = { ...inherited, ...this.plan.powerLevels.users };
+
+    const version = room.roomVersion ?? this.plan.defaultRoomVersion;
+    switch (version) {
+      case "12":
+        // Creator has infinite power and must not be specified
+        delete users[this.plan.steward.id];
+        break;
+      default:
+        unimplemented(version satisfies never);
+    }
+
     return {
       ...this.plan.powerLevels,
       events: {
@@ -278,10 +290,7 @@ export default class extends Module {
           ? { "im.vector.modular.widgets": 99, "io.element.widgets.layout": 99 }
           : {}),
       },
-      users: {
-        ...inherited,
-        ...this.plan.powerLevels.users,
-      },
+      users,
       ...(room.moderatorsOnly
         ? { events_default: 50 }
         : room.readOnly || room.redirect
