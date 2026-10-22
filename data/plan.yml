@@ -41,12 +41,10 @@ steward:
 aliasProxy:
   homeserver: seagl.org
   prefix: SeaGL2026
-# TODO bring this back when we create these accounts
-# roomAttendants:
-#   8: "@room-145:2026.seagl.org"
-#   9: "@room-332:2026.seagl.org"
-#   10: "@room-334:2026.seagl.org"
-#   11: "@room-340:2026.seagl.org"
+roomAttendants:
+  15: "@room-250:2026.seagl.org"
+  14: "@room-332:2026.seagl.org"
+  50: "@room-340:2026.seagl.org"
 rooms:
   - tag: seagl2026
     local: SeaGL2026
