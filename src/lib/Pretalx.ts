@@ -71,18 +71,6 @@ export const getTalks = async (event: string): Promise<Talk[]> => {
       });
     }
 
-  // XXX revert this code please, obviously
-  try {
-    for (const talk of talks) {
-      // @ts-ignore
-      if (talk.id === "TGRTZU") talk.scheduled.end = talks.filter(t => t.id === "JTFWJK")[0].scheduled.end;
-      // @ts-ignore
-      if (talk.id === "J3DHQX") talk.scheduled.end = talks.filter(t => t.id === "HTMWCX")[0].scheduled.end;
-    }
-  } catch (error) {
-    console.error("Failed to patch pretalx talks", error);
-  }
-
   return talks;
 };
 
