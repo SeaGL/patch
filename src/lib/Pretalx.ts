@@ -71,14 +71,6 @@ export const getTalks = async (event: string): Promise<Talk[]> => {
       });
     }
 
-  // XXX revert this code please, obviously
-  for (const talk of talks) {
-    // @ts-ignore
-    if (talk.id === "TGRTZU") talk.scheduled.end = talks.filter(t => t.id === "JTFWJK")[0].scheduled.end;
-    // @ts-ignore
-    if (talk.id === "J3DHQX") talk.scheduled.end = talks.filter(t => t.id === "HTMWCX")[0].scheduled.end;
-  }
-
   return talks;
 };
 
